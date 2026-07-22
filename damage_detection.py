@@ -470,21 +470,95 @@ def analyze_phone_damage(image):
     }
     return damage_result, scratch_mask, crack_mask
 
+def _resize_mask_to_image(mask, image_np):
+    """Resize a binary mask to match the displayed image dimensions."""
+    image_height, image_width = image_np.shape[:2]
+
+    if mask is None:
+        return np.zeros((image_height, image_width), dtype=np.uint8)
+
+    mask = np.asarray(mask)
+
+    if mask.ndim == 3:
+        mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+
+    if mask.shape[:2] != (image_height, image_width):
+        mask = cv2.resize(
+            mask.astype(np.uint8),
+            (image_width, image_height),
+            interpolation=cv2.INTER_NEAREST,
+        )
+
+    return (mask > 0).astype(np.uint8) * 255
+
+
 def get_scratch_overlay(image, scratch_mask):
     image_np = np.array(image.convert("RGB"))
+
+    scratch_mask = _resize_mask_to_image(
+        scratch_mask,
+        image_np,
+    )
+
     highlight = image_np.copy()
     highlight[scratch_mask > 0] = [255, 220, 0]
-    blended = cv2.addWeighted(image_np, 0.65, highlight, 0.35, 0)
-    contours, _ = cv2.findContours(scratch_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    cv2.drawContours(blended, contours, -1, (255, 140, 0), 1)
+
+    blended = cv2.addWeighted(
+        image_np,
+        0.65,
+        highlight,
+        0.35,
+        0,
+    )
+
+    contours, _ = cv2.findContours(
+        scratch_mask,
+        cv2.RETR_EXTERNAL,
+        cv2.CHAIN_APPROX_SIMPLE,
+    )
+
+    cv2.drawContours(
+        blended,
+        contours,
+        -1,
+        (255, 140, 0),
+        2,
+    )
+
     return Image.fromarray(blended)
 
 
 def get_crack_overlay(image, crack_mask):
     image_np = np.array(image.convert("RGB"))
+
+    crack_mask = _resize_mask_to_image(
+        crack_mask,
+        image_np,
+    )
+
     highlight = image_np.copy()
     highlight[crack_mask > 0] = [255, 50, 50]
-    blended = cv2.addWeighted(image_np, 0.60, highlight, 0.40, 0)
-    contours, _ = cv2.findContours(crack_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    cv2.drawContours(blended, contours, -1, (220, 0, 0), 2)
+
+    blended = cv2.addWeighted(
+        image_np,
+        0.60,
+        highlight,
+        0.40,
+        0,
+    )
+
+    contours, _ = cv2.findContours(
+        crack_mask,
+        cv2.RETR_EXTERNAL,
+        cv2.CHAIN_APPROX_SIMPLE,
+    )
+
+    cv2.drawContours(
+        blended,
+        contours,
+        -1,
+        (220, 0, 0),
+        2,
+    )
+
     return Image.fromarray(blended)
