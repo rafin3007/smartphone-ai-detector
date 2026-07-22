@@ -1,0 +1,206 @@
+{
+  "iphone_14": {
+    "brand": "Apple",
+    "model": "iPhone 14",
+    "release_year": 2022,
+    "operating_system": "iOS",
+    "display": {
+      "size_inches": 6.1,
+      "type": "Super Retina XDR OLED",
+      "resolution": "1170 x 2532",
+      "refresh_rate_hz": 60
+    },
+    "chipset": "Apple A15 Bionic",
+    "ram_gb": 6,
+    "storage_options_gb": [
+      128,
+      256,
+      512
+    ],
+    "rear_camera": "12 MP wide + 12 MP ultrawide",
+    "front_camera": "12 MP",
+    "battery": {
+      "capacity_mah": 3279,
+      "charging": "Wired and MagSafe wireless charging"
+    },
+    "dimensions_mm": "146.7 x 71.5 x 7.8",
+    "weight_g": 172,
+    "network": "5G",
+    "water_resistance": "IP68"
+  },
+  "iphone_14_pro_max": {
+    "brand": "Apple",
+    "model": "iPhone 14 Pro Max",
+    "release_year": 2022,
+    "operating_system": "iOS",
+    "display": {
+      "size_inches": 6.7,
+      "type": "LTPO Super Retina XDR OLED",
+      "resolution": "1290 x 2796",
+      "refresh_rate_hz": 120
+    },
+    "chipset": "Apple A16 Bionic",
+    "ram_gb": 6,
+    "storage_options_gb": [
+      128,
+      256,
+      512,
+      1024
+    ],
+    "rear_camera": "48 MP wide + 12 MP ultrawide + 12 MP telephoto",
+    "front_camera": "12 MP",
+    "battery": {
+      "capacity_mah": 4323,
+      "charging": "Wired and MagSafe wireless charging"
+    },
+    "dimensions_mm": "160.7 x 77.6 x 7.9",
+    "weight_g": 240,
+    "network": "5G",
+    "water_resistance": "IP68"
+  },
+  "iphone_15_pro": {
+    "brand": "Apple",
+    "model": "iPhone 15 Pro",
+    "release_year": 2023,
+    "operating_system": "iOS",
+    "display": {
+      "size_inches": 6.1,
+      "type": "LTPO Super Retina XDR OLED",
+      "resolution": "1179 x 2556",
+      "refresh_rate_hz": 120
+    },
+    "chipset": "Apple A17 Pro",
+    "ram_gb": 8,
+    "storage_options_gb": [
+      128,
+      256,
+      512,
+      1024
+    ],
+    "rear_camera": "48 MP wide + 12 MP ultrawide + 12 MP telephoto",
+    "front_camera": "12 MP",
+    "battery": {
+      "capacity_mah": 3274,
+      "charging": "USB-C wired and MagSafe wireless charging"
+    },
+    "dimensions_mm": "146.6 x 70.6 x 8.25",
+    "weight_g": 187,
+    "network": "5G",
+    "water_resistance": "IP68"
+  },
+  "iphone_15_pro_max": {
+    "brand": "Apple",
+    "model": "iPhone 15 Pro Max",
+    "release_year": 2023,
+    "operating_system": "iOS",
+    "display": {
+      "size_inches": 6.7,
+      "type": "LTPO Super Retina XDR OLED",
+      "resolution": "1290 x 2796",
+      "refresh_rate_hz": 120
+    },
+    "chipset": "Apple A17 Pro",
+    "ram_gb": 8,
+    "storage_options_gb": [
+      256,
+      512,
+      1024
+    ],
+    "rear_camera": "48 MP wide + 12 MP ultrawide + 12 MP 5x telephoto",
+    "front_camera": "12 MP",
+    "battery": {
+      "capacity_mah": 4441,
+      "charging": "USB-C wired and MagSafe wireless charging"
+    },
+    "dimensions_mm": "159.9 x 76.7 x 8.25",
+    "weight_g": 221,
+    "network": "5G",
+    "water_resistance": "IP68"
+  },
+  "s24_ultra": {
+    "brand": "Samsung",
+    "model": "Galaxy S24 Ultra",
+    "release_year": 2024,
+    "operating_system": "Android",
+    "display": {
+      "size_inches": 6.8,
+      "type": "Dynamic LTPO AMOLED 2X",
+      "resolution": "1440 x 3120",
+      "refresh_rate_hz": 120
+    },
+    "chipset": "Snapdragon 8 Gen 3 for Galaxy",
+    "ram_gb": 12,
+    "storage_options_gb": [
+      256,
+      512,
+      1024
+    ],
+    "rear_camera": "200 MP wide + 50 MP periscope telephoto + 10 MP telephoto + 12 MP ultrawide",
+    "front_camera": "12 MP",
+    "battery": {
+      "capacity_mah": 5000,
+      "charging": "45 W wired and wireless charging"
+    },
+    "dimensions_mm": "162.3 x 79.0 x 8.6",
+    "weight_g": 232,
+    "network": "5G",
+    "water_resistance": "IP68"
+  },
+  "s25_ultra": {
+    "brand": "Samsung",
+    "model": "Galaxy S25 Ultra",
+    "release_year": 2025,
+    "operating_system": "Android",
+    "display": {
+      "size_inches": 6.9,
+      "type": "Dynamic LTPO AMOLED 2X",
+      "resolution": "1440 x 3120",
+      "refresh_rate_hz": 120
+    },
+    "chipset": "Snapdragon 8 Elite for Galaxy",
+    "ram_gb": 12,
+    "storage_options_gb": [
+      256,
+      512,
+      1024
+    ],
+    "rear_camera": "200 MP wide + 50 MP periscope telephoto + 10 MP telephoto + 50 MP ultrawide",
+    "front_camera": "12 MP",
+    "battery": {
+      "capacity_mah": 5000,
+      "charging": "45 W wired and wireless charging"
+    },
+    "dimensions_mm": "162.8 x 77.6 x 8.2",
+    "weight_g": 218,
+    "network": "5G",
+    "water_resistance": "IP68"
+  },
+  "s25_edge": {
+    "brand": "Samsung",
+    "model": "Galaxy S25 Edge",
+    "release_year": 2025,
+    "operating_system": "Android",
+    "display": {
+      "size_inches": 6.7,
+      "type": "Dynamic LTPO AMOLED 2X",
+      "resolution": "1440 x 3120",
+      "refresh_rate_hz": 120
+    },
+    "chipset": "Snapdragon 8 Elite for Galaxy",
+    "ram_gb": 12,
+    "storage_options_gb": [
+      256,
+      512
+    ],
+    "rear_camera": "200 MP wide + 12 MP ultrawide",
+    "front_camera": "12 MP",
+    "battery": {
+      "capacity_mah": 3900,
+      "charging": "25 W wired and wireless charging"
+    },
+    "dimensions_mm": "158.2 x 75.6 x 5.8",
+    "weight_g": 163,
+    "network": "5G",
+    "water_resistance": "IP68"
+  }
+}

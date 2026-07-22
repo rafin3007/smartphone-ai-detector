@@ -1,0 +1,1 @@
+Copy Smartphone_Classifier_Project/checkpoints/best_model.pth into this folder.

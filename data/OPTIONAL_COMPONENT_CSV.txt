@@ -1,0 +1,1 @@
+Optionally copy smartphone_components_summary.csv into this folder.
