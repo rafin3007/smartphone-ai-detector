@@ -38,7 +38,20 @@ st.set_page_config(
 )
 
 BASE_DIR = Path(__file__).resolve().parent
-DEFAULT_MODEL_PATH = BASE_DIR / "models" / "best_model.pth"
+from huggingface_hub import hf_hub_download
+import streamlit as st
+
+HF_REPO = "YOUR_USERNAME/smartphone-classifier"
+HF_FILE = "best_model.pth"
+
+@st.cache_resource
+def get_model_path():
+    return hf_hub_download(
+        repo_id=HF_REPO,
+        filename=HF_FILE,
+    )
+
+DEFAULT_MODEL_PATH = get_model_path()
 DEFAULT_COMPONENTS_PATH = BASE_DIR / "data" / "smartphone_components_summary.csv"
 DEFAULT_SPECS_PATH = BASE_DIR / "data" / "phone_specifications.json"
 
