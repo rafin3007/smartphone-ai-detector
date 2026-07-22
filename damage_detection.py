@@ -470,21 +470,73 @@ def analyze_phone_damage(image):
     }
     return damage_result, scratch_mask, crack_mask
 
+def _prepare_overlay_mask(mask, image_np):
+    """Return a uint8 binary mask matching the displayed image dimensions."""
+    image_height, image_width = image_np.shape[:2]
+
+    if mask is None:
+        return np.zeros((image_height, image_width), dtype=np.uint8)
+
+    mask = np.asarray(mask)
+
+    # Convert a color mask to a single channel when necessary.
+    if mask.ndim == 3:
+        if mask.shape[2] == 4:
+            mask = cv2.cvtColor(mask.astype(np.uint8), cv2.COLOR_RGBA2GRAY)
+        else:
+            mask = cv2.cvtColor(mask.astype(np.uint8), cv2.COLOR_RGB2GRAY)
+
+    mask = np.squeeze(mask)
+
+    if mask.ndim != 2:
+        return np.zeros((image_height, image_width), dtype=np.uint8)
+
+    # The detector may analyze a resized copy of the image. Resize its mask
+    # back to the original image size before applying boolean indexing.
+    if mask.shape != (image_height, image_width):
+        mask = cv2.resize(
+            mask.astype(np.uint8),
+            (image_width, image_height),
+            interpolation=cv2.INTER_NEAREST,
+        )
+
+    return np.where(mask > 0, 255, 0).astype(np.uint8)
+
+
 def get_scratch_overlay(image, scratch_mask):
-    image_np = np.array(image.convert("RGB"))
+    image_np = np.asarray(image.convert("RGB"), dtype=np.uint8).copy()
+    scratch_mask = _prepare_overlay_mask(scratch_mask, image_np)
+
     highlight = image_np.copy()
     highlight[scratch_mask > 0] = [255, 220, 0]
+
     blended = cv2.addWeighted(image_np, 0.65, highlight, 0.35, 0)
-    contours, _ = cv2.findContours(scratch_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    contours, _ = cv2.findContours(
+        scratch_mask,
+        cv2.RETR_EXTERNAL,
+        cv2.CHAIN_APPROX_SIMPLE,
+    )
     cv2.drawContours(blended, contours, -1, (255, 140, 0), 1)
+
     return Image.fromarray(blended)
 
 
 def get_crack_overlay(image, crack_mask):
-    image_np = np.array(image.convert("RGB"))
+    image_np = np.asarray(image.convert("RGB"), dtype=np.uint8).copy()
+    crack_mask = _prepare_overlay_mask(crack_mask, image_np)
+
     highlight = image_np.copy()
     highlight[crack_mask > 0] = [255, 50, 50]
+
     blended = cv2.addWeighted(image_np, 0.60, highlight, 0.40, 0)
-    contours, _ = cv2.findContours(crack_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    contours, _ = cv2.findContours(
+        crack_mask,
+        cv2.RETR_EXTERNAL,
+        cv2.CHAIN_APPROX_SIMPLE,
+    )
     cv2.drawContours(blended, contours, -1, (220, 0, 0), 2)
+
     return Image.fromarray(blended)
+
