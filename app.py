@@ -41,7 +41,7 @@ BASE_DIR = Path(__file__).resolve().parent
 from huggingface_hub import hf_hub_download
 import streamlit as st
 
-HF_REPO = "rafin3007/smartphone-classifier"
+HF_REPO = "mrafin/smartphone-classifier"
 HF_FILE = "best_model.pth"
 
 
