@@ -146,7 +146,7 @@ st.markdown(
 
     /* Metric value (Apple, iPhone..., 2022, 172 g) */
     div[data-testid="stMetricValue"] {
-        font-size: 2rem !important;
+        font-size: 1.5rem !important;
         line-height: 1.1 !important;
     }
     
