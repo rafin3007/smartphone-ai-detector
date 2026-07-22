@@ -144,11 +144,15 @@ st.markdown(
         font-size: .9rem;
     }
 
-    div[data-testid="stMetric"] {
-        background: rgba(8, 27, 49, 0.88);
-        border: 1px solid rgba(111,190,255,0.15);
-        padding: 1rem;
-        border-radius: 16px;
+    /* Metric value (Apple, iPhone..., 2022, 172 g) */
+    div[data-testid="stMetricValue"] {
+        font-size: 2rem !important;
+        line-height: 1.1 !important;
+    }
+    
+    /* Metric label (Brand, Model, Release year, Weight) */
+    div[data-testid="stMetricLabel"] {
+        font-size: 0.9rem !important;
     }
 
     .status-ok {
