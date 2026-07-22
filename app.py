@@ -38,20 +38,7 @@ st.set_page_config(
 )
 
 BASE_DIR = Path(__file__).resolve().parent
-from huggingface_hub import hf_hub_download
-import streamlit as st
-
-HF_REPO = "mrafin/smartphone-classifier"
-HF_FILE = "best_model.pth"
-
-@st.cache_resource
-def get_model_path():
-    return hf_hub_download(
-        repo_id=HF_REPO,
-        filename=HF_FILE,
-    )
-
-DEFAULT_MODEL_PATH = get_model_path()
+DEFAULT_MODEL_PATH = BASE_DIR / "models" / "best_model.pth"
 DEFAULT_COMPONENTS_PATH = BASE_DIR / "data" / "smartphone_components_summary.csv"
 DEFAULT_SPECS_PATH = BASE_DIR / "data" / "phone_specifications.json"
 
@@ -935,43 +922,64 @@ mode = st.tabs(
 )
 
 with mode[0]:
-    first, second = st.columns(
-        [1.05, 0.95],
-        gap="large",
+    uploaded_files = st.file_uploader(
+        "Upload one or more smartphone images",
+        type=["jpg", "jpeg", "png", "webp"],
+        accept_multiple_files=True,
+        help="You can select several images and analyze them in one batch.",
     )
 
-    with first:
-        uploaded_file = st.file_uploader(
-            "Upload a smartphone image",
-            type=["jpg", "jpeg", "png", "webp"],
-        )
+    if uploaded_files:
+        st.caption(f"{len(uploaded_files)} image(s) selected")
 
-        if uploaded_file is not None:
-            uploaded_image = Image.open(uploaded_file).convert("RGB")
-            st.image(
-                uploaded_image,
-                caption="Uploaded image",
-                use_container_width=True,
-            )
+        for image_index, uploaded_file in enumerate(
+            uploaded_files,
+            start=1,
+        ):
+            try:
+                uploaded_image = Image.open(uploaded_file).convert("RGB")
+            except Exception as exc:
+                st.error(
+                    f"Could not open {uploaded_file.name}: {exc}"
+                )
+                continue
 
-    with second:
-        if uploaded_file is not None:
-            with st.spinner("Analyzing smartphone..."):
-                predictions = predict_pil_image(
-                    uploaded_image,
-                    model_bundle,
-                    top_k=top_k,
+            with st.container(border=True):
+                st.markdown(
+                    f"### Image {image_index}: {uploaded_file.name}"
                 )
 
-            render_prediction(
-                predictions,
-                component_dataframe,
-                phone_specifications,
-                confidence_threshold,
-                image=uploaded_image,
-            )
-        else:
-            st.info("Upload an image to begin.")
+                first, second = st.columns(
+                    [1.05, 0.95],
+                    gap="large",
+                )
+
+                with first:
+                    st.image(
+                        uploaded_image,
+                        caption=uploaded_file.name,
+                        use_container_width=True,
+                    )
+
+                with second:
+                    with st.spinner(
+                        f"Analyzing {uploaded_file.name}..."
+                    ):
+                        predictions = predict_pil_image(
+                            uploaded_image,
+                            model_bundle,
+                            top_k=top_k,
+                        )
+
+                    render_prediction(
+                        predictions,
+                        component_dataframe,
+                        phone_specifications,
+                        confidence_threshold,
+                        image=uploaded_image,
+                    )
+    else:
+        st.info("Upload one or more images to begin.")
 
 with mode[1]:
     snapshot_columns = st.columns(
