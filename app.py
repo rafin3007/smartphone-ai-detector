@@ -57,6 +57,7 @@ def get_model_path():
 DEFAULT_MODEL_PATH = get_model_path()
 DEFAULT_COMPONENTS_PATH = BASE_DIR / "data" / "smartphone_components_summary.csv"
 DEFAULT_SPECS_PATH = BASE_DIR / "data" / "phone_specifications.json"
+DEFAULT_METALS_PATH = BASE_DIR / "data" / "valuable_metals.json"
 
 RTC_CONFIGURATION = RTCConfiguration(
     {
@@ -429,6 +430,274 @@ def render_phone_specification(predicted_class: str, specifications: dict[str, A
     ]
     st.dataframe(pd.DataFrame(rows, columns=["Specification", "Value"]), use_container_width=True, hide_index=True)
 
+
+# ============================================================
+# Valuable metals lookup
+# ============================================================
+
+@st.cache_data(show_spinner=False)
+def load_valuable_metals(path: str) -> dict[str, Any]:
+    metals_path = Path(path)
+
+    if not metals_path.exists():
+        return {}
+
+    with metals_path.open("r", encoding="utf-8") as file:
+        payload = json.load(file)
+
+    if not isinstance(payload, dict):
+        raise ValueError(
+            "valuable_metals.json must contain a JSON object."
+        )
+
+    payload = payload.copy()
+    payload.pop("metadata", None)
+
+    return {
+        normalize_model_key(str(model_key)): model_data
+        for model_key, model_data in payload.items()
+        if isinstance(model_data, dict)
+    }
+
+
+def lookup_valuable_metals(
+    predicted_class: str,
+    metals_data: dict[str, Any],
+) -> dict[str, Any] | None:
+    model_key = normalize_model_key(predicted_class)
+
+    if model_key in metals_data:
+        return metals_data[model_key]
+
+    for key, value in metals_data.items():
+        if key in model_key or model_key in key:
+            return value
+
+    return None
+
+
+def _format_metal_quantity(quantity_g: float) -> str:
+    if quantity_g < 0.1:
+        return f"{quantity_g * 1000:.1f} mg"
+
+    return f"{quantity_g:.2f} g"
+
+
+def _format_metal_range(
+    minimum: float | None,
+    maximum: float | None,
+) -> str:
+    if minimum is None or maximum is None:
+        return "—"
+
+    if maximum < 0.1:
+        return (
+            f"{minimum * 1000:.1f}–"
+            f"{maximum * 1000:.1f} mg"
+        )
+
+    return f"{minimum:.3f}–{maximum:.3f} g"
+
+
+def render_valuable_metals(
+    predicted_class: str,
+    metals_data: dict[str, Any],
+) -> None:
+    phone_metals = lookup_valuable_metals(
+        predicted_class,
+        metals_data,
+    )
+
+    if not phone_metals:
+        st.info(
+            "Estimated valuable-metal information is not available "
+            "for this model."
+        )
+        return
+
+    st.subheader("Estimated valuable-metal content")
+
+    st.caption(
+        "These values are research-based estimates, not exact "
+        "manufacturer-reported measurements. Actual quantities may vary "
+        "by production revision, supplier, region, and configuration."
+    )
+
+    brand = phone_metals.get("brand", "—")
+    model_name = phone_metals.get(
+        "model",
+        pretty_class_name(predicted_class),
+    )
+    confidence = (
+        str(phone_metals.get("confidence", "unknown"))
+        .replace("_", " ")
+        .title()
+    )
+    weight = phone_metals.get("device_weight_g", "—")
+
+    overview_columns = st.columns(4)
+    overview_columns[0].metric("Brand", brand)
+    overview_columns[1].metric("Model", model_name)
+    overview_columns[2].metric(
+        "Estimate confidence",
+        confidence,
+    )
+    overview_columns[3].metric(
+        "Device weight",
+        f"{weight} g" if weight != "—" else "—",
+    )
+
+    metals = phone_metals.get("valuable_metals", {})
+
+    if not metals:
+        st.info("No metal entries are available for this model.")
+        return
+
+    rows: list[dict[str, Any]] = []
+
+    for metal_name, metal_info in metals.items():
+        if not isinstance(metal_info, dict):
+            continue
+
+        try:
+            quantity_g = float(
+                metal_info.get("estimated_quantity_g", 0)
+            )
+        except (TypeError, ValueError):
+            quantity_g = 0.0
+
+        quantity_range = (
+            metal_info.get("estimated_range_g", {})
+            if isinstance(
+                metal_info.get("estimated_range_g", {}),
+                dict,
+            )
+            else {}
+        )
+
+        minimum = quantity_range.get("minimum")
+        maximum = quantity_range.get("maximum")
+
+        try:
+            minimum = (
+                float(minimum)
+                if minimum is not None
+                else None
+            )
+        except (TypeError, ValueError):
+            minimum = None
+
+        try:
+            maximum = (
+                float(maximum)
+                if maximum is not None
+                else None
+            )
+        except (TypeError, ValueError):
+            maximum = None
+
+        locations = ", ".join(
+            str(location)
+            for location in metal_info.get(
+                "primary_locations",
+                [],
+            )
+        )
+
+        rows.append(
+            {
+                "Metal": (
+                    metal_name
+                    .replace("_", " ")
+                    .title()
+                ),
+                "Symbol": metal_info.get("symbol", ""),
+                "Estimated quantity": (
+                    _format_metal_quantity(quantity_g)
+                ),
+                "Estimated range": (
+                    _format_metal_range(
+                        minimum,
+                        maximum,
+                    )
+                ),
+                "Main locations": locations or "—",
+                "quantity_g": quantity_g,
+            }
+        )
+
+    if not rows:
+        st.info("No usable metal entries are available.")
+        return
+
+    metals_dataframe = pd.DataFrame(rows)
+
+    card_items = rows[:8]
+
+    for start_index in range(
+        0,
+        len(card_items),
+        4,
+    ):
+        columns = st.columns(4)
+
+        for column, item in zip(
+            columns,
+            card_items[
+                start_index:
+                start_index + 4
+            ],
+        ):
+            with column:
+                st.metric(
+                    label=(
+                        f"{item['Metal']} "
+                        f"({item['Symbol']})"
+                    ),
+                    value=item["Estimated quantity"],
+                )
+
+    st.markdown("#### Complete metal details")
+
+    st.dataframe(
+        metals_dataframe[
+            [
+                "Metal",
+                "Symbol",
+                "Estimated quantity",
+                "Estimated range",
+                "Main locations",
+            ]
+        ],
+        use_container_width=True,
+        hide_index=True,
+    )
+
+    chart_dataframe = (
+        metals_dataframe[
+            ["Metal", "quantity_g"]
+        ]
+        .set_index("Metal")
+        .rename(
+            columns={
+                "quantity_g": (
+                    "Estimated quantity (g)"
+                )
+            }
+        )
+    )
+
+    st.markdown("#### Estimated quantity comparison")
+    st.bar_chart(chart_dataframe)
+
+    with st.expander("Method and interpretation"):
+        st.write(
+            "Contained quantity is not the same as recoverable quantity. "
+            "Actual recycling recovery depends on collection, dismantling, "
+            "separation, refining technology, and process efficiency."
+        )
+
+
 # ============================================================
 # Optional component lookup
 # ============================================================
@@ -558,6 +827,7 @@ def render_prediction(
     predictions: list[dict[str, Any]],
     component_dataframe: pd.DataFrame,
     specifications: dict[str, Any],
+    metals_data: dict[str, Any],
     threshold: float,
     image: Image.Image | None = None,
 ) -> None:
@@ -606,6 +876,11 @@ def render_prediction(
         render_damage_analysis(image)
 
     render_phone_specification(top["class_name"], specifications)
+
+    render_valuable_metals(
+        top["class_name"],
+        metals_data,
+    )
 
     matches = lookup_components(
         top["class_name"],
@@ -840,6 +1115,15 @@ with st.sidebar:
         help="JSON containing model-specific phone specifications.",
     )
 
+    metals_path = st.text_input(
+        "Valuable metals JSON path",
+        value=str(DEFAULT_METALS_PATH),
+        help=(
+            "JSON containing estimated valuable-metal quantities "
+            "for each supported phone model."
+        ),
+    )
+
     confidence_threshold = st.slider(
         "Confidence threshold",
         min_value=0.30,
@@ -883,8 +1167,9 @@ except Exception as error:
 
 component_dataframe = load_component_dataset(components_path)
 phone_specifications = load_phone_specifications(specifications_path)
+valuable_metals_data = load_valuable_metals(metals_path)
 
-status_columns = st.columns(5)
+status_columns = st.columns(6)
 
 with status_columns[0]:
     st.metric(
@@ -924,11 +1209,18 @@ with status_columns[4]:
         len(phone_specifications),
     )
 
+
+with status_columns[5]:
+    st.metric(
+        "Metal records",
+        len(valuable_metals_data),
+    )
+
 if not model_ready:
     st.error(
         f"Could not load the model: {model_error}\n\n"
-        "Copy your best_model.pth into models/best_model.pth or update the "
-        "checkpoint path in the sidebar."
+        "Confirm that the Hugging Face repository and model filename are "
+        "correct, or update the checkpoint path in the sidebar."
     )
     st.stop()
 
@@ -995,6 +1287,7 @@ with mode[0]:
                         predictions,
                         component_dataframe,
                         phone_specifications,
+                        valuable_metals_data,
                         confidence_threshold,
                         image=uploaded_image,
                     )
@@ -1027,6 +1320,7 @@ with mode[1]:
                 predictions,
                 component_dataframe,
                 phone_specifications,
+                valuable_metals_data,
                 confidence_threshold,
                 image=camera_image,
             )
