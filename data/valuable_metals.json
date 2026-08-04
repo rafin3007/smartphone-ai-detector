@@ -1,0 +1,925 @@
+{
+  "metadata": {
+    "title": "Estimated Valuable Metal Content by Smartphone Model",
+    "version": "1.0",
+    "quantity_unit": "g",
+    "estimation_level": "research_estimate",
+    "manufacturer_reported_quantities": false,
+    "disclaimer": "Quantities are approximate engineering estimates derived from typical smartphone material-composition studies, device weight, battery capacity, construction materials, and manufacturer environmental disclosures. Actual quantities vary by storage configuration, supplier, production region, component revision, and recycling recovery efficiency.",
+    "recommended_display_label": "Estimated valuable-metal content",
+    "recovery_warning": "Contained quantity is not equal to recoverable quantity. Recycling processes recover only a percentage of each material."
+  },
+
+  "iphone_14": {
+    "brand": "Apple",
+    "model": "iPhone 14",
+    "release_year": 2022,
+    "device_weight_g": 172,
+    "confidence": "low_to_medium",
+    "valuable_metals": {
+      "copper": {
+        "symbol": "Cu",
+        "estimated_quantity_g": 15.5,
+        "estimated_range_g": {
+          "minimum": 12.0,
+          "maximum": 19.0
+        },
+        "primary_locations": [
+          "printed circuit boards",
+          "charging coils",
+          "wiring",
+          "connectors"
+        ]
+      },
+      "cobalt": {
+        "symbol": "Co",
+        "estimated_quantity_g": 5.8,
+        "estimated_range_g": {
+          "minimum": 4.0,
+          "maximum": 7.5
+        },
+        "primary_locations": [
+          "lithium-ion battery cathode"
+        ]
+      },
+      "gold": {
+        "symbol": "Au",
+        "estimated_quantity_g": 0.032,
+        "estimated_range_g": {
+          "minimum": 0.02,
+          "maximum": 0.045
+        },
+        "primary_locations": [
+          "circuit-board plating",
+          "camera wiring",
+          "connectors"
+        ]
+      },
+      "silver": {
+        "symbol": "Ag",
+        "estimated_quantity_g": 0.31,
+        "estimated_range_g": {
+          "minimum": 0.2,
+          "maximum": 0.42
+        },
+        "primary_locations": [
+          "printed circuit boards",
+          "electrical contacts",
+          "solder alloys"
+        ]
+      },
+      "palladium": {
+        "symbol": "Pd",
+        "estimated_quantity_g": 0.014,
+        "estimated_range_g": {
+          "minimum": 0.008,
+          "maximum": 0.022
+        },
+        "primary_locations": [
+          "multilayer ceramic capacitors",
+          "circuit-board components"
+        ]
+      },
+      "tin": {
+        "symbol": "Sn",
+        "estimated_quantity_g": 0.95,
+        "estimated_range_g": {
+          "minimum": 0.65,
+          "maximum": 1.3
+        },
+        "primary_locations": [
+          "lead-free solder",
+          "printed circuit boards"
+        ]
+      },
+      "tungsten": {
+        "symbol": "W",
+        "estimated_quantity_g": 0.75,
+        "estimated_range_g": {
+          "minimum": 0.5,
+          "maximum": 1.0
+        },
+        "primary_locations": [
+          "Taptic Engine",
+          "vibration components"
+        ]
+      },
+      "tantalum": {
+        "symbol": "Ta",
+        "estimated_quantity_g": 0.035,
+        "estimated_range_g": {
+          "minimum": 0.02,
+          "maximum": 0.06
+        },
+        "primary_locations": [
+          "capacitors",
+          "printed circuit boards"
+        ]
+      },
+      "rare_earth_elements": {
+        "symbol": "REE",
+        "estimated_quantity_g": 0.42,
+        "estimated_range_g": {
+          "minimum": 0.25,
+          "maximum": 0.65
+        },
+        "primary_locations": [
+          "speakers",
+          "camera actuators",
+          "Taptic Engine",
+          "MagSafe magnets"
+        ]
+      }
+    }
+  },
+
+  "iphone_14_pro_max": {
+    "brand": "Apple",
+    "model": "iPhone 14 Pro Max",
+    "release_year": 2022,
+    "device_weight_g": 240,
+    "confidence": "low_to_medium",
+    "valuable_metals": {
+      "copper": {
+        "symbol": "Cu",
+        "estimated_quantity_g": 18.8,
+        "estimated_range_g": {
+          "minimum": 14.5,
+          "maximum": 23.0
+        },
+        "primary_locations": [
+          "printed circuit boards",
+          "charging coils",
+          "wiring",
+          "connectors"
+        ]
+      },
+      "cobalt": {
+        "symbol": "Co",
+        "estimated_quantity_g": 7.7,
+        "estimated_range_g": {
+          "minimum": 5.5,
+          "maximum": 10.0
+        },
+        "primary_locations": [
+          "lithium-ion battery cathode"
+        ]
+      },
+      "gold": {
+        "symbol": "Au",
+        "estimated_quantity_g": 0.038,
+        "estimated_range_g": {
+          "minimum": 0.025,
+          "maximum": 0.052
+        },
+        "primary_locations": [
+          "circuit-board plating",
+          "camera wiring",
+          "connectors"
+        ]
+      },
+      "silver": {
+        "symbol": "Ag",
+        "estimated_quantity_g": 0.37,
+        "estimated_range_g": {
+          "minimum": 0.24,
+          "maximum": 0.5
+        },
+        "primary_locations": [
+          "printed circuit boards",
+          "electrical contacts",
+          "solder alloys"
+        ]
+      },
+      "palladium": {
+        "symbol": "Pd",
+        "estimated_quantity_g": 0.017,
+        "estimated_range_g": {
+          "minimum": 0.01,
+          "maximum": 0.026
+        },
+        "primary_locations": [
+          "multilayer ceramic capacitors",
+          "circuit-board components"
+        ]
+      },
+      "tin": {
+        "symbol": "Sn",
+        "estimated_quantity_g": 1.15,
+        "estimated_range_g": {
+          "minimum": 0.8,
+          "maximum": 1.55
+        },
+        "primary_locations": [
+          "lead-free solder",
+          "printed circuit boards"
+        ]
+      },
+      "tungsten": {
+        "symbol": "W",
+        "estimated_quantity_g": 0.95,
+        "estimated_range_g": {
+          "minimum": 0.65,
+          "maximum": 1.3
+        },
+        "primary_locations": [
+          "Taptic Engine",
+          "vibration components"
+        ]
+      },
+      "tantalum": {
+        "symbol": "Ta",
+        "estimated_quantity_g": 0.045,
+        "estimated_range_g": {
+          "minimum": 0.025,
+          "maximum": 0.075
+        },
+        "primary_locations": [
+          "capacitors",
+          "printed circuit boards"
+        ]
+      },
+      "rare_earth_elements": {
+        "symbol": "REE",
+        "estimated_quantity_g": 0.52,
+        "estimated_range_g": {
+          "minimum": 0.32,
+          "maximum": 0.8
+        },
+        "primary_locations": [
+          "speakers",
+          "camera actuators",
+          "Taptic Engine",
+          "MagSafe magnets"
+        ]
+      }
+    }
+  },
+
+  "iphone_15_pro": {
+    "brand": "Apple",
+    "model": "iPhone 15 Pro",
+    "release_year": 2023,
+    "device_weight_g": 187,
+    "confidence": "medium",
+    "valuable_metals": {
+      "copper": {
+        "symbol": "Cu",
+        "estimated_quantity_g": 16.7,
+        "estimated_range_g": {
+          "minimum": 13.0,
+          "maximum": 20.5
+        },
+        "primary_locations": [
+          "main logic board",
+          "MagSafe charging coil",
+          "Taptic Engine wiring",
+          "connectors"
+        ]
+      },
+      "cobalt": {
+        "symbol": "Co",
+        "estimated_quantity_g": 6.3,
+        "estimated_range_g": {
+          "minimum": 4.5,
+          "maximum": 8.2
+        },
+        "primary_locations": [
+          "lithium-ion battery cathode"
+        ]
+      },
+      "gold": {
+        "symbol": "Au",
+        "estimated_quantity_g": 0.036,
+        "estimated_range_g": {
+          "minimum": 0.023,
+          "maximum": 0.05
+        },
+        "primary_locations": [
+          "circuit-board plating",
+          "camera wiring",
+          "USB-C connector"
+        ]
+      },
+      "silver": {
+        "symbol": "Ag",
+        "estimated_quantity_g": 0.33,
+        "estimated_range_g": {
+          "minimum": 0.22,
+          "maximum": 0.45
+        },
+        "primary_locations": [
+          "printed circuit boards",
+          "electrical contacts",
+          "solder alloys"
+        ]
+      },
+      "palladium": {
+        "symbol": "Pd",
+        "estimated_quantity_g": 0.015,
+        "estimated_range_g": {
+          "minimum": 0.009,
+          "maximum": 0.024
+        },
+        "primary_locations": [
+          "multilayer ceramic capacitors",
+          "circuit-board components"
+        ]
+      },
+      "tin": {
+        "symbol": "Sn",
+        "estimated_quantity_g": 1.0,
+        "estimated_range_g": {
+          "minimum": 0.7,
+          "maximum": 1.35
+        },
+        "primary_locations": [
+          "lead-free solder",
+          "printed circuit boards"
+        ]
+      },
+      "tungsten": {
+        "symbol": "W",
+        "estimated_quantity_g": 0.8,
+        "estimated_range_g": {
+          "minimum": 0.55,
+          "maximum": 1.1
+        },
+        "primary_locations": [
+          "Taptic Engine",
+          "vibration components"
+        ]
+      },
+      "tantalum": {
+        "symbol": "Ta",
+        "estimated_quantity_g": 0.04,
+        "estimated_range_g": {
+          "minimum": 0.022,
+          "maximum": 0.065
+        },
+        "primary_locations": [
+          "capacitors",
+          "printed circuit boards"
+        ]
+      },
+      "rare_earth_elements": {
+        "symbol": "REE",
+        "estimated_quantity_g": 0.46,
+        "estimated_range_g": {
+          "minimum": 0.28,
+          "maximum": 0.7
+        },
+        "primary_locations": [
+          "speakers",
+          "camera actuators",
+          "Taptic Engine",
+          "MagSafe magnets"
+        ]
+      },
+      "titanium": {
+        "symbol": "Ti",
+        "estimated_quantity_g": 18.0,
+        "estimated_range_g": {
+          "minimum": 14.0,
+          "maximum": 22.0
+        },
+        "primary_locations": [
+          "external structural frame"
+        ]
+      }
+    }
+  },
+
+  "iphone_15_pro_max": {
+    "brand": "Apple",
+    "model": "iPhone 15 Pro Max",
+    "release_year": 2023,
+    "device_weight_g": 221,
+    "confidence": "medium",
+    "valuable_metals": {
+      "copper": {
+        "symbol": "Cu",
+        "estimated_quantity_g": 19.2,
+        "estimated_range_g": {
+          "minimum": 15.0,
+          "maximum": 23.5
+        },
+        "primary_locations": [
+          "main logic board",
+          "MagSafe charging coil",
+          "Taptic Engine wiring",
+          "connectors"
+        ]
+      },
+      "cobalt": {
+        "symbol": "Co",
+        "estimated_quantity_g": 8.1,
+        "estimated_range_g": {
+          "minimum": 5.8,
+          "maximum": 10.5
+        },
+        "primary_locations": [
+          "lithium-ion battery cathode"
+        ]
+      },
+      "gold": {
+        "symbol": "Au",
+        "estimated_quantity_g": 0.041,
+        "estimated_range_g": {
+          "minimum": 0.027,
+          "maximum": 0.057
+        },
+        "primary_locations": [
+          "circuit-board plating",
+          "camera wiring",
+          "USB-C connector"
+        ]
+      },
+      "silver": {
+        "symbol": "Ag",
+        "estimated_quantity_g": 0.39,
+        "estimated_range_g": {
+          "minimum": 0.26,
+          "maximum": 0.53
+        },
+        "primary_locations": [
+          "printed circuit boards",
+          "electrical contacts",
+          "solder alloys"
+        ]
+      },
+      "palladium": {
+        "symbol": "Pd",
+        "estimated_quantity_g": 0.018,
+        "estimated_range_g": {
+          "minimum": 0.011,
+          "maximum": 0.028
+        },
+        "primary_locations": [
+          "multilayer ceramic capacitors",
+          "circuit-board components"
+        ]
+      },
+      "tin": {
+        "symbol": "Sn",
+        "estimated_quantity_g": 1.2,
+        "estimated_range_g": {
+          "minimum": 0.82,
+          "maximum": 1.62
+        },
+        "primary_locations": [
+          "lead-free solder",
+          "printed circuit boards"
+        ]
+      },
+      "tungsten": {
+        "symbol": "W",
+        "estimated_quantity_g": 1.0,
+        "estimated_range_g": {
+          "minimum": 0.68,
+          "maximum": 1.35
+        },
+        "primary_locations": [
+          "Taptic Engine",
+          "vibration components"
+        ]
+      },
+      "tantalum": {
+        "symbol": "Ta",
+        "estimated_quantity_g": 0.048,
+        "estimated_range_g": {
+          "minimum": 0.027,
+          "maximum": 0.08
+        },
+        "primary_locations": [
+          "capacitors",
+          "printed circuit boards"
+        ]
+      },
+      "rare_earth_elements": {
+        "symbol": "REE",
+        "estimated_quantity_g": 0.55,
+        "estimated_range_g": {
+          "minimum": 0.34,
+          "maximum": 0.84
+        },
+        "primary_locations": [
+          "speakers",
+          "camera actuators",
+          "Taptic Engine",
+          "MagSafe magnets"
+        ]
+      },
+      "titanium": {
+        "symbol": "Ti",
+        "estimated_quantity_g": 21.0,
+        "estimated_range_g": {
+          "minimum": 16.0,
+          "maximum": 26.0
+        },
+        "primary_locations": [
+          "external structural frame"
+        ]
+      }
+    }
+  },
+
+  "s24_ultra": {
+    "brand": "Samsung",
+    "model": "Galaxy S24 Ultra",
+    "release_year": 2024,
+    "device_weight_g": 232,
+    "confidence": "low_to_medium",
+    "valuable_metals": {
+      "copper": {
+        "symbol": "Cu",
+        "estimated_quantity_g": 19.5,
+        "estimated_range_g": {
+          "minimum": 15.0,
+          "maximum": 24.0
+        },
+        "primary_locations": [
+          "printed circuit boards",
+          "vapor chamber",
+          "charging coil",
+          "wiring"
+        ]
+      },
+      "cobalt": {
+        "symbol": "Co",
+        "estimated_quantity_g": 8.5,
+        "estimated_range_g": {
+          "minimum": 6.0,
+          "maximum": 11.0
+        },
+        "primary_locations": [
+          "lithium-ion battery cathode"
+        ]
+      },
+      "gold": {
+        "symbol": "Au",
+        "estimated_quantity_g": 0.04,
+        "estimated_range_g": {
+          "minimum": 0.026,
+          "maximum": 0.056
+        },
+        "primary_locations": [
+          "printed circuit boards",
+          "connectors",
+          "camera components"
+        ]
+      },
+      "silver": {
+        "symbol": "Ag",
+        "estimated_quantity_g": 0.4,
+        "estimated_range_g": {
+          "minimum": 0.26,
+          "maximum": 0.55
+        },
+        "primary_locations": [
+          "printed circuit boards",
+          "electrical contacts",
+          "solder alloys"
+        ]
+      },
+      "palladium": {
+        "symbol": "Pd",
+        "estimated_quantity_g": 0.018,
+        "estimated_range_g": {
+          "minimum": 0.011,
+          "maximum": 0.029
+        },
+        "primary_locations": [
+          "multilayer ceramic capacitors",
+          "circuit-board components"
+        ]
+      },
+      "tin": {
+        "symbol": "Sn",
+        "estimated_quantity_g": 1.2,
+        "estimated_range_g": {
+          "minimum": 0.82,
+          "maximum": 1.65
+        },
+        "primary_locations": [
+          "lead-free solder",
+          "printed circuit boards"
+        ]
+      },
+      "tungsten": {
+        "symbol": "W",
+        "estimated_quantity_g": 0.72,
+        "estimated_range_g": {
+          "minimum": 0.45,
+          "maximum": 1.05
+        },
+        "primary_locations": [
+          "vibration motor",
+          "electronic components"
+        ]
+      },
+      "tantalum": {
+        "symbol": "Ta",
+        "estimated_quantity_g": 0.05,
+        "estimated_range_g": {
+          "minimum": 0.028,
+          "maximum": 0.082
+        },
+        "primary_locations": [
+          "capacitors",
+          "printed circuit boards"
+        ]
+      },
+      "rare_earth_elements": {
+        "symbol": "REE",
+        "estimated_quantity_g": 0.5,
+        "estimated_range_g": {
+          "minimum": 0.3,
+          "maximum": 0.78
+        },
+        "primary_locations": [
+          "speakers",
+          "camera autofocus motors",
+          "vibration motor"
+        ]
+      },
+      "titanium": {
+        "symbol": "Ti",
+        "estimated_quantity_g": 22.0,
+        "estimated_range_g": {
+          "minimum": 16.0,
+          "maximum": 28.0
+        },
+        "primary_locations": [
+          "external structural frame"
+        ]
+      }
+    }
+  },
+
+  "s25_ultra": {
+    "brand": "Samsung",
+    "model": "Galaxy S25 Ultra",
+    "release_year": 2025,
+    "device_weight_g": 218,
+    "confidence": "low_to_medium",
+    "valuable_metals": {
+      "copper": {
+        "symbol": "Cu",
+        "estimated_quantity_g": 19.0,
+        "estimated_range_g": {
+          "minimum": 14.5,
+          "maximum": 23.5
+        },
+        "primary_locations": [
+          "printed circuit boards",
+          "vapor chamber",
+          "charging coil",
+          "wiring"
+        ]
+      },
+      "cobalt": {
+        "symbol": "Co",
+        "estimated_quantity_g": 8.5,
+        "estimated_range_g": {
+          "minimum": 6.0,
+          "maximum": 11.0
+        },
+        "primary_locations": [
+          "lithium-ion battery cathode"
+        ]
+      },
+      "gold": {
+        "symbol": "Au",
+        "estimated_quantity_g": 0.041,
+        "estimated_range_g": {
+          "minimum": 0.027,
+          "maximum": 0.057
+        },
+        "primary_locations": [
+          "printed circuit boards",
+          "connectors",
+          "camera components"
+        ]
+      },
+      "silver": {
+        "symbol": "Ag",
+        "estimated_quantity_g": 0.4,
+        "estimated_range_g": {
+          "minimum": 0.26,
+          "maximum": 0.55
+        },
+        "primary_locations": [
+          "printed circuit boards",
+          "electrical contacts",
+          "solder alloys"
+        ]
+      },
+      "palladium": {
+        "symbol": "Pd",
+        "estimated_quantity_g": 0.019,
+        "estimated_range_g": {
+          "minimum": 0.011,
+          "maximum": 0.03
+        },
+        "primary_locations": [
+          "multilayer ceramic capacitors",
+          "circuit-board components"
+        ]
+      },
+      "tin": {
+        "symbol": "Sn",
+        "estimated_quantity_g": 1.2,
+        "estimated_range_g": {
+          "minimum": 0.82,
+          "maximum": 1.65
+        },
+        "primary_locations": [
+          "lead-free solder",
+          "printed circuit boards"
+        ]
+      },
+      "tungsten": {
+        "symbol": "W",
+        "estimated_quantity_g": 0.7,
+        "estimated_range_g": {
+          "minimum": 0.44,
+          "maximum": 1.02
+        },
+        "primary_locations": [
+          "vibration motor",
+          "electronic components"
+        ]
+      },
+      "tantalum": {
+        "symbol": "Ta",
+        "estimated_quantity_g": 0.05,
+        "estimated_range_g": {
+          "minimum": 0.028,
+          "maximum": 0.082
+        },
+        "primary_locations": [
+          "capacitors",
+          "printed circuit boards"
+        ]
+      },
+      "rare_earth_elements": {
+        "symbol": "REE",
+        "estimated_quantity_g": 0.52,
+        "estimated_range_g": {
+          "minimum": 0.31,
+          "maximum": 0.8
+        },
+        "primary_locations": [
+          "speakers",
+          "camera autofocus motors",
+          "vibration motor"
+        ]
+      },
+      "titanium": {
+        "symbol": "Ti",
+        "estimated_quantity_g": 20.0,
+        "estimated_range_g": {
+          "minimum": 15.0,
+          "maximum": 26.0
+        },
+        "primary_locations": [
+          "external structural frame"
+        ]
+      }
+    }
+  },
+
+  "s25_edge": {
+    "brand": "Samsung",
+    "model": "Galaxy S25 Edge",
+    "release_year": 2025,
+    "device_weight_g": 163,
+    "confidence": "low",
+    "valuable_metals": {
+      "copper": {
+        "symbol": "Cu",
+        "estimated_quantity_g": 14.8,
+        "estimated_range_g": {
+          "minimum": 11.0,
+          "maximum": 18.5
+        },
+        "primary_locations": [
+          "printed circuit boards",
+          "thermal components",
+          "charging coil",
+          "wiring"
+        ]
+      },
+      "cobalt": {
+        "symbol": "Co",
+        "estimated_quantity_g": 6.6,
+        "estimated_range_g": {
+          "minimum": 4.7,
+          "maximum": 8.7
+        },
+        "primary_locations": [
+          "lithium-ion battery cathode"
+        ]
+      },
+      "gold": {
+        "symbol": "Au",
+        "estimated_quantity_g": 0.034,
+        "estimated_range_g": {
+          "minimum": 0.022,
+          "maximum": 0.048
+        },
+        "primary_locations": [
+          "printed circuit boards",
+          "connectors",
+          "camera components"
+        ]
+      },
+      "silver": {
+        "symbol": "Ag",
+        "estimated_quantity_g": 0.32,
+        "estimated_range_g": {
+          "minimum": 0.21,
+          "maximum": 0.44
+        },
+        "primary_locations": [
+          "printed circuit boards",
+          "electrical contacts",
+          "solder alloys"
+        ]
+      },
+      "palladium": {
+        "symbol": "Pd",
+        "estimated_quantity_g": 0.015,
+        "estimated_range_g": {
+          "minimum": 0.009,
+          "maximum": 0.024
+        },
+        "primary_locations": [
+          "multilayer ceramic capacitors",
+          "circuit-board components"
+        ]
+      },
+      "tin": {
+        "symbol": "Sn",
+        "estimated_quantity_g": 0.95,
+        "estimated_range_g": {
+          "minimum": 0.65,
+          "maximum": 1.32
+        },
+        "primary_locations": [
+          "lead-free solder",
+          "printed circuit boards"
+        ]
+      },
+      "tungsten": {
+        "symbol": "W",
+        "estimated_quantity_g": 0.55,
+        "estimated_range_g": {
+          "minimum": 0.34,
+          "maximum": 0.82
+        },
+        "primary_locations": [
+          "vibration motor",
+          "electronic components"
+        ]
+      },
+      "tantalum": {
+        "symbol": "Ta",
+        "estimated_quantity_g": 0.04,
+        "estimated_range_g": {
+          "minimum": 0.022,
+          "maximum": 0.066
+        },
+        "primary_locations": [
+          "capacitors",
+          "printed circuit boards"
+        ]
+      },
+      "rare_earth_elements": {
+        "symbol": "REE",
+        "estimated_quantity_g": 0.42,
+        "estimated_range_g": {
+          "minimum": 0.25,
+          "maximum": 0.65
+        },
+        "primary_locations": [
+          "speakers",
+          "camera autofocus motors",
+          "vibration motor"
+        ]
+      },
+      "titanium": {
+        "symbol": "Ti",
+        "estimated_quantity_g": 15.0,
+        "estimated_range_g": {
+          "minimum": 10.0,
+          "maximum": 20.0
+        },
+        "primary_locations": [
+          "external structural frame"
+        ]
+      }
+    }
+  }
+}
