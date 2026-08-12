@@ -1,0 +1,639 @@
+{
+  "iphone_14": {
+    "brand": "Apple",
+    "model": "iPhone 14",
+    "components": [
+      {
+        "part_number": "APL-IP14-PCB-001",
+        "manufacturer_part_number": null,
+        "component_name": "Main Logic Board",
+        "quantity": 1,
+        "category": "PCB",
+        "location": "Upper center",
+        "function": "Main processing and system control"
+      },
+      {
+        "part_number": "APL-IP14-BAT-001",
+        "manufacturer_part_number": "A2863",
+        "component_name": "Battery",
+        "quantity": 1,
+        "category": "Battery",
+        "location": "Center",
+        "function": "Power supply"
+      },
+      {
+        "part_number": "APL-IP14-DIS-001",
+        "manufacturer_part_number": null,
+        "component_name": "Display Assembly",
+        "quantity": 1,
+        "category": "Display",
+        "location": "Front",
+        "function": "OLED display and touch input"
+      },
+      {
+        "part_number": "APL-IP14-CAM-R01",
+        "manufacturer_part_number": null,
+        "component_name": "Rear Camera Assembly",
+        "quantity": 1,
+        "subcomponent_count": 2,
+        "category": "Camera",
+        "location": "Upper left",
+        "function": "Rear image capture"
+      },
+      {
+        "part_number": "APL-IP14-CAM-F01",
+        "manufacturer_part_number": null,
+        "component_name": "Front Camera Assembly",
+        "quantity": 1,
+        "category": "Camera",
+        "location": "Top front",
+        "function": "Front image capture"
+      },
+      {
+        "part_number": "APL-IP14-CHG-001",
+        "manufacturer_part_number": "821-03758",
+        "component_name": "Lightning Connector Assembly",
+        "quantity": 1,
+        "category": "Charging",
+        "location": "Bottom",
+        "function": "Charging, data, and microphone connection"
+      },
+      {
+        "part_number": "APL-IP14-SPK-001",
+        "manufacturer_part_number": null,
+        "component_name": "Loudspeaker",
+        "quantity": 1,
+        "category": "Audio",
+        "location": "Bottom",
+        "function": "External audio output"
+      },
+      {
+        "part_number": "APL-IP14-SPK-002",
+        "manufacturer_part_number": null,
+        "component_name": "Earpiece Speaker",
+        "quantity": 1,
+        "category": "Audio",
+        "location": "Top",
+        "function": "Call audio"
+      },
+      {
+        "part_number": "APL-IP14-HAP-001",
+        "manufacturer_part_number": null,
+        "component_name": "Taptic Engine",
+        "quantity": 1,
+        "category": "Haptics",
+        "location": "Lower section",
+        "function": "Haptic feedback"
+      },
+      {
+        "part_number": "APL-IP14-WLC-001",
+        "manufacturer_part_number": null,
+        "component_name": "Wireless Charging Coil",
+        "quantity": 1,
+        "category": "Wireless Charging",
+        "location": "Rear center",
+        "function": "MagSafe and wireless charging"
+      }
+    ]
+  },
+
+  "iphone_14_pro_max": {
+    "brand": "Apple",
+    "model": "iPhone 14 Pro Max",
+    "components": [
+      {
+        "part_number": "APL-IP14PM-PCB-001",
+        "manufacturer_part_number": null,
+        "component_name": "Main Logic Board",
+        "quantity": 1,
+        "category": "PCB",
+        "location": "Upper center",
+        "function": "Main processing and system control"
+      },
+      {
+        "part_number": "APL-IP14PM-BAT-001",
+        "manufacturer_part_number": null,
+        "component_name": "Battery",
+        "quantity": 1,
+        "category": "Battery",
+        "location": "Center",
+        "function": "Power supply"
+      },
+      {
+        "part_number": "APL-IP14PM-DIS-001",
+        "manufacturer_part_number": null,
+        "component_name": "Display Assembly",
+        "quantity": 1,
+        "category": "Display",
+        "location": "Front",
+        "function": "OLED display and touch input"
+      },
+      {
+        "part_number": "APL-IP14PM-CAM-R01",
+        "manufacturer_part_number": null,
+        "component_name": "Rear Camera Assembly",
+        "quantity": 1,
+        "subcomponent_count": 3,
+        "category": "Camera",
+        "location": "Upper left",
+        "function": "Wide, ultrawide, and telephoto imaging"
+      },
+      {
+        "part_number": "APL-IP14PM-CAM-F01",
+        "manufacturer_part_number": null,
+        "component_name": "Front Camera Assembly",
+        "quantity": 1,
+        "category": "Camera",
+        "location": "Top front",
+        "function": "Front imaging"
+      },
+      {
+        "part_number": "APL-IP14PM-FID-001",
+        "manufacturer_part_number": null,
+        "component_name": "Face ID / TrueDepth Assembly",
+        "quantity": 1,
+        "category": "Sensor",
+        "location": "Top front",
+        "function": "Face authentication and depth sensing"
+      },
+      {
+        "part_number": "APL-IP14PM-CHG-001",
+        "manufacturer_part_number": null,
+        "component_name": "Lightning Connector Assembly",
+        "quantity": 1,
+        "category": "Charging",
+        "location": "Bottom",
+        "function": "Charging and data"
+      },
+      {
+        "part_number": "APL-IP14PM-HAP-001",
+        "manufacturer_part_number": null,
+        "component_name": "Taptic Engine",
+        "quantity": 1,
+        "category": "Haptics",
+        "location": "Lower section",
+        "function": "Haptic feedback"
+      },
+      {
+        "part_number": "APL-IP14PM-WLC-001",
+        "manufacturer_part_number": null,
+        "component_name": "Wireless Charging Coil",
+        "quantity": 1,
+        "category": "Wireless Charging",
+        "location": "Rear center",
+        "function": "MagSafe charging"
+      }
+    ]
+  },
+
+  "iphone_15_pro": {
+    "brand": "Apple",
+    "model": "iPhone 15 Pro",
+    "components": [
+      {
+        "part_number": "APL-IP15P-PCB-001",
+        "manufacturer_part_number": null,
+        "component_name": "Main Logic Board",
+        "quantity": 1,
+        "category": "PCB",
+        "location": "Upper center",
+        "function": "Main processing and system control"
+      },
+      {
+        "part_number": "APL-IP15P-BAT-001",
+        "manufacturer_part_number": null,
+        "component_name": "Battery",
+        "quantity": 1,
+        "category": "Battery",
+        "location": "Center",
+        "function": "Power supply"
+      },
+      {
+        "part_number": "APL-IP15P-DIS-001",
+        "manufacturer_part_number": null,
+        "component_name": "OLED Display Assembly",
+        "quantity": 1,
+        "category": "Display",
+        "location": "Front",
+        "function": "Display and touch input"
+      },
+      {
+        "part_number": "APL-IP15P-CAM-R01",
+        "manufacturer_part_number": null,
+        "component_name": "Rear Camera Assembly",
+        "quantity": 1,
+        "subcomponent_count": 3,
+        "category": "Camera",
+        "location": "Upper left",
+        "function": "Wide, ultrawide, and telephoto imaging"
+      },
+      {
+        "part_number": "APL-IP15P-CAM-F01",
+        "manufacturer_part_number": null,
+        "component_name": "Front Camera Assembly",
+        "quantity": 1,
+        "category": "Camera",
+        "location": "Top front",
+        "function": "Front imaging"
+      },
+      {
+        "part_number": "APL-IP15P-FID-001",
+        "manufacturer_part_number": null,
+        "component_name": "Face ID / TrueDepth Assembly",
+        "quantity": 1,
+        "category": "Sensor",
+        "location": "Top front",
+        "function": "Face authentication"
+      },
+      {
+        "part_number": "APL-IP15P-USBC-001",
+        "manufacturer_part_number": null,
+        "component_name": "USB-C Charging Port Assembly",
+        "quantity": 1,
+        "category": "Charging",
+        "location": "Bottom",
+        "function": "Charging and data"
+      },
+      {
+        "part_number": "APL-IP15P-HAP-001",
+        "manufacturer_part_number": null,
+        "component_name": "Taptic Engine",
+        "quantity": 1,
+        "category": "Haptics",
+        "location": "Lower section",
+        "function": "Haptic feedback"
+      },
+      {
+        "part_number": "APL-IP15P-WLC-001",
+        "manufacturer_part_number": null,
+        "component_name": "MagSafe / Wireless Charging Coil",
+        "quantity": 1,
+        "category": "Wireless Charging",
+        "location": "Rear center",
+        "function": "Wireless charging"
+      }
+    ]
+  },
+
+  "iphone_15_pro_max": {
+    "brand": "Apple",
+    "model": "iPhone 15 Pro Max",
+    "components": [
+      {
+        "part_number": "APL-IP15PM-PCB-001",
+        "manufacturer_part_number": null,
+        "component_name": "Main Logic Board",
+        "quantity": 1,
+        "category": "PCB",
+        "location": "Upper center",
+        "function": "Main processing and system control"
+      },
+      {
+        "part_number": "APL-IP15PM-BAT-001",
+        "manufacturer_part_number": null,
+        "component_name": "Battery",
+        "quantity": 1,
+        "category": "Battery",
+        "location": "Center",
+        "function": "Power supply"
+      },
+      {
+        "part_number": "APL-IP15PM-DIS-001",
+        "manufacturer_part_number": null,
+        "component_name": "OLED Display Assembly",
+        "quantity": 1,
+        "category": "Display",
+        "location": "Front",
+        "function": "Display and touch input"
+      },
+      {
+        "part_number": "APL-IP15PM-CAM-R01",
+        "manufacturer_part_number": null,
+        "component_name": "Rear Camera Assembly",
+        "quantity": 1,
+        "subcomponent_count": 3,
+        "category": "Camera",
+        "location": "Upper left",
+        "function": "Wide, ultrawide, and 5x telephoto imaging"
+      },
+      {
+        "part_number": "APL-IP15PM-CAM-F01",
+        "manufacturer_part_number": null,
+        "component_name": "Front Camera Assembly",
+        "quantity": 1,
+        "category": "Camera",
+        "location": "Top front",
+        "function": "Front imaging"
+      },
+      {
+        "part_number": "APL-IP15PM-FID-001",
+        "manufacturer_part_number": null,
+        "component_name": "Face ID / TrueDepth Assembly",
+        "quantity": 1,
+        "category": "Sensor",
+        "location": "Top front",
+        "function": "Face authentication"
+      },
+      {
+        "part_number": "APL-IP15PM-USBC-001",
+        "manufacturer_part_number": null,
+        "component_name": "USB-C Charging Port Assembly",
+        "quantity": 1,
+        "category": "Charging",
+        "location": "Bottom",
+        "function": "Charging and data"
+      },
+      {
+        "part_number": "APL-IP15PM-HAP-001",
+        "manufacturer_part_number": null,
+        "component_name": "Taptic Engine",
+        "quantity": 1,
+        "category": "Haptics",
+        "location": "Lower section",
+        "function": "Haptic feedback"
+      },
+      {
+        "part_number": "APL-IP15PM-WLC-001",
+        "manufacturer_part_number": null,
+        "component_name": "MagSafe / Wireless Charging Coil",
+        "quantity": 1,
+        "category": "Wireless Charging",
+        "location": "Rear center",
+        "function": "Wireless charging"
+      }
+    ]
+  },
+
+  "s24_ultra": {
+    "brand": "Samsung",
+    "model": "Galaxy S24 Ultra",
+    "components": [
+      {
+        "part_number": "SMS-S24U-PCB-001",
+        "manufacturer_part_number": null,
+        "component_name": "Main Motherboard",
+        "quantity": 1,
+        "category": "PCB",
+        "location": "Upper section",
+        "function": "Main processing and system control"
+      },
+      {
+        "part_number": "SMS-S24U-PCB-002",
+        "manufacturer_part_number": null,
+        "component_name": "Charging Daughterboard",
+        "quantity": 1,
+        "category": "PCB",
+        "location": "Bottom",
+        "function": "USB-C charging and peripheral connection"
+      },
+      {
+        "part_number": "SMS-S24U-BAT-001",
+        "manufacturer_part_number": null,
+        "component_name": "Battery",
+        "quantity": 1,
+        "category": "Battery",
+        "location": "Center",
+        "function": "Power supply"
+      },
+      {
+        "part_number": "SMS-S24U-DIS-001",
+        "manufacturer_part_number": null,
+        "component_name": "AMOLED Display Assembly",
+        "quantity": 1,
+        "category": "Display",
+        "location": "Front",
+        "function": "Display and touch input"
+      },
+      {
+        "part_number": "SMS-S24U-CAM-R01",
+        "manufacturer_part_number": null,
+        "component_name": "Rear Camera Module",
+        "quantity": 4,
+        "category": "Camera",
+        "location": "Upper rear",
+        "function": "Rear imaging system"
+      },
+      {
+        "part_number": "SMS-S24U-CAM-F01",
+        "manufacturer_part_number": null,
+        "component_name": "Front Camera Module",
+        "quantity": 1,
+        "category": "Camera",
+        "location": "Top front",
+        "function": "Front imaging"
+      },
+      {
+        "part_number": "SMS-S24U-USBC-001",
+        "manufacturer_part_number": null,
+        "component_name": "USB-C Port",
+        "quantity": 1,
+        "category": "Charging",
+        "location": "Bottom",
+        "function": "Charging and data"
+      },
+      {
+        "part_number": "SMS-S24U-SPEN-001",
+        "manufacturer_part_number": null,
+        "component_name": "S Pen Assembly",
+        "quantity": 1,
+        "category": "Input",
+        "location": "Lower body",
+        "function": "Stylus input"
+      },
+      {
+        "part_number": "SMS-S24U-WLC-001",
+        "manufacturer_part_number": null,
+        "component_name": "Wireless Charging / NFC Coil",
+        "quantity": 1,
+        "category": "Wireless",
+        "location": "Rear center",
+        "function": "Wireless charging and NFC"
+      },
+      {
+        "part_number": "SMS-S24U-HAP-001",
+        "manufacturer_part_number": null,
+        "component_name": "Vibration Motor",
+        "quantity": 1,
+        "category": "Haptics",
+        "location": "Lower section",
+        "function": "Haptic feedback"
+      }
+    ]
+  },
+
+  "s25_ultra": {
+    "brand": "Samsung",
+    "model": "Galaxy S25 Ultra",
+    "components": [
+      {
+        "part_number": "SMS-S25U-PCB-001",
+        "manufacturer_part_number": null,
+        "component_name": "Main Motherboard",
+        "quantity": 1,
+        "category": "PCB",
+        "location": "Upper section",
+        "function": "Main processing and system control"
+      },
+      {
+        "part_number": "SMS-S25U-PCB-002",
+        "manufacturer_part_number": null,
+        "component_name": "Charging Daughterboard",
+        "quantity": 1,
+        "category": "PCB",
+        "location": "Bottom",
+        "function": "USB-C charging and peripheral connection"
+      },
+      {
+        "part_number": "SMS-S25U-BAT-001",
+        "manufacturer_part_number": null,
+        "component_name": "Battery",
+        "quantity": 1,
+        "category": "Battery",
+        "location": "Center",
+        "function": "Power supply"
+      },
+      {
+        "part_number": "SMS-S25U-DIS-001",
+        "manufacturer_part_number": null,
+        "component_name": "AMOLED Display Assembly",
+        "quantity": 1,
+        "category": "Display",
+        "location": "Front",
+        "function": "Display and touch input"
+      },
+      {
+        "part_number": "SMS-S25U-CAM-R01",
+        "manufacturer_part_number": null,
+        "component_name": "Rear Camera Module",
+        "quantity": 4,
+        "category": "Camera",
+        "location": "Upper rear",
+        "function": "Rear imaging system"
+      },
+      {
+        "part_number": "SMS-S25U-CAM-F01",
+        "manufacturer_part_number": null,
+        "component_name": "Front Camera Module",
+        "quantity": 1,
+        "category": "Camera",
+        "location": "Top front",
+        "function": "Front imaging"
+      },
+      {
+        "part_number": "SMS-S25U-USBC-001",
+        "manufacturer_part_number": null,
+        "component_name": "USB-C Port",
+        "quantity": 1,
+        "category": "Charging",
+        "location": "Bottom",
+        "function": "Charging and data"
+      },
+      {
+        "part_number": "SMS-S25U-SPEN-001",
+        "manufacturer_part_number": null,
+        "component_name": "S Pen Assembly",
+        "quantity": 1,
+        "category": "Input",
+        "location": "Lower body",
+        "function": "Stylus input"
+      },
+      {
+        "part_number": "SMS-S25U-WLC-001",
+        "manufacturer_part_number": null,
+        "component_name": "Wireless Charging / NFC Coil",
+        "quantity": 1,
+        "category": "Wireless",
+        "location": "Rear center",
+        "function": "Wireless charging and NFC"
+      }
+    ]
+  },
+
+  "s25_edge": {
+    "brand": "Samsung",
+    "model": "Galaxy S25 Edge",
+    "components": [
+      {
+        "part_number": "SMS-S25E-PCB-001",
+        "manufacturer_part_number": null,
+        "component_name": "Main Motherboard",
+        "quantity": 1,
+        "category": "PCB",
+        "location": "Upper section",
+        "function": "Main processing and system control"
+      },
+      {
+        "part_number": "SMS-S25E-PCB-002",
+        "manufacturer_part_number": null,
+        "component_name": "Charging Daughterboard",
+        "quantity": 1,
+        "category": "PCB",
+        "location": "Bottom",
+        "function": "USB-C charging and peripheral connection"
+      },
+      {
+        "part_number": "SMS-S25E-BAT-001",
+        "manufacturer_part_number": null,
+        "component_name": "Battery",
+        "quantity": 1,
+        "category": "Battery",
+        "location": "Center",
+        "function": "Power supply"
+      },
+      {
+        "part_number": "SMS-S25E-DIS-001",
+        "manufacturer_part_number": null,
+        "component_name": "AMOLED Display Assembly",
+        "quantity": 1,
+        "category": "Display",
+        "location": "Front",
+        "function": "Display and touch input"
+      },
+      {
+        "part_number": "SMS-S25E-CAM-R01",
+        "manufacturer_part_number": null,
+        "component_name": "Rear Camera Module",
+        "quantity": 2,
+        "category": "Camera",
+        "location": "Upper rear",
+        "function": "Rear imaging system"
+      },
+      {
+        "part_number": "SMS-S25E-CAM-F01",
+        "manufacturer_part_number": null,
+        "component_name": "Front Camera Module",
+        "quantity": 1,
+        "category": "Camera",
+        "location": "Top front",
+        "function": "Front imaging"
+      },
+      {
+        "part_number": "SMS-S25E-USBC-001",
+        "manufacturer_part_number": null,
+        "component_name": "USB-C Port",
+        "quantity": 1,
+        "category": "Charging",
+        "location": "Bottom",
+        "function": "Charging and data"
+      },
+      {
+        "part_number": "SMS-S25E-WLC-001",
+        "manufacturer_part_number": null,
+        "component_name": "Wireless Charging / NFC Coil",
+        "quantity": 1,
+        "category": "Wireless",
+        "location": "Rear center",
+        "function": "Wireless charging and NFC"
+      },
+      {
+        "part_number": "SMS-S25E-HAP-001",
+        "manufacturer_part_number": null,
+        "component_name": "Vibration Motor",
+        "quantity": 1,
+        "category": "Haptics",
+        "location": "Lower section",
+        "function": "Haptic feedback"
+      }
+    ]
+  }
+}
