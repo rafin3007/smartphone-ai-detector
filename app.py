@@ -58,6 +58,7 @@ DEFAULT_MODEL_PATH = get_model_path()
 DEFAULT_COMPONENTS_PATH = BASE_DIR / "data" / "smartphone_components_summary.csv"
 DEFAULT_SPECS_PATH = BASE_DIR / "data" / "phone_specifications.json"
 DEFAULT_METALS_PATH = BASE_DIR / "data" / "valuable_metals.json"
+DEFAULT_COMPONENT_COUNTS_PATH = BASE_DIR / "data" / "smartphone_component_counts.json"
 
 RTC_CONFIGURATION = RTCConfiguration(
     {
@@ -450,7 +451,6 @@ def load_valuable_metals(path: str) -> dict[str, Any]:
             "valuable_metals.json must contain a JSON object."
         )
 
-    payload = payload.copy()
     payload.pop("metadata", None)
 
     return {
@@ -479,7 +479,6 @@ def lookup_valuable_metals(
 def _format_metal_quantity(quantity_g: float) -> str:
     if quantity_g < 0.1:
         return f"{quantity_g * 1000:.1f} mg"
-
     return f"{quantity_g:.2f} g"
 
 
@@ -491,10 +490,7 @@ def _format_metal_range(
         return "—"
 
     if maximum < 0.1:
-        return (
-            f"{minimum * 1000:.1f}–"
-            f"{maximum * 1000:.1f} mg"
-        )
+        return f"{minimum * 1000:.1f}–{maximum * 1000:.1f} mg"
 
     return f"{minimum:.3f}–{maximum:.3f} g"
 
@@ -516,10 +512,9 @@ def render_valuable_metals(
         return
 
     st.subheader("Estimated valuable-metal content")
-
     st.caption(
         "These values are research-based estimates, not exact "
-        "manufacturer-reported measurements. Actual quantities may vary "
+        "manufacturer-reported measurements. Actual quantities can vary "
         "by production revision, supplier, region, and configuration."
     )
 
@@ -538,127 +533,66 @@ def render_valuable_metals(
     overview_columns = st.columns(4)
     overview_columns[0].metric("Brand", brand)
     overview_columns[1].metric("Model", model_name)
-    overview_columns[2].metric(
-        "Estimate confidence",
-        confidence,
-    )
+    overview_columns[2].metric("Estimate confidence", confidence)
     overview_columns[3].metric(
         "Device weight",
         f"{weight} g" if weight != "—" else "—",
     )
 
     metals = phone_metals.get("valuable_metals", {})
-
     if not metals:
         st.info("No metal entries are available for this model.")
         return
 
-    rows: list[dict[str, Any]] = []
+    rows = []
 
     for metal_name, metal_info in metals.items():
         if not isinstance(metal_info, dict):
             continue
 
-        try:
-            quantity_g = float(
-                metal_info.get("estimated_quantity_g", 0)
-            )
-        except (TypeError, ValueError):
-            quantity_g = 0.0
-
-        quantity_range = (
-            metal_info.get("estimated_range_g", {})
-            if isinstance(
-                metal_info.get("estimated_range_g", {}),
-                dict,
-            )
-            else {}
+        quantity_g = float(
+            metal_info.get("estimated_quantity_g", 0)
         )
-
-        minimum = quantity_range.get("minimum")
-        maximum = quantity_range.get("maximum")
-
-        try:
-            minimum = (
-                float(minimum)
-                if minimum is not None
-                else None
-            )
-        except (TypeError, ValueError):
-            minimum = None
-
-        try:
-            maximum = (
-                float(maximum)
-                if maximum is not None
-                else None
-            )
-        except (TypeError, ValueError):
-            maximum = None
-
-        locations = ", ".join(
-            str(location)
-            for location in metal_info.get(
-                "primary_locations",
-                [],
-            )
-        )
+        quantity_range = metal_info.get(
+            "estimated_range_g",
+            {},
+        ) or {}
 
         rows.append(
             {
-                "Metal": (
-                    metal_name
-                    .replace("_", " ")
-                    .title()
-                ),
+                "Metal": metal_name.replace("_", " ").title(),
                 "Symbol": metal_info.get("symbol", ""),
-                "Estimated quantity": (
-                    _format_metal_quantity(quantity_g)
+                "Estimated quantity": _format_metal_quantity(quantity_g),
+                "Estimated range": _format_metal_range(
+                    quantity_range.get("minimum"),
+                    quantity_range.get("maximum"),
                 ),
-                "Estimated range": (
-                    _format_metal_range(
-                        minimum,
-                        maximum,
-                    )
-                ),
-                "Main locations": locations or "—",
+                "Main locations": ", ".join(
+                    metal_info.get("primary_locations", [])
+                ) or "—",
                 "quantity_g": quantity_g,
             }
         )
 
     if not rows:
-        st.info("No usable metal entries are available.")
+        st.info("No metal entries are available for this model.")
         return
 
     metals_dataframe = pd.DataFrame(rows)
 
-    card_items = rows[:8]
-
-    for start_index in range(
-        0,
-        len(card_items),
-        4,
-    ):
+    for start_index in range(0, min(len(rows), 8), 4):
         columns = st.columns(4)
-
         for column, item in zip(
             columns,
-            card_items[
-                start_index:
-                start_index + 4
-            ],
+            rows[start_index:start_index + 4],
         ):
             with column:
                 st.metric(
-                    label=(
-                        f"{item['Metal']} "
-                        f"({item['Symbol']})"
-                    ),
+                    label=f"{item['Metal']} ({item['Symbol']})",
                     value=item["Estimated quantity"],
                 )
 
     st.markdown("#### Complete metal details")
-
     st.dataframe(
         metals_dataframe[
             [
@@ -674,17 +608,9 @@ def render_valuable_metals(
     )
 
     chart_dataframe = (
-        metals_dataframe[
-            ["Metal", "quantity_g"]
-        ]
+        metals_dataframe[["Metal", "quantity_g"]]
         .set_index("Metal")
-        .rename(
-            columns={
-                "quantity_g": (
-                    "Estimated quantity (g)"
-                )
-            }
-        )
+        .rename(columns={"quantity_g": "Estimated quantity (g)"})
     )
 
     st.markdown("#### Estimated quantity comparison")
@@ -695,6 +621,165 @@ def render_valuable_metals(
             "Contained quantity is not the same as recoverable quantity. "
             "Actual recycling recovery depends on collection, dismantling, "
             "separation, refining technology, and process efficiency."
+        )
+
+
+# ============================================================
+# Component quantity and part-number lookup
+# ============================================================
+
+@st.cache_data(show_spinner=False)
+def load_component_counts(path: str) -> dict[str, Any]:
+    component_path = Path(path)
+
+    if not component_path.exists():
+        return {}
+
+    with component_path.open("r", encoding="utf-8") as file:
+        payload = json.load(file)
+
+    if not isinstance(payload, dict):
+        raise ValueError(
+            "smartphone_component_counts.json must contain a JSON object."
+        )
+
+    return {
+        normalize_model_key(str(model_key)): model_data
+        for model_key, model_data in payload.items()
+        if isinstance(model_data, dict)
+    }
+
+
+def lookup_component_counts(
+    predicted_class: str,
+    component_counts: dict[str, Any],
+) -> dict[str, Any] | None:
+    model_key = normalize_model_key(predicted_class)
+
+    if model_key in component_counts:
+        return component_counts[model_key]
+
+    for key, value in component_counts.items():
+        if key in model_key or model_key in key:
+            return value
+
+    return None
+
+
+def render_component_counts(
+    predicted_class: str,
+    component_counts: dict[str, Any],
+) -> None:
+    phone_data = lookup_component_counts(
+        predicted_class,
+        component_counts,
+    )
+
+    if not phone_data:
+        st.info(
+            "Component quantity and part-number information is not available "
+            "for this smartphone."
+        )
+        return
+
+    st.subheader("Internal components, quantity, and part numbers")
+    st.caption(
+        "Part numbers may include internal dataset IDs and, where verified, "
+        "manufacturer/service identifiers. A blank manufacturer part number "
+        "means it has not yet been verified."
+    )
+
+    components = phone_data.get("components", [])
+    if not isinstance(components, list) or not components:
+        st.info("No component-count records are available for this model.")
+        return
+
+    rows = []
+
+    for component in components:
+        if not isinstance(component, dict):
+            continue
+
+        quantity = component.get("quantity", 1)
+        try:
+            quantity = int(quantity)
+        except (TypeError, ValueError):
+            quantity = 1
+
+        rows.append(
+            {
+                "Part Number": component.get("part_number", "—"),
+                "Manufacturer Part Number": (
+                    component.get("manufacturer_part_number") or "—"
+                ),
+                "Component": component.get("component_name", "Unknown"),
+                "Quantity": quantity,
+                "Subcomponents": (
+                    component.get("subcomponent_count")
+                    if component.get("subcomponent_count") is not None
+                    else "—"
+                ),
+                "Category": component.get("category", "—"),
+                "Location": component.get("location", "—"),
+                "Function": component.get("function", "—"),
+            }
+        )
+
+    if not rows:
+        st.info("No component-count records are available for this model.")
+        return
+
+    component_df = pd.DataFrame(rows)
+    total_units = int(
+        pd.to_numeric(component_df["Quantity"], errors="coerce")
+        .fillna(0)
+        .sum()
+    )
+    verified_part_numbers = int(
+        (component_df["Manufacturer Part Number"] != "—").sum()
+    )
+
+    summary_columns = st.columns(4)
+    summary_columns[0].metric(
+        "Model",
+        phone_data.get("model", pretty_class_name(predicted_class)),
+    )
+    summary_columns[1].metric("Component types", len(component_df))
+    summary_columns[2].metric("Total units", total_units)
+    summary_columns[3].metric(
+        "Verified part numbers",
+        verified_part_numbers,
+    )
+
+    st.dataframe(
+        component_df,
+        use_container_width=True,
+        hide_index=True,
+        column_config={
+            "Quantity": st.column_config.NumberColumn(
+                "Qty",
+                format="%d",
+            ),
+        },
+    )
+
+    category_summary = (
+        component_df.groupby("Category", dropna=False)["Quantity"]
+        .sum()
+        .sort_values(ascending=False)
+        .to_frame("Units")
+    )
+
+    if not category_summary.empty:
+        st.markdown("#### Component units by category")
+        st.bar_chart(category_summary)
+
+    with st.expander("Part-number notes"):
+        st.write(
+            "The Part Number column can contain your stable research dataset "
+            "identifier, such as APL-IP15P-PCB-001. The Manufacturer Part "
+            "Number column should only be populated when the identifier has "
+            "been verified from a reliable source."
         )
 
 
@@ -826,6 +911,7 @@ def render_damage_analysis(image: Image.Image) -> None:
 def render_prediction(
     predictions: list[dict[str, Any]],
     component_dataframe: pd.DataFrame,
+    component_counts: dict[str, Any],
     specifications: dict[str, Any],
     metals_data: dict[str, Any],
     threshold: float,
@@ -875,7 +961,15 @@ def render_prediction(
     if image is not None:
         render_damage_analysis(image)
 
-    render_phone_specification(top["class_name"], specifications)
+    render_phone_specification(
+        top["class_name"],
+        specifications,
+    )
+
+    render_component_counts(
+        top["class_name"],
+        component_counts,
+    )
 
     render_valuable_metals(
         top["class_name"],
@@ -1098,8 +1192,7 @@ with st.sidebar:
         "Checkpoint path",
         value=str(DEFAULT_MODEL_PATH),
         help=(
-            "Use your best_model.pth checkpoint. When deploying, place it "
-            "inside the app's models folder."
+            "The default checkpoint is downloaded automatically from Hugging Face."
         ),
     )
 
@@ -1115,12 +1208,21 @@ with st.sidebar:
         help="JSON containing model-specific phone specifications.",
     )
 
+    component_counts_path = st.text_input(
+        "Component quantity JSON path",
+        value=str(DEFAULT_COMPONENT_COUNTS_PATH),
+        help=(
+            "JSON containing component names, quantities, dataset part "
+            "numbers, and verified manufacturer part numbers."
+        ),
+    )
+
     metals_path = st.text_input(
         "Valuable metals JSON path",
         value=str(DEFAULT_METALS_PATH),
         help=(
-            "JSON containing estimated valuable-metal quantities "
-            "for each supported phone model."
+            "JSON containing estimated valuable-metal quantities for each "
+            "smartphone model."
         ),
     )
 
@@ -1167,9 +1269,10 @@ except Exception as error:
 
 component_dataframe = load_component_dataset(components_path)
 phone_specifications = load_phone_specifications(specifications_path)
+component_counts = load_component_counts(component_counts_path)
 valuable_metals_data = load_valuable_metals(metals_path)
 
-status_columns = st.columns(6)
+status_columns = st.columns(7)
 
 with status_columns[0]:
     st.metric(
@@ -1209,8 +1312,13 @@ with status_columns[4]:
         len(phone_specifications),
     )
 
-
 with status_columns[5]:
+    st.metric(
+        "Component-count models",
+        len(component_counts),
+    )
+
+with status_columns[6]:
     st.metric(
         "Metal records",
         len(valuable_metals_data),
@@ -1219,8 +1327,8 @@ with status_columns[5]:
 if not model_ready:
     st.error(
         f"Could not load the model: {model_error}\n\n"
-        "Confirm that the Hugging Face repository and model filename are "
-        "correct, or update the checkpoint path in the sidebar."
+        "Check the Hugging Face repository/file settings or update the "
+        "checkpoint path in the sidebar."
     )
     st.stop()
 
@@ -1286,6 +1394,7 @@ with mode[0]:
                     render_prediction(
                         predictions,
                         component_dataframe,
+                        component_counts,
                         phone_specifications,
                         valuable_metals_data,
                         confidence_threshold,
@@ -1319,6 +1428,7 @@ with mode[1]:
             render_prediction(
                 predictions,
                 component_dataframe,
+                component_counts,
                 phone_specifications,
                 valuable_metals_data,
                 confidence_threshold,
