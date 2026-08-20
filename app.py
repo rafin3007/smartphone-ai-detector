@@ -56,7 +56,7 @@ def get_model_path():
     )
 
 
-DEFAULT_MODEL_PATH = get_model_path()
+DEFAULT_MODEL_PATH = ""
 DEFAULT_COMPONENTS_PATH = BASE_DIR / "data" / "smartphone_components_summary.csv"
 DEFAULT_SPECS_PATH = BASE_DIR / "data" / "phone_specifications.json"
 DEFAULT_METALS_PATH = BASE_DIR / "data" / "valuable_metals.json"
@@ -2109,11 +2109,13 @@ st.markdown(
 with st.sidebar:
     st.header("Model configuration")
 
-    model_path = st.text_input(
-        "Checkpoint path",
+    model_path_override = st.text_input(
+        "Checkpoint path (optional)",
         value=str(DEFAULT_MODEL_PATH),
         help=(
-            "The default checkpoint is downloaded automatically from Hugging Face."
+            "Leave this blank to download best_model.pth automatically "
+            "from Hugging Face. Enter a local checkpoint path only when "
+            "running the app locally."
         ),
     )
 
@@ -2144,6 +2146,15 @@ with st.sidebar:
         help=(
             "JSON containing estimated valuable-metal quantities for each "
             "smartphone model."
+        ),
+    )
+
+    pricing_path = st.text_input(
+        "Pricing Excel path",
+        value=str(DEFAULT_PRICING_PATH),
+        help=(
+            "Excel workbook containing model prices for PTG, PTC, PBL, "
+            "NP, cloud-status, and commodity pricing criteria."
         ),
     )
 
@@ -2180,10 +2191,20 @@ with st.sidebar:
     )
 
 try:
-    model_bundle = load_classifier(model_path)
+    effective_model_path = (
+        model_path_override.strip()
+        if model_path_override.strip()
+        else get_model_path()
+    )
+
+    model_bundle = load_classifier(
+        effective_model_path
+    )
     model_ready = True
     model_error = None
+
 except Exception as error:
+    effective_model_path = None
     model_bundle = None
     model_ready = False
     model_error = error
@@ -2194,7 +2215,7 @@ component_counts = load_component_counts(component_counts_path)
 valuable_metals_data = load_valuable_metals(metals_path)
 pricing_data = load_pricing_workbook(pricing_path)
 
-status_columns = st.columns(7)
+status_columns = st.columns(8)
 
 with status_columns[0]:
     st.metric(
@@ -2246,11 +2267,23 @@ with status_columns[6]:
         len(valuable_metals_data),
     )
 
+with status_columns[7]:
+    st.metric(
+        "Pricing workbook",
+        "Ready"
+        if pricing_data.get("available")
+        else "Unavailable",
+    )
+
 if not model_ready:
     st.warning(
-        f"AI detector is currently unavailable: {model_error}. "
-        "The Manual Valuation Assistant can still be used without the detection model."
+        "AI detector is currently unavailable. "
+        "The Manual Valuation Assistant remains fully available "
+        "without the image-classification model."
     )
+
+    with st.expander("AI model loading details"):
+        st.code(str(model_error))
 
 mode = st.tabs(
     [
@@ -2264,105 +2297,130 @@ mode = st.tabs(
 
 with mode[0]:
     if not model_ready:
-        st.error("AI detector is unavailable. Use the Manual valuation assistant tab instead.")
+        st.error(
+            "AI detector is unavailable. "
+            "Use the Manual valuation assistant tab instead."
+        )
+    else:
+        uploaded_files = st.file_uploader(
+            "Upload one or more smartphone images",
+            type=["jpg", "jpeg", "png", "webp"],
+            accept_multiple_files=True,
+            help=(
+                "You can select several images and analyze "
+                "them in one batch."
+            ),
+        )
 
-    uploaded_files = st.file_uploader(
-        "Upload one or more smartphone images",
-        type=["jpg", "jpeg", "png", "webp"],
-        accept_multiple_files=True,
-        help="You can select several images and analyze them in one batch.",
-    )
+        if uploaded_files:
+            st.caption(
+                f"{len(uploaded_files)} image(s) selected"
+            )
 
-    if uploaded_files:
-        st.caption(f"{len(uploaded_files)} image(s) selected")
+            for image_index, uploaded_file in enumerate(
+                uploaded_files,
+                start=1,
+            ):
+                try:
+                    uploaded_image = Image.open(
+                        uploaded_file
+                    ).convert("RGB")
+                except Exception as exc:
+                    st.error(
+                        f"Could not open "
+                        f"{uploaded_file.name}: {exc}"
+                    )
+                    continue
 
-        for image_index, uploaded_file in enumerate(
-            uploaded_files,
-            start=1,
-        ):
-            try:
-                uploaded_image = Image.open(uploaded_file).convert("RGB")
-            except Exception as exc:
-                st.error(
-                    f"Could not open {uploaded_file.name}: {exc}"
-                )
-                continue
-
-            with st.container(border=True):
-                st.markdown(
-                    f"### Image {image_index}: {uploaded_file.name}"
-                )
-
-                first, second = st.columns(
-                    [1.05, 0.95],
-                    gap="large",
-                )
-
-                with first:
-                    st.image(
-                        uploaded_image,
-                        caption=uploaded_file.name,
-                        use_container_width=True,
+                with st.container(border=True):
+                    st.markdown(
+                        f"### Image {image_index}: "
+                        f"{uploaded_file.name}"
                     )
 
-                with second:
-                    with st.spinner(
-                        f"Analyzing {uploaded_file.name}..."
-                    ):
-                        predictions = predict_pil_image(
+                    first, second = st.columns(
+                        [1.05, 0.95],
+                        gap="large",
+                    )
+
+                    with first:
+                        st.image(
                             uploaded_image,
-                            model_bundle,
-                            top_k=top_k,
+                            caption=uploaded_file.name,
+                            use_container_width=True,
                         )
 
-                    render_prediction(
-                        predictions,
-                        component_dataframe,
-                        component_counts,
-                        phone_specifications,
-                        valuable_metals_data,
-                        confidence_threshold,
-                        image=uploaded_image,
-                    )
-    else:
-        st.info("Upload one or more images to begin.")
+                    with second:
+                        with st.spinner(
+                            f"Analyzing "
+                            f"{uploaded_file.name}..."
+                        ):
+                            predictions = predict_pil_image(
+                                uploaded_image,
+                                model_bundle,
+                                top_k=top_k,
+                            )
+
+                        render_prediction(
+                            predictions,
+                            component_dataframe,
+                            component_counts,
+                            phone_specifications,
+                            valuable_metals_data,
+                            confidence_threshold,
+                            image=uploaded_image,
+                        )
+        else:
+            st.info(
+                "Upload one or more images to begin."
+            )
 
 with mode[1]:
     if not model_ready:
-        st.error("AI detector is unavailable. Use the Manual valuation assistant tab instead.")
-
-    snapshot_columns = st.columns(
-        [1.05, 0.95],
-        gap="large",
-    )
-
-    with snapshot_columns[0]:
-        camera_file = st.camera_input(
-            "Take a clear smartphone photo"
+        st.error(
+            "AI detector is unavailable. "
+            "Use the Manual valuation assistant tab instead."
+        )
+    else:
+        snapshot_columns = st.columns(
+            [1.05, 0.95],
+            gap="large",
         )
 
-    with snapshot_columns[1]:
-        if camera_file is not None:
-            camera_image = Image.open(camera_file).convert("RGB")
-
-            with st.spinner("Analyzing camera image..."):
-                predictions = predict_pil_image(
-                    camera_image,
-                    model_bundle,
-                    top_k=top_k,
-                )
-
-            render_prediction(
-                predictions,
-                component_dataframe,
-                component_counts,
-                phone_specifications,
-                valuable_metals_data,
-                confidence_threshold,
-                image=camera_image,
+        with snapshot_columns[0]:
+            camera_file = st.camera_input(
+                "Take a clear smartphone photo"
             )
-        else:
-            st.info("Allow camera access and take a picture.")
+
+        with snapshot_columns[1]:
+            if camera_file is not None:
+                camera_image = Image.open(
+                    camera_file
+                ).convert("RGB")
+
+                with st.spinner(
+                    "Analyzing camera image..."
+                ):
+                    predictions = predict_pil_image(
+                        camera_image,
+                        model_bundle,
+                        top_k=top_k,
+                    )
+
+                render_prediction(
+                    predictions,
+                    component_dataframe,
+                    component_counts,
+                    phone_specifications,
+                    valuable_metals_data,
+                    confidence_threshold,
+                    image=camera_image,
+                )
+            else:
+                st.info(
+                    "Allow camera access and "
+                    "take a picture."
+                )
 
 with mode[2]:
     if not model_ready:
