@@ -2,10 +2,12 @@
 from __future__ import annotations
 
 import io
+import re
 import json
 import threading
 import time
 from pathlib import Path
+from difflib import SequenceMatcher
 from typing import Any
 
 import av
@@ -59,6 +61,7 @@ DEFAULT_COMPONENTS_PATH = BASE_DIR / "data" / "smartphone_components_summary.csv
 DEFAULT_SPECS_PATH = BASE_DIR / "data" / "phone_specifications.json"
 DEFAULT_METALS_PATH = BASE_DIR / "data" / "valuable_metals.json"
 DEFAULT_COMPONENT_COUNTS_PATH = BASE_DIR / "data" / "smartphone_component_counts.json"
+DEFAULT_PRICING_PATH = BASE_DIR / "data" / "early_upgrade_pricing.xlsx"
 
 RTC_CONFIGURATION = RTCConfiguration(
     {
@@ -1052,6 +1055,924 @@ def render_prediction(
                 st.write(f"• {value}")
 
 
+
+# ============================================================
+# Manual valuation assistant + Excel pricing
+# ============================================================
+
+@st.cache_data(show_spinner=False)
+def load_pricing_workbook(path: str) -> dict[str, Any]:
+    """Load and normalize the Early Upgrade pricing workbook."""
+    pricing_path = Path(path)
+
+    if not pricing_path.exists():
+        return {
+            "available": False,
+            "error": f"Pricing workbook not found: {pricing_path}",
+            "phones": pd.DataFrame(),
+            "tablets": pd.DataFrame(),
+            "terms": {},
+            "categories": {},
+        }
+
+    try:
+        phones_raw = pd.read_excel(
+            pricing_path,
+            sheet_name="phones",
+            header=None,
+            engine="openpyxl",
+        )
+        tablets_raw = pd.read_excel(
+            pricing_path,
+            sheet_name="tablets",
+            header=None,
+            engine="openpyxl",
+        )
+        terms_raw = pd.read_excel(
+            pricing_path,
+            sheet_name="terms",
+            header=None,
+            engine="openpyxl",
+        )
+        categories_raw = pd.read_excel(
+            pricing_path,
+            sheet_name="Categories wprice",
+            header=None,
+            engine="openpyxl",
+        )
+    except Exception as error:
+        return {
+            "available": False,
+            "error": f"Could not read pricing workbook: {error}",
+            "phones": pd.DataFrame(),
+            "tablets": pd.DataFrame(),
+            "terms": {},
+            "categories": {},
+        }
+
+    phone_rows: list[dict[str, Any]] = []
+
+    # Sheet layout: iPhone A:E and Samsung F:J.
+    for _, row in phones_raw.iloc[1:].iterrows():
+        for model_col, start_col, brand in (
+            (0, 1, "Apple"),
+            (5, 6, "Samsung"),
+        ):
+            model = row.iloc[model_col] if model_col < len(row) else None
+
+            if pd.isna(model) or not str(model).strip():
+                continue
+
+            phone_rows.append(
+                {
+                    "model": str(model).strip(),
+                    "model_key": normalize_model_key(str(model)),
+                    "brand": brand,
+                    "device_type": "phone",
+                    "PTG": row.iloc[start_col] if start_col < len(row) else None,
+                    "PTC": row.iloc[start_col + 1] if start_col + 1 < len(row) else None,
+                    "PBL": row.iloc[start_col + 2] if start_col + 2 < len(row) else None,
+                    "NP": row.iloc[start_col + 3] if start_col + 3 < len(row) else None,
+                }
+            )
+
+    tablet_rows: list[dict[str, Any]] = []
+
+    # Sheet layout: OFF A:E and ON F:J. The final ON header is blank,
+    # but its position mirrors the NP column in the OFF section.
+    for _, row in tablets_raw.iloc[1:].iterrows():
+        model = row.iloc[0] if len(row) > 0 else None
+
+        if pd.isna(model) or not str(model).strip():
+            continue
+
+        model_text = str(model).strip()
+
+        tablet_rows.append(
+            {
+                "model": model_text,
+                "model_key": normalize_model_key(model_text),
+                "brand": "Apple" if "ipad" in model_text.lower() else "Tablet",
+                "device_type": "tablet",
+                "cloud_status": "off",
+                "PTG": row.iloc[1] if len(row) > 1 else None,
+                "PTC": row.iloc[2] if len(row) > 2 else None,
+                "PBL": row.iloc[3] if len(row) > 3 else None,
+                "NP": row.iloc[4] if len(row) > 4 else None,
+            }
+        )
+
+        tablet_rows.append(
+            {
+                "model": model_text,
+                "model_key": normalize_model_key(model_text),
+                "brand": "Apple" if "ipad" in model_text.lower() else "Tablet",
+                "device_type": "tablet",
+                "cloud_status": "on",
+                "PTG": row.iloc[6] if len(row) > 6 else None,
+                "PTC": row.iloc[7] if len(row) > 7 else None,
+                "PBL": row.iloc[8] if len(row) > 8 else None,
+                "NP": row.iloc[9] if len(row) > 9 else None,
+            }
+        )
+
+    terms: dict[str, str] = {}
+    for value in terms_raw.iloc[:, 0].dropna().astype(str):
+        cleaned = value.strip()
+        upper = cleaned.upper()
+
+        for code in ("PTG", "PTC", "PBL", "NP", "ON", "OFF"):
+            if upper.startswith(code):
+                terms[code] = cleaned
+                break
+
+    categories: dict[str, float | None] = {}
+    for _, row in categories_raw.iloc[1:].iterrows():
+        if len(row) < 1 or pd.isna(row.iloc[0]):
+            continue
+
+        name = str(row.iloc[0]).strip()
+        value = row.iloc[1] if len(row) > 1 else None
+
+        try:
+            rate = float(value) if not pd.isna(value) else None
+        except (TypeError, ValueError):
+            rate = None
+
+        categories[name] = rate
+
+    return {
+        "available": True,
+        "error": None,
+        "phones": pd.DataFrame(phone_rows),
+        "tablets": pd.DataFrame(tablet_rows),
+        "terms": terms,
+        "categories": categories,
+    }
+
+
+def _manual_default_state() -> dict[str, Any]:
+    return {
+        "device_type": None,
+        "model": None,
+        "power_on": None,
+        "lcd_good": None,
+        "glass_cracked": None,
+        "cloud_status": None,
+        "weight_lb": None,
+        "weight_skipped": False,
+        "battery_type": None,
+        "notes": [],
+    }
+
+
+def _manual_model_catalog(
+    pricing_data: dict[str, Any],
+    component_counts: dict[str, Any],
+    specifications: dict[str, Any],
+    metals_data: dict[str, Any],
+) -> list[tuple[str, str]]:
+    catalog: dict[str, str] = {}
+
+    for table_name in ("phones", "tablets"):
+        dataframe = pricing_data.get(table_name, pd.DataFrame())
+
+        if isinstance(dataframe, pd.DataFrame) and not dataframe.empty:
+            for model in dataframe["model"].dropna().astype(str).unique():
+                catalog[normalize_model_key(model)] = model
+
+    for dataset in (component_counts, specifications, metals_data):
+        for key, value in dataset.items():
+            display_name = (
+                value.get("model")
+                if isinstance(value, dict)
+                else None
+            ) or pretty_class_name(key)
+            catalog[normalize_model_key(key)] = str(display_name)
+
+    return sorted(
+        catalog.items(),
+        key=lambda item: len(item[0]),
+        reverse=True,
+    )
+
+
+def _manual_find_model(
+    text: str,
+    catalog: list[tuple[str, str]],
+) -> str | None:
+    normalized_text = normalize_model_key(text)
+
+    # Prefer explicit containment and longest model first so that
+    # "iPhone 15 Pro Max" does not collapse into "iPhone 15 Pro".
+    for model_key, display_name in catalog:
+        if model_key and model_key in normalized_text:
+            return display_name
+
+    # Conservative fuzzy fallback for short answers such as model-only replies.
+    best_name = None
+    best_score = 0.0
+
+    for model_key, display_name in catalog:
+        score = SequenceMatcher(
+            None,
+            normalized_text,
+            model_key,
+        ).ratio()
+
+        if score > best_score:
+            best_score = score
+            best_name = display_name
+
+    return best_name if best_score >= 0.86 else None
+
+
+def _parse_yes_no(text: str) -> bool | None:
+    value = text.strip().lower()
+
+    negative = (
+        "no",
+        "nope",
+        "false",
+        "doesn't",
+        "does not",
+        "dont",
+        "don't",
+        "not ",
+        "won't",
+        "wont",
+    )
+    positive = (
+        "yes",
+        "yeah",
+        "yep",
+        "true",
+        "works",
+        "working",
+        "good",
+    )
+
+    if any(token in value for token in negative):
+        return False
+
+    if any(token in value for token in positive):
+        return True
+
+    return None
+
+
+def _extract_weight_lb(text: str) -> float | None:
+    match = re.search(
+        r"(\d+(?:\.\d+)?)\s*(lb|lbs|pounds?|kg|g|grams?|oz|ounces?)\b",
+        text.lower(),
+    )
+
+    if not match:
+        return None
+
+    value = float(match.group(1))
+    unit = match.group(2)
+
+    if unit in {"lb", "lbs", "pound", "pounds"}:
+        return value
+    if unit == "kg":
+        return value * 2.2046226218
+    if unit in {"g", "gram", "grams"}:
+        return value / 453.59237
+    if unit in {"oz", "ounce", "ounces"}:
+        return value / 16.0
+
+    return None
+
+
+def _manual_apply_message(
+    text: str,
+    state: dict[str, Any],
+    catalog: list[tuple[str, str]],
+) -> None:
+    """Extract as many useful facts as possible from one free-text message."""
+    lower = text.lower().strip()
+
+    model = _manual_find_model(text, catalog)
+    if model:
+        state["model"] = model
+
+        if "ipad" in model.lower() or "tablet" in model.lower():
+            state["device_type"] = "tablet"
+        else:
+            state["device_type"] = "phone"
+
+    if state.get("device_type") is None:
+        if "tablet" in lower or "ipad" in lower:
+            state["device_type"] = "tablet"
+        elif "phone" in lower or "iphone" in lower or "samsung" in lower:
+            state["device_type"] = "phone"
+
+    # Power state
+    if any(
+        phrase in lower
+        for phrase in (
+            "no power",
+            "dead phone",
+            "dead device",
+            "won't turn on",
+            "wont turn on",
+            "doesn't turn on",
+            "does not turn on",
+            "not turning on",
+        )
+    ):
+        state["power_on"] = False
+    elif any(
+        phrase in lower
+        for phrase in (
+            "power on",
+            "powers on",
+            "turns on",
+            "turn on",
+            "boots",
+            "working phone",
+            "working device",
+        )
+    ):
+        state["power_on"] = True
+
+    # LCD/display state
+    if any(
+        phrase in lower
+        for phrase in (
+            "bad lcd",
+            "broken lcd",
+            "bad display",
+            "broken display",
+            "black screen",
+            "display lines",
+            "screen lines",
+            "lcd bad",
+        )
+    ):
+        state["lcd_good"] = False
+    elif any(
+        phrase in lower
+        for phrase in (
+            "good lcd",
+            "lcd good",
+            "good display",
+            "display good",
+            "screen works",
+            "screen working",
+        )
+    ):
+        state["lcd_good"] = True
+
+    # Glass condition
+    if any(
+        phrase in lower
+        for phrase in (
+            "no crack",
+            "not cracked",
+            "good glass",
+            "glass good",
+            "no broken glass",
+        )
+    ):
+        state["glass_cracked"] = False
+    elif any(
+        phrase in lower
+        for phrase in (
+            "cracked glass",
+            "glass cracked",
+            "screen cracked",
+            "cracked screen",
+            "broken glass",
+        )
+    ):
+        state["glass_cracked"] = True
+
+    # iCloud / MDM state
+    if any(
+        phrase in lower
+        for phrase in (
+            "icloud off",
+            "mdm off",
+            "icloud unlocked",
+            "activation lock off",
+        )
+    ):
+        state["cloud_status"] = "off"
+    elif any(
+        phrase in lower
+        for phrase in (
+            "icloud on",
+            "mdm on",
+            "icloud locked",
+            "activation locked",
+            "activation lock on",
+        )
+    ):
+        state["cloud_status"] = "on"
+
+    if "internal battery" in lower or "battery internal" in lower:
+        state["battery_type"] = "internal"
+    elif "external battery" in lower or "battery external" in lower:
+        state["battery_type"] = "external"
+
+    weight = _extract_weight_lb(text)
+    if weight is not None:
+        state["weight_lb"] = weight
+        state["weight_skipped"] = False
+
+    if lower in {"skip", "skip weight", "don't know", "dont know", "unknown"}:
+        state["weight_skipped"] = True
+
+    state["notes"].append(text.strip())
+
+
+def _manual_condition_code(
+    state: dict[str, Any],
+) -> str | None:
+    if state.get("power_on") is False:
+        return "NP"
+
+    if state.get("power_on") is not True:
+        return None
+
+    if state.get("lcd_good") is False:
+        return "PBL"
+
+    if state.get("lcd_good") is not True:
+        return None
+
+    if state.get("glass_cracked") is True:
+        return "PTC"
+
+    if state.get("glass_cracked") is False:
+        return "PTG"
+
+    return None
+
+
+def _manual_pricing_match(
+    state: dict[str, Any],
+    pricing_data: dict[str, Any],
+) -> dict[str, Any]:
+    result = {
+        "condition_code": _manual_condition_code(state),
+        "matched_model": None,
+        "exact_value": None,
+        "table": None,
+        "cloud_status": state.get("cloud_status"),
+        "commodity_name": None,
+        "commodity_rate": None,
+        "commodity_estimate": None,
+    }
+
+    model = state.get("model")
+    code = result["condition_code"]
+
+    if model and code and pricing_data.get("available"):
+        table_name = (
+            "tablets"
+            if state.get("device_type") == "tablet"
+            else "phones"
+        )
+        dataframe = pricing_data.get(table_name, pd.DataFrame())
+        model_key = normalize_model_key(model)
+
+        if isinstance(dataframe, pd.DataFrame) and not dataframe.empty:
+            matches = dataframe[
+                dataframe["model_key"] == model_key
+            ]
+
+            if table_name == "tablets" and not matches.empty:
+                cloud_status = state.get("cloud_status")
+                if cloud_status in {"on", "off"}:
+                    matches = matches[
+                        matches["cloud_status"] == cloud_status
+                    ]
+
+            if not matches.empty:
+                row = matches.iloc[0]
+                result["matched_model"] = row["model"]
+                result["table"] = table_name
+                value = row.get(code)
+
+                if pd.notna(value):
+                    try:
+                        result["exact_value"] = float(value)
+                    except (TypeError, ValueError):
+                        pass
+
+    # Optional commodity fallback from the workbook's Categories wprice sheet.
+    categories = pricing_data.get("categories", {}) or {}
+    category_name = None
+
+    if state.get("device_type") == "tablet":
+        category_name = (
+            "iPad"
+            if "ipad" in str(state.get("model", "")).lower()
+            else "Tablet"
+        )
+    elif state.get("device_type") == "phone":
+        if state.get("battery_type") == "external":
+            category_name = "Phone external batt"
+        else:
+            category_name = "Phone internal batt"
+
+    if category_name:
+        rate = categories.get(category_name)
+        result["commodity_name"] = category_name
+        result["commodity_rate"] = rate
+
+        if rate is not None and state.get("weight_lb") is not None:
+            result["commodity_estimate"] = (
+                float(rate) * float(state["weight_lb"])
+            )
+
+    return result
+
+
+def _manual_needs_commodity_fallback(
+    state: dict[str, Any],
+    pricing_data: dict[str, Any],
+) -> bool:
+    pricing = _manual_pricing_match(state, pricing_data)
+    return (
+        pricing.get("condition_code") is not None
+        and pricing.get("exact_value") is None
+    )
+
+
+def _manual_next_question(
+    state: dict[str, Any],
+    pricing_data: dict[str, Any],
+) -> str | None:
+    if not state.get("model"):
+        return (
+            "What is the smartphone/tablet brand and model? "
+            "For example: iPhone 14, iPhone 15 Pro, Galaxy S24 Ultra, or iPad 9."
+        )
+
+    if not state.get("device_type"):
+        return "Is this a phone or a tablet?"
+
+    if state.get("power_on") is None:
+        return "Does the device power on?"
+
+    if state.get("power_on") is True and state.get("lcd_good") is None:
+        return (
+            "Is the LCD/display working normally? "
+            "Tell me if it has a bad LCD, black screen, lines, or other display failure."
+        )
+
+    if (
+        state.get("power_on") is True
+        and state.get("lcd_good") is True
+        and state.get("glass_cracked") is None
+    ):
+        return "Is the front glass cracked or broken?"
+
+    if (
+        state.get("device_type") == "tablet"
+        and state.get("cloud_status") is None
+    ):
+        return "Is iCloud/MDM ON or OFF?"
+
+    if _manual_needs_commodity_fallback(state, pricing_data):
+        if state.get("device_type") == "phone" and not state.get("battery_type"):
+            return (
+                "The workbook has no exact price for this model/condition. "
+                "For the commodity-rate fallback, is the phone battery internal or external?"
+            )
+
+        if state.get("weight_lb") is None and not state.get("weight_skipped"):
+            return (
+                "The workbook has no exact model price for this condition. "
+                "If you want a commodity-rate fallback, provide the device weight "
+                "(for example 0.45 lb or 205 g), or reply 'skip'."
+            )
+
+    return None
+
+
+def _manual_answer_current_question(
+    text: str,
+    state: dict[str, Any],
+    question: str | None,
+) -> None:
+    """Interpret short answers according to the question currently being asked."""
+    if not question:
+        return
+
+    lower_question = question.lower()
+    lower_text = text.lower().strip()
+
+    if "power on" in lower_question and state.get("power_on") is None:
+        state["power_on"] = _parse_yes_no(text)
+
+    elif "lcd/display" in lower_question and state.get("lcd_good") is None:
+        state["lcd_good"] = _parse_yes_no(text)
+
+    elif "front glass" in lower_question and state.get("glass_cracked") is None:
+        answer = _parse_yes_no(text)
+        # Here "yes" means yes, it is cracked.
+        if answer is not None:
+            state["glass_cracked"] = answer
+
+    elif "icloud/mdm" in lower_question and state.get("cloud_status") is None:
+        if "off" in lower_text or "unlocked" in lower_text:
+            state["cloud_status"] = "off"
+        elif "on" in lower_text or "locked" in lower_text:
+            state["cloud_status"] = "on"
+
+    elif "battery internal or external" in lower_question:
+        if "external" in lower_text:
+            state["battery_type"] = "external"
+        elif "internal" in lower_text:
+            state["battery_type"] = "internal"
+
+
+def _manual_summary_text(
+    state: dict[str, Any],
+    pricing_data: dict[str, Any],
+    component_counts: dict[str, Any],
+    metals_data: dict[str, Any],
+) -> str:
+    pricing = _manual_pricing_match(state, pricing_data)
+    code = pricing.get("condition_code") or "Unknown"
+    terms = pricing_data.get("terms", {}) or {}
+    condition_text = terms.get(code, code)
+
+    if pricing.get("exact_value") is not None:
+        price_text = f"{pricing['exact_value']:.2f} from the workbook"
+    elif pricing.get("commodity_estimate") is not None:
+        price_text = (
+            f"{pricing['commodity_estimate']:.2f} using the workbook commodity rate "
+            f"({pricing['commodity_rate']} × {state['weight_lb']:.3f} lb)"
+        )
+    else:
+        price_text = "No exact workbook price is available for the supplied model/condition"
+
+    part_data = lookup_component_counts(
+        str(state.get("model", "")),
+        component_counts,
+    )
+    part_count = len(part_data.get("components", [])) if part_data else 0
+
+    metal_data = lookup_valuable_metals(
+        str(state.get("model", "")),
+        metals_data,
+    )
+    metal_count = len(metal_data.get("valuable_metals", {})) if metal_data else 0
+
+    return (
+        f"I have enough information to prepare the estimate. "
+        f"Model: **{state.get('model')}**. Condition: **{condition_text}**. "
+        f"Pricing result: **{price_text}**. "
+        f"I also found **{part_count} component records** and "
+        f"**{metal_count} valuable-metal records** for this model. "
+        "The detailed report is shown below."
+    )
+
+
+def render_manual_valuation_report(
+    state: dict[str, Any],
+    pricing_data: dict[str, Any],
+    component_dataframe: pd.DataFrame,
+    component_counts: dict[str, Any],
+    specifications: dict[str, Any],
+    metals_data: dict[str, Any],
+) -> None:
+    model = state.get("model")
+    if not model:
+        return
+
+    pricing = _manual_pricing_match(state, pricing_data)
+    code = pricing.get("condition_code")
+
+    st.markdown("---")
+    st.subheader("Manual valuation report")
+
+    summary_cols = st.columns(4)
+    summary_cols[0].metric("Model", model)
+    summary_cols[1].metric("Condition code", code or "—")
+
+    if pricing.get("exact_value") is not None:
+        summary_cols[2].metric(
+            "Workbook price",
+            f"{pricing['exact_value']:.2f}",
+        )
+        summary_cols[3].metric(
+            "Price source",
+            "Model / condition",
+        )
+    elif pricing.get("commodity_estimate") is not None:
+        summary_cols[2].metric(
+            "Commodity estimate",
+            f"{pricing['commodity_estimate']:.2f}",
+        )
+        summary_cols[3].metric(
+            "Commodity rate",
+            str(pricing.get("commodity_rate", "—")),
+        )
+    else:
+        summary_cols[2].metric("Workbook price", "Unavailable")
+        summary_cols[3].metric(
+            "Commodity rate",
+            str(pricing.get("commodity_rate") or "—"),
+        )
+
+    if code:
+        description = (pricing_data.get("terms", {}) or {}).get(code)
+        if description:
+            st.caption(f"Workbook condition definition: {description}")
+
+    if pricing.get("exact_value") is None:
+        st.info(
+            "The uploaded pricing workbook does not contain an exact value for "
+            "this model/condition. Any commodity estimate shown above is calculated "
+            "from the workbook's Categories wprice rate multiplied by the weight "
+            "you supplied. The workbook does not explicitly label the rate/weight units, "
+            "so verify those units before using the value operationally."
+        )
+
+    render_phone_specification(model, specifications)
+    render_component_counts(model, component_counts)
+
+    # Fallback to source-derived component names if the count/part-number JSON
+    # has no entry for this device.
+    part_data = lookup_component_counts(model, component_counts)
+    if not part_data:
+        matches = lookup_components(model, component_dataframe)
+        if not matches.empty:
+            st.subheader("Components found in source-guide dataset")
+            component_col = next(
+                (
+                    column
+                    for column in ("component_name", "component", "pcb_type")
+                    if column in matches.columns
+                ),
+                None,
+            )
+            if component_col:
+                fallback = (
+                    matches[[component_col]]
+                    .dropna()
+                    .drop_duplicates()
+                    .rename(columns={component_col: "Component"})
+                )
+                st.dataframe(
+                    fallback,
+                    use_container_width=True,
+                    hide_index=True,
+                )
+
+    render_valuable_metals(model, metals_data)
+
+    with st.expander("Information supplied by user"):
+        st.json(
+            {
+                "device_type": state.get("device_type"),
+                "model": state.get("model"),
+                "power_on": state.get("power_on"),
+                "lcd_good": state.get("lcd_good"),
+                "glass_cracked": state.get("glass_cracked"),
+                "icloud_mdm": state.get("cloud_status"),
+                "weight_lb": state.get("weight_lb"),
+                "battery_type": state.get("battery_type"),
+            }
+        )
+
+
+def render_manual_valuation_assistant(
+    pricing_data: dict[str, Any],
+    component_dataframe: pd.DataFrame,
+    component_counts: dict[str, Any],
+    specifications: dict[str, Any],
+    metals_data: dict[str, Any],
+) -> None:
+    st.markdown(
+        """
+        <div class="prediction-card">
+            <div class="prediction-label">Manual workflow</div>
+            <div class="prediction-name">Device Valuation Assistant</div>
+            <div class="small-note">
+                No image detection is used here. Tell the assistant everything you know,
+                and it will only ask for information that is still needed.
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    if not pricing_data.get("available"):
+        st.error(
+            pricing_data.get("error")
+            or "Pricing workbook could not be loaded."
+        )
+
+    control_col, info_col = st.columns([1, 3])
+
+    with control_col:
+        if st.button("Start over", key="manual_reset", use_container_width=True):
+            st.session_state.manual_valuation_state = _manual_default_state()
+            st.session_state.manual_valuation_messages = []
+            st.session_state.manual_last_question = None
+            st.rerun()
+
+    with info_col:
+        st.caption(
+            "Example first message: “iPhone 14, powers on, LCD is good, glass is cracked, "
+            "iCloud off.” You can provide everything at once or answer one question at a time."
+        )
+
+    if "manual_valuation_state" not in st.session_state:
+        st.session_state.manual_valuation_state = _manual_default_state()
+
+    if "manual_valuation_messages" not in st.session_state:
+        st.session_state.manual_valuation_messages = []
+
+    if "manual_last_question" not in st.session_state:
+        st.session_state.manual_last_question = None
+
+    state = st.session_state.manual_valuation_state
+    messages = st.session_state.manual_valuation_messages
+
+    catalog = _manual_model_catalog(
+        pricing_data,
+        component_counts,
+        specifications,
+        metals_data,
+    )
+
+    if not messages:
+        greeting = (
+            "Tell me as much as you know about the device. I can use the pricing workbook "
+            "for PTG/PTC/PBL/NP condition pricing, then show specifications, part names, "
+            "quantities, part numbers, and estimated valuable metals. "
+            "What is the phone or tablet model?"
+        )
+        messages.append({"role": "assistant", "content": greeting})
+        st.session_state.manual_last_question = (
+            "What is the smartphone/tablet brand and model?"
+        )
+
+    for message in messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+    user_text = st.chat_input(
+        "Describe the device or answer the assistant's question...",
+        key="manual_valuation_chat_input",
+    )
+
+    if user_text:
+        messages.append({"role": "user", "content": user_text})
+
+        previous_question = st.session_state.manual_last_question
+        _manual_apply_message(user_text, state, catalog)
+        _manual_answer_current_question(
+            user_text,
+            state,
+            previous_question,
+        )
+
+        next_question = _manual_next_question(
+            state,
+            pricing_data,
+        )
+
+        if next_question:
+            assistant_text = next_question
+        else:
+            assistant_text = _manual_summary_text(
+                state,
+                pricing_data,
+                component_counts,
+                metals_data,
+            )
+
+        messages.append(
+            {
+                "role": "assistant",
+                "content": assistant_text,
+            }
+        )
+        st.session_state.manual_last_question = next_question
+        st.session_state.manual_valuation_state = state
+        st.session_state.manual_valuation_messages = messages
+        st.rerun()
+
+    if _manual_next_question(state, pricing_data) is None:
+        render_manual_valuation_report(
+            state,
+            pricing_data,
+            component_dataframe,
+            component_counts,
+            specifications,
+            metals_data,
+        )
+
 # ============================================================
 # Live WebRTC processor
 # ============================================================
@@ -1271,6 +2192,7 @@ component_dataframe = load_component_dataset(components_path)
 phone_specifications = load_phone_specifications(specifications_path)
 component_counts = load_component_counts(component_counts_path)
 valuable_metals_data = load_valuable_metals(metals_path)
+pricing_data = load_pricing_workbook(pricing_path)
 
 status_columns = st.columns(7)
 
@@ -1325,23 +2247,25 @@ with status_columns[6]:
     )
 
 if not model_ready:
-    st.error(
-        f"Could not load the model: {model_error}\n\n"
-        "Check the Hugging Face repository/file settings or update the "
-        "checkpoint path in the sidebar."
+    st.warning(
+        f"AI detector is currently unavailable: {model_error}. "
+        "The Manual Valuation Assistant can still be used without the detection model."
     )
-    st.stop()
 
 mode = st.tabs(
     [
         "Upload image",
         "Camera snapshot",
         "Live camera",
+        "Manual valuation assistant",
         "Model information",
     ]
 )
 
 with mode[0]:
+    if not model_ready:
+        st.error("AI detector is unavailable. Use the Manual valuation assistant tab instead.")
+
     uploaded_files = st.file_uploader(
         "Upload one or more smartphone images",
         type=["jpg", "jpeg", "png", "webp"],
@@ -1404,6 +2328,9 @@ with mode[0]:
         st.info("Upload one or more images to begin.")
 
 with mode[1]:
+    if not model_ready:
+        st.error("AI detector is unavailable. Use the Manual valuation assistant tab instead.")
+
     snapshot_columns = st.columns(
         [1.05, 0.95],
         gap="large",
@@ -1438,75 +2365,91 @@ with mode[1]:
             st.info("Allow camera access and take a picture.")
 
 with mode[2]:
-    st.subheader("Real-time smartphone recognition")
-    st.caption(
-        "Press START, allow browser camera access, and point the camera at "
-        "the phone. The prediction is drawn on the video."
-    )
-
-    context = webrtc_streamer(
-        key="smartphone-live-detector",
-        mode=WebRtcMode.SENDRECV,
-        rtc_configuration=RTC_CONFIGURATION,
-        video_processor_factory=SmartphoneVideoProcessor,
-        media_stream_constraints={
-            "video": {
-                "width": {"ideal": 960},
-                "height": {"ideal": 720},
-                "facingMode": "environment",
-            },
-            "audio": False,
-        },
-        async_processing=True,
-    )
-
-    if context.video_processor:
-        context.video_processor.configure(
-            model_bundle=model_bundle,
-            threshold=confidence_threshold,
-            frame_interval=live_frame_interval,
+    if not model_ready:
+        st.error("AI detector is unavailable. Use the Manual valuation assistant tab instead.")
+    else:
+        st.subheader("Real-time smartphone recognition")
+        st.caption(
+            "Press START, allow browser camera access, and point the camera at "
+            "the phone. The prediction is drawn on the video."
         )
 
-    st.info(
-        "Live classification is frame-based. A lower inference interval is "
-        "more responsive but uses more computing resources."
-    )
+        context = webrtc_streamer(
+            key="smartphone-live-detector",
+            mode=WebRtcMode.SENDRECV,
+            rtc_configuration=RTC_CONFIGURATION,
+            video_processor_factory=SmartphoneVideoProcessor,
+            media_stream_constraints={
+                "video": {
+                    "width": {"ideal": 960},
+                    "height": {"ideal": 720},
+                    "facingMode": "environment",
+                },
+                "audio": False,
+            },
+            async_processing=True,
+        )
+
+        if context.video_processor:
+            context.video_processor.configure(
+                model_bundle=model_bundle,
+                threshold=confidence_threshold,
+                frame_interval=live_frame_interval,
+            )
+
+        st.info(
+            "Live classification is frame-based. A lower inference interval is "
+            "more responsive but uses more computing resources."
+        )
+
 
 with mode[3]:
-    st.subheader("Loaded model")
+    render_manual_valuation_assistant(
+        pricing_data,
+        component_dataframe,
+        component_counts,
+        phone_specifications,
+        valuable_metals_data,
+    )
 
-    model_details = {
-        "Architecture": model_bundle["model_name"],
-        "Device": str(model_bundle["device"]),
-        "Input size": model_bundle["image_size"],
-        "Classes": len(model_bundle["class_names"]),
-        "Normalization mean": model_bundle["mean"],
-        "Normalization standard deviation": model_bundle["std"],
-    }
+with mode[4]:
+    if not model_ready:
+        st.info("The AI detector model is not loaded. Manual valuation remains available.")
+    else:
+        st.subheader("Loaded model")
 
-    st.json(model_details)
-
-    st.subheader("Recognized classes")
-
-    class_table = pd.DataFrame(
-        {
-            "Training label": model_bundle["class_names"],
-            "Display name": [
-                pretty_class_name(value)
-                for value in model_bundle["class_names"]
-            ],
+        model_details = {
+            "Architecture": model_bundle["model_name"],
+            "Device": str(model_bundle["device"]),
+            "Input size": model_bundle["image_size"],
+            "Classes": len(model_bundle["class_names"]),
+            "Normalization mean": model_bundle["mean"],
+            "Normalization standard deviation": model_bundle["std"],
         }
-    )
 
-    st.dataframe(
-        class_table,
-        use_container_width=True,
-        hide_index=True,
-    )
+        st.json(model_details)
 
-    st.warning(
-        "The model can recognize only the classes present during training. "
-        "Unknown phone models may be forced into the closest known class, so "
-        "use the confidence threshold and add an unknown-device class for a "
-        "production system."
-    )
+        st.subheader("Recognized classes")
+
+        class_table = pd.DataFrame(
+            {
+                "Training label": model_bundle["class_names"],
+                "Display name": [
+                    pretty_class_name(value)
+                    for value in model_bundle["class_names"]
+                ],
+            }
+        )
+
+        st.dataframe(
+            class_table,
+            use_container_width=True,
+            hide_index=True,
+        )
+
+        st.warning(
+            "The model can recognize only the classes present during training. "
+            "Unknown phone models may be forced into the closest known class, so "
+            "use the confidence threshold and add an unknown-device class for a "
+            "production system."
+        )
