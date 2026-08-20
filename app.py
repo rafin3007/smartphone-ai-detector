@@ -169,6 +169,25 @@ st.markdown(
         color: #ff8282;
         font-weight: 700;
     }
+
+    /* Chat interface */
+    [data-testid="stChatMessage"] {
+        border-radius: 16px;
+        padding: 0.35rem 0.55rem;
+        margin-bottom: 0.35rem;
+    }
+
+    [data-testid="stChatInput"] {
+        border-radius: 22px !important;
+    }
+
+    [data-testid="stChatInput"] textarea {
+        font-size: 1rem !important;
+    }
+
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        border-radius: 18px;
+    }
     </style>
     """,
     unsafe_allow_html=True,
@@ -1945,6 +1964,184 @@ def render_manual_valuation_report(
         )
 
 
+
+def _manual_progress(
+    state: dict[str, Any],
+    pricing_data: dict[str, Any],
+) -> tuple[int, int, float]:
+    """Return completed required steps, total required steps, and progress."""
+
+    required = [
+        state.get("model") is not None,
+        state.get("device_type") is not None,
+        state.get("power_on") is not None,
+    ]
+
+    if state.get("power_on") is True:
+        required.append(state.get("lcd_good") is not None)
+
+        if state.get("lcd_good") is True:
+            required.append(
+                state.get("glass_cracked") is not None
+            )
+
+    if state.get("device_type") == "tablet":
+        required.append(
+            state.get("cloud_status") is not None
+        )
+
+    if _manual_needs_commodity_fallback(
+        state,
+        pricing_data,
+    ):
+        if state.get("device_type") == "phone":
+            required.append(
+                state.get("battery_type") is not None
+            )
+
+        required.append(
+            state.get("weight_lb") is not None
+            or state.get("weight_skipped", False)
+        )
+
+    total = max(1, len(required))
+    completed = sum(bool(item) for item in required)
+
+    return (
+        completed,
+        total,
+        completed / total,
+    )
+
+
+def _manual_quick_replies(
+    question: str | None,
+) -> list[tuple[str, str]]:
+    """Return friendly quick-reply buttons for the current question."""
+
+    if not question:
+        return []
+
+    question_lower = question.lower()
+
+    if "phone or a tablet" in question_lower:
+        return [
+            ("📱 Phone", "phone"),
+            ("💻 Tablet", "tablet"),
+        ]
+
+    if "power on" in question_lower:
+        return [
+            ("✅ Yes, powers on", "yes"),
+            ("❌ No power", "no"),
+        ]
+
+    if "lcd/display" in question_lower:
+        return [
+            ("✅ Display is good", "yes"),
+            ("❌ Display is bad", "no"),
+        ]
+
+    if "front glass" in question_lower:
+        return [
+            ("💥 Yes, cracked", "yes"),
+            ("✨ No cracks", "no"),
+        ]
+
+    if "icloud/mdm" in question_lower:
+        return [
+            ("🔓 OFF / Unlocked", "off"),
+            ("🔒 ON / Locked", "on"),
+        ]
+
+    if "battery internal or external" in question_lower:
+        return [
+            ("🔋 Internal", "internal battery"),
+            ("🔌 External", "external battery"),
+        ]
+
+    if "device weight" in question_lower:
+        return [
+            ("Skip weight", "skip"),
+        ]
+
+    return []
+
+
+def _manual_process_user_message(
+    user_text: str,
+    state: dict[str, Any],
+    messages: list[dict[str, str]],
+    catalog: list[str],
+    pricing_data: dict[str, Any],
+) -> None:
+    """Process one conversational answer and append the assistant response."""
+
+    if not user_text or not user_text.strip():
+        return
+
+    cleaned_text = user_text.strip()
+
+    messages.append(
+        {
+            "role": "user",
+            "content": cleaned_text,
+        }
+    )
+
+    previous_question = (
+        st.session_state.manual_last_question
+    )
+
+    _manual_apply_message(
+        cleaned_text,
+        state,
+        catalog,
+    )
+
+    _manual_answer_current_question(
+        cleaned_text,
+        state,
+        previous_question,
+    )
+
+    next_question = _manual_next_question(
+        state,
+        pricing_data,
+    )
+
+    if next_question:
+        assistant_text = next_question
+    else:
+        assistant_text = _manual_summary_text(
+            state,
+            pricing_data,
+            st.session_state.get(
+                "manual_component_counts",
+                {},
+            ),
+            st.session_state.get(
+                "manual_metals_data",
+                {},
+            ),
+        )
+
+    messages.append(
+        {
+            "role": "assistant",
+            "content": assistant_text,
+        }
+    )
+
+    st.session_state.manual_last_question = (
+        next_question
+    )
+    st.session_state.manual_valuation_state = state
+    st.session_state.manual_valuation_messages = (
+        messages
+    )
+
+
 def render_manual_valuation_assistant(
     pricing_data: dict[str, Any],
     component_dataframe: pd.DataFrame,
@@ -1952,14 +2149,60 @@ def render_manual_valuation_assistant(
     specifications: dict[str, Any],
     metals_data: dict[str, Any],
 ) -> None:
+    # Make these available to the message-processing helper.
+    st.session_state.manual_component_counts = (
+        component_counts
+    )
+    st.session_state.manual_metals_data = metals_data
+
+    # --------------------------------------------------------
+    # Initialize conversation state
+    # --------------------------------------------------------
+
+    if "manual_valuation_state" not in st.session_state:
+        st.session_state.manual_valuation_state = (
+            _manual_default_state()
+        )
+
+    if (
+        "manual_valuation_messages"
+        not in st.session_state
+    ):
+        st.session_state.manual_valuation_messages = []
+
+    if "manual_last_question" not in st.session_state:
+        st.session_state.manual_last_question = None
+
+    state = st.session_state.manual_valuation_state
+    messages = (
+        st.session_state.manual_valuation_messages
+    )
+
+    catalog = _manual_model_catalog(
+        pricing_data,
+        component_counts,
+        specifications,
+        metals_data,
+    )
+
+    # --------------------------------------------------------
+    # Header
+    # --------------------------------------------------------
+
     st.markdown(
         """
         <div class="prediction-card">
-            <div class="prediction-label">Manual workflow</div>
-            <div class="prediction-name">Device Valuation Assistant</div>
+            <div class="prediction-label">
+                Conversational valuation
+            </div>
+            <div class="prediction-name">
+                💬 Device Valuation Assistant
+            </div>
             <div class="small-note">
-                No image detection is used here. Tell the assistant everything you know,
-                and it will only ask for information that is still needed.
+                Chat naturally with the assistant. It will ask one
+                question at a time and use your answers to estimate
+                device value, identify parts, and summarize valuable
+                metals.
             </div>
         </div>
         """,
@@ -1972,99 +2215,267 @@ def render_manual_valuation_assistant(
             or "Pricing workbook could not be loaded."
         )
 
-    control_col, info_col = st.columns([1, 3])
-
-    with control_col:
-        if st.button("Start over", key="manual_reset", use_container_width=True):
-            st.session_state.manual_valuation_state = _manual_default_state()
-            st.session_state.manual_valuation_messages = []
-            st.session_state.manual_last_question = None
-            st.rerun()
-
-    with info_col:
-        st.caption(
-            "Example first message: “iPhone 14, powers on, LCD is good, glass is cracked, "
-            "iCloud off.” You can provide everything at once or answer one question at a time."
+        available_sheets = pricing_data.get(
+            "sheet_names",
+            [],
         )
 
-    if "manual_valuation_state" not in st.session_state:
-        st.session_state.manual_valuation_state = _manual_default_state()
+        if available_sheets:
+            st.caption(
+                "Worksheets detected: "
+                + ", ".join(available_sheets)
+            )
 
-    if "manual_valuation_messages" not in st.session_state:
-        st.session_state.manual_valuation_messages = []
-
-    if "manual_last_question" not in st.session_state:
-        st.session_state.manual_last_question = None
-
-    state = st.session_state.manual_valuation_state
-    messages = st.session_state.manual_valuation_messages
-
-    catalog = _manual_model_catalog(
-        pricing_data,
-        component_counts,
-        specifications,
-        metals_data,
-    )
+    # --------------------------------------------------------
+    # Start greeting
+    # --------------------------------------------------------
 
     if not messages:
         greeting = (
-            "Tell me as much as you know about the device. I can use the pricing workbook "
-            "for PTG/PTC/PBL/NP condition pricing, then show specifications, part names, "
-            "quantities, part numbers, and estimated valuable metals. "
-            "What is the phone or tablet model?"
+            "Hi! 👋 I can estimate the value of your device "
+            "without using an image. I’ll ask a few short "
+            "questions, then I’ll show the estimated price, "
+            "specifications, component names and quantities, "
+            "part numbers, and estimated valuable-metal content.\n\n"
+            "**What is the phone or tablet model?**"
         )
-        messages.append({"role": "assistant", "content": greeting})
-        st.session_state.manual_last_question = (
-            "What is the smartphone/tablet brand and model?"
-        )
-
-    for message in messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
-
-    user_text = st.chat_input(
-        "Describe the device or answer the assistant's question...",
-        key="manual_valuation_chat_input",
-    )
-
-    if user_text:
-        messages.append({"role": "user", "content": user_text})
-
-        previous_question = st.session_state.manual_last_question
-        _manual_apply_message(user_text, state, catalog)
-        _manual_answer_current_question(
-            user_text,
-            state,
-            previous_question,
-        )
-
-        next_question = _manual_next_question(
-            state,
-            pricing_data,
-        )
-
-        if next_question:
-            assistant_text = next_question
-        else:
-            assistant_text = _manual_summary_text(
-                state,
-                pricing_data,
-                component_counts,
-                metals_data,
-            )
 
         messages.append(
             {
                 "role": "assistant",
-                "content": assistant_text,
+                "content": greeting,
             }
         )
-        st.session_state.manual_last_question = next_question
-        st.session_state.manual_valuation_state = state
-        st.session_state.manual_valuation_messages = messages
+
+        st.session_state.manual_last_question = (
+            "What is the smartphone/tablet brand and model?"
+        )
+
+    # --------------------------------------------------------
+    # Conversation toolbar
+    # --------------------------------------------------------
+
+    toolbar_left, toolbar_middle, toolbar_right = (
+        st.columns([1, 3, 1])
+    )
+
+    with toolbar_left:
+        if st.button(
+            "↻ New chat",
+            key="manual_reset",
+            use_container_width=True,
+        ):
+            st.session_state.manual_valuation_state = (
+                _manual_default_state()
+            )
+            st.session_state.manual_valuation_messages = []
+            st.session_state.manual_last_question = None
+            st.rerun()
+
+    completed, total, progress = _manual_progress(
+        state,
+        pricing_data,
+    )
+
+    with toolbar_middle:
+        st.progress(
+            progress,
+            text=(
+                f"Device information: "
+                f"{completed}/{total} steps complete"
+            ),
+        )
+
+    with toolbar_right:
+        current_condition = (
+            _manual_condition_code(state)
+            or "Pending"
+        )
+
+        st.metric(
+            "Condition",
+            current_condition,
+        )
+
+    # --------------------------------------------------------
+    # Compact collected-information panel
+    # --------------------------------------------------------
+
+    collected = []
+
+    if state.get("model"):
+        collected.append(
+            f"**Model:** {state['model']}"
+        )
+
+    if state.get("device_type"):
+        collected.append(
+            f"**Type:** {state['device_type'].title()}"
+        )
+
+    if state.get("power_on") is not None:
+        collected.append(
+            "**Power:** "
+            + (
+                "On"
+                if state["power_on"]
+                else "No power"
+            )
+        )
+
+    if state.get("lcd_good") is not None:
+        collected.append(
+            "**Display:** "
+            + (
+                "Good"
+                if state["lcd_good"]
+                else "Bad"
+            )
+        )
+
+    if state.get("glass_cracked") is not None:
+        collected.append(
+            "**Glass:** "
+            + (
+                "Cracked"
+                if state["glass_cracked"]
+                else "Good"
+            )
+        )
+
+    if state.get("cloud_status"):
+        collected.append(
+            f"**iCloud/MDM:** "
+            f"{state['cloud_status'].upper()}"
+        )
+
+    if collected:
+        with st.expander(
+            "Device information collected so far",
+            expanded=False,
+        ):
+            st.markdown("  \n".join(collected))
+
+    # --------------------------------------------------------
+    # Chat conversation
+    # --------------------------------------------------------
+
+    st.markdown("### Conversation")
+
+    chat_container = st.container(
+        height=520,
+        border=True,
+    )
+
+    with chat_container:
+        for message in messages:
+            role = message.get(
+                "role",
+                "assistant",
+            )
+
+            avatar = (
+                "🤖"
+                if role == "assistant"
+                else "👤"
+            )
+
+            with st.chat_message(
+                role,
+                avatar=avatar,
+            ):
+                st.markdown(
+                    message.get(
+                        "content",
+                        "",
+                    )
+                )
+
+    current_question = (
+        st.session_state.manual_last_question
+    )
+
+    # --------------------------------------------------------
+    # Quick reply buttons
+    # --------------------------------------------------------
+
+    quick_replies = _manual_quick_replies(
+        current_question
+    )
+
+    if quick_replies:
+        st.caption("Quick reply")
+
+        reply_columns = st.columns(
+            len(quick_replies)
+        )
+
+        for index, (
+            label,
+            response_text,
+        ) in enumerate(quick_replies):
+            with reply_columns[index]:
+                if st.button(
+                    label,
+                    key=(
+                        "manual_quick_"
+                        f"{index}_"
+                        f"{len(messages)}"
+                    ),
+                    use_container_width=True,
+                ):
+                    _manual_process_user_message(
+                        response_text,
+                        state,
+                        messages,
+                        catalog,
+                        pricing_data,
+                    )
+                    st.rerun()
+
+    # --------------------------------------------------------
+    # ChatGPT-style free-text input
+    # --------------------------------------------------------
+
+    if current_question:
+        placeholder = current_question
+    else:
+        placeholder = (
+            "Ask another question or add more device details..."
+        )
+
+    user_text = st.chat_input(
+        placeholder,
+        key="manual_valuation_chat_input",
+    )
+
+    if user_text:
+        _manual_process_user_message(
+            user_text,
+            state,
+            messages,
+            catalog,
+            pricing_data,
+        )
         st.rerun()
 
-    if _manual_next_question(state, pricing_data) is None:
+    # --------------------------------------------------------
+    # Final valuation report
+    # --------------------------------------------------------
+
+    if (
+        _manual_next_question(
+            state,
+            pricing_data,
+        )
+        is None
+    ):
+        st.divider()
+
+        st.markdown(
+            "## Valuation result"
+        )
+
         render_manual_valuation_report(
             state,
             pricing_data,
