@@ -1062,53 +1062,153 @@ def render_prediction(
 
 @st.cache_data(show_spinner=False)
 def load_pricing_workbook(path: str) -> dict[str, Any]:
-    """Load and normalize the Early Upgrade pricing workbook."""
+    """Load and normalize the Early Upgrade pricing workbook.
+
+    Sheet names are resolved case-insensitively and with surrounding
+    whitespace ignored so that minor Excel/GitHub naming differences do
+    not break the Streamlit app.
+    """
     pricing_path = Path(path)
 
+    empty_result = {
+        "available": False,
+        "error": None,
+        "phones": pd.DataFrame(),
+        "tablets": pd.DataFrame(),
+        "terms": {},
+        "categories": {},
+        "sheet_names": [],
+    }
+
     if not pricing_path.exists():
-        return {
-            "available": False,
-            "error": f"Pricing workbook not found: {pricing_path}",
-            "phones": pd.DataFrame(),
-            "tablets": pd.DataFrame(),
-            "terms": {},
-            "categories": {},
-        }
+        empty_result["error"] = (
+            f"Pricing workbook not found: {pricing_path}"
+        )
+        return empty_result
 
     try:
-        phones_raw = pd.read_excel(
+        excel_file = pd.ExcelFile(
             pricing_path,
-            sheet_name="phones",
-            header=None,
             engine="openpyxl",
         )
-        tablets_raw = pd.read_excel(
-            pricing_path,
-            sheet_name="tablets",
-            header=None,
-            engine="openpyxl",
+
+        workbook_sheet_names = list(
+            excel_file.sheet_names
         )
-        terms_raw = pd.read_excel(
-            pricing_path,
-            sheet_name="terms",
-            header=None,
-            engine="openpyxl",
-        )
-        categories_raw = pd.read_excel(
-            pricing_path,
-            sheet_name="Categories wprice",
-            header=None,
-            engine="openpyxl",
-        )
-    except Exception as error:
-        return {
-            "available": False,
-            "error": f"Could not read pricing workbook: {error}",
-            "phones": pd.DataFrame(),
-            "tablets": pd.DataFrame(),
-            "terms": {},
-            "categories": {},
+
+        def normalize_sheet_name(value: str) -> str:
+            return " ".join(
+                str(value).strip().lower().split()
+            )
+
+        normalized_sheets = {
+            normalize_sheet_name(sheet_name): sheet_name
+            for sheet_name in workbook_sheet_names
         }
+
+        def resolve_sheet(
+            preferred_names: list[str],
+            fallback_index: int | None = None,
+        ) -> str:
+            for preferred in preferred_names:
+                key = normalize_sheet_name(preferred)
+
+                if key in normalized_sheets:
+                    return normalized_sheets[key]
+
+            # Flexible contains-match fallback.
+            for preferred in preferred_names:
+                preferred_key = normalize_sheet_name(
+                    preferred
+                )
+
+                for normalized, original in (
+                    normalized_sheets.items()
+                ):
+                    if (
+                        preferred_key in normalized
+                        or normalized in preferred_key
+                    ):
+                        return original
+
+            if (
+                fallback_index is not None
+                and fallback_index < len(
+                    workbook_sheet_names
+                )
+            ):
+                return workbook_sheet_names[
+                    fallback_index
+                ]
+
+            raise ValueError(
+                "Could not find any of these worksheets: "
+                f"{preferred_names}. Available worksheets: "
+                f"{workbook_sheet_names}"
+            )
+
+        phones_sheet = resolve_sheet(
+            ["phones", "phone", "smartphones"],
+            fallback_index=0,
+        )
+        tablets_sheet = resolve_sheet(
+            ["tablets", "tablet"],
+            fallback_index=1,
+        )
+        terms_sheet = resolve_sheet(
+            ["terms", "criteria", "conditions"],
+            fallback_index=2,
+        )
+        categories_sheet = resolve_sheet(
+            [
+                "Categories wprice",
+                "categories w price",
+                "categories",
+                "commodity",
+            ],
+            fallback_index=3,
+        )
+
+        phones_raw = pd.read_excel(
+            excel_file,
+            sheet_name=phones_sheet,
+            header=None,
+        )
+
+        tablets_raw = pd.read_excel(
+            excel_file,
+            sheet_name=tablets_sheet,
+            header=None,
+        )
+
+        terms_raw = pd.read_excel(
+            excel_file,
+            sheet_name=terms_sheet,
+            header=None,
+        )
+
+        categories_raw = pd.read_excel(
+            excel_file,
+            sheet_name=categories_sheet,
+            header=None,
+        )
+
+    except Exception as error:
+        empty_result["error"] = (
+            f"Could not read pricing workbook: {error}"
+        )
+
+        try:
+            empty_result["sheet_names"] = (
+                pd.ExcelFile(
+                    pricing_path,
+                    engine="openpyxl",
+                ).sheet_names
+            )
+        except Exception:
+            pass
+
+        return empty_result
 
     phone_rows: list[dict[str, Any]] = []
 
@@ -1208,6 +1308,7 @@ def load_pricing_workbook(path: str) -> dict[str, Any]:
         "tablets": pd.DataFrame(tablet_rows),
         "terms": terms,
         "categories": categories,
+        "sheet_names": workbook_sheet_names,
     }
 
 
