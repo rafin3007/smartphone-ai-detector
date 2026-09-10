@@ -284,22 +284,22 @@ st.markdown(
 
     .stButton > button,
     .stDownloadButton > button {
-        background: #f3f4f6 !important;
-        color: #111111 !important;
-        border: 1px solid #d1d5db !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 1px solid #cbd5e1 !important;
         border-radius: 10px !important;
     }
 
     .stButton > button:hover,
     .stDownloadButton > button:hover {
-        background: #e5e7eb !important;
-        color: #111111 !important;
-        border-color: #9ca3af !important;
+        background: #f3f4f6 !important;
+        color: #000000 !important;
+        border-color: #94a3b8 !important;
     }
 
     .stButton > button *,
     .stDownloadButton > button * {
-        color: #111111 !important;
+        color: #000000 !important;
     }
 
     /* =====================================================
