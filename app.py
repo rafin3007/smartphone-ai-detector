@@ -495,6 +495,107 @@ st.markdown(
         border: 1px solid #fca5a5 !important;
     }
 
+    
+    /* =====================================================
+       FILE UPLOADER - FULL LIGHT MODE / BLACK TEXT
+       ===================================================== */
+
+    [data-testid="stFileUploader"] {
+        color: #000000 !important;
+    }
+
+    /* Main dropzone */
+    [data-testid="stFileUploader"] section,
+    [data-testid="stFileUploaderDropzone"] {
+        background: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        color: #000000 !important;
+    }
+
+    [data-testid="stFileUploader"] section *,
+    [data-testid="stFileUploaderDropzone"] * {
+        color: #000000 !important;
+    }
+
+    /* Upload/Browse button */
+    [data-testid="stFileUploader"] button,
+    [data-testid="stFileUploaderDropzone"] button {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 1px solid #9ca3af !important;
+    }
+
+    [data-testid="stFileUploader"] button:hover,
+    [data-testid="stFileUploaderDropzone"] button:hover {
+        background: #f3f4f6 !important;
+        color: #000000 !important;
+    }
+
+    /* Uploaded/selected file container */
+    [data-testid="stFileUploaderFile"],
+    [data-testid="stFileUploaderFile"] > div,
+    [data-testid="stFileUploaderFileData"],
+    [data-testid="stFileUploaderFileData"] > div {
+        background: #f3f4f6 !important;
+        color: #000000 !important;
+        border-color: #d1d5db !important;
+    }
+
+    /* File name and file size */
+    [data-testid="stFileUploaderFileName"],
+    [data-testid="stFileUploaderFileName"] *,
+    [data-testid="stFileUploaderFileData"] span,
+    [data-testid="stFileUploaderFileData"] small,
+    [data-testid="stFileUploaderFile"] span,
+    [data-testid="stFileUploaderFile"] small {
+        color: #000000 !important;
+        opacity: 1 !important;
+    }
+
+    /* Icons inside uploaded-file row */
+    [data-testid="stFileUploaderFile"] svg,
+    [data-testid="stFileUploaderFileData"] svg,
+    [data-testid="stFileUploader"] svg {
+        color: #000000 !important;
+        fill: #000000 !important;
+        stroke: #000000 !important;
+    }
+
+    /* Multi-file selected item / pill */
+    [data-baseweb="tag"],
+    [data-baseweb="tag"] *,
+    [data-baseweb="tag"] span {
+        background: #f3f4f6 !important;
+        color: #000000 !important;
+        opacity: 1 !important;
+    }
+
+    /* Remove dark chip styling used by some Streamlit versions */
+    [data-testid="stFileUploader"] [role="listitem"],
+    [data-testid="stFileUploader"] [role="listitem"] *,
+    [data-testid="stFileUploader"] li,
+    [data-testid="stFileUploader"] li * {
+        background: #f3f4f6 !important;
+        color: #000000 !important;
+        opacity: 1 !important;
+    }
+
+    /* Add-more-files (+) button */
+    [data-testid="stFileUploader"] button[aria-label*="Add"],
+    [data-testid="stFileUploader"] button[title*="Add"] {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 1px solid #9ca3af !important;
+    }
+
+    /* Dropzone helper/instruction text */
+    [data-testid="stFileUploaderDropzoneInstructions"],
+    [data-testid="stFileUploaderDropzoneInstructions"] *,
+    [data-testid="stFileUploader"] small {
+        color: #374151 !important;
+        opacity: 1 !important;
+    }
+
     </style>
     """,
     unsafe_allow_html=True,
