@@ -79,117 +79,10 @@ RTC_CONFIGURATION = RTCConfiguration(
 st.markdown(
     """
     <style>
-    .stApp {
-        background: #ffffff;
-    }
+    /* =====================================================
+       GLOBAL WHITE / LIGHT-GRAY THEME
+       ===================================================== */
 
-    [data-testid="stSidebar"] {
-        background: #ffffff;
-        border-right: 1px solid #e5e7eb;
-    }
-
-    .hero {
-        padding: 2.2rem;
-        border-radius: 24px;
-        background:
-            radial-gradient(circle at top right, rgba(51,153,255,0.28), transparent 35%),
-            linear-gradient(135deg, rgba(18,49,83,0.95), rgba(6,19,35,0.95));
-        border: 1px solid rgba(125,195,255,0.20);
-        box-shadow: 0 18px 50px rgba(0,0,0,0.22);
-        margin-bottom: 1.5rem;
-    }
-
-    .hero h1 {
-        font-size: clamp(2.2rem, 5vw, 4.2rem);
-        margin: 0;
-        color: #111827;
-        line-height: 1.05;
-    }
-
-    .hero p {
-        color: #475569;
-        font-size: 1.1rem;
-        max-width: 760px;
-        margin-top: 1rem;
-    }
-
-    .prediction-card {
-        border-radius: 20px;
-        padding: 1.5rem;
-        background: rgba(8, 27, 49, 0.88);
-        border: 1px solid rgba(111,190,255,0.18);
-        box-shadow: 0 12px 35px rgba(0,0,0,0.18);
-        margin-top: 1rem;
-    }
-
-    .prediction-label {
-        color: #8db7dc;
-        text-transform: uppercase;
-        letter-spacing: .12em;
-        font-size: .76rem;
-        margin-bottom: .35rem;
-    }
-
-    .prediction-name {
-        color: #111827;
-        font-weight: 750;
-        font-size: 2rem;
-        line-height: 1.15;
-    }
-
-    .confidence {
-        color: #55d6be;
-        font-weight: 700;
-        font-size: 1.1rem;
-        margin-top: .55rem;
-    }
-
-    .small-note {
-        color: #64748b;
-        font-size: .9rem;
-    }
-
-    /* Metric value (Apple, iPhone..., 2022, 172 g) */
-    div[data-testid="stMetricValue"] {
-        font-size: 1.5rem !important;
-        line-height: 1.1 !important;
-    }
-    
-    /* Metric label (Brand, Model, Release year, Weight) */
-    div[data-testid="stMetricLabel"] {
-        font-size: 0.9rem !important;
-    }
-
-    .status-ok {
-        color: #54d6b9;
-        font-weight: 700;
-    }
-
-    .status-bad {
-        color: #ff8282;
-        font-weight: 700;
-    }
-
-    /* Chat interface */
-    [data-testid="stChatMessage"] {
-        border-radius: 16px;
-        padding: 0.35rem 0.55rem;
-        margin-bottom: 0.35rem;
-    }
-
-    [data-testid="stChatInput"] {
-        border-radius: 22px !important;
-    }
-
-    [data-testid="stChatInput"] textarea {
-        font-size: 1rem !important;
-    }
-
-    div[data-testid="stVerticalBlockBorderWrapper"] {
-        border-radius: 18px;
-    }
-    
-    /* White/light website theme */
     html, body {
         color-scheme: light !important;
     }
@@ -199,7 +92,7 @@ st.markdown(
     [data-testid="stMain"],
     [data-testid="stMainBlockContainer"] {
         background: #ffffff !important;
-        color: #111827 !important;
+        color: #111111 !important;
     }
 
     [data-testid="stHeader"] {
@@ -208,50 +101,261 @@ st.markdown(
     }
 
     [data-testid="stSidebar"] {
-        background: #ffffff !important;
+        background: #f7f7f8 !important;
         border-right: 1px solid #e5e7eb !important;
     }
 
-    [data-testid="stSidebar"] *,
+    [data-testid="stSidebar"] * {
+        color: #111111 !important;
+    }
+
+    /* =====================================================
+       HERO
+       ===================================================== */
+
+    .hero {
+        padding: 2.2rem;
+        border-radius: 24px;
+        background: #f3f4f6 !important;
+        border: 1px solid #d1d5db;
+        box-shadow: 0 10px 28px rgba(0,0,0,0.07);
+        margin-bottom: 1.5rem;
+    }
+
+    .hero h1 {
+        font-size: clamp(2.2rem, 5vw, 4.2rem);
+        margin: 0;
+        color: #111111 !important;
+        line-height: 1.05;
+    }
+
+    .hero p {
+        color: #333333 !important;
+        font-size: 1.1rem;
+        max-width: 760px;
+        margin-top: 1rem;
+    }
+
+    /* =====================================================
+       RESULT / VALUATION CARDS
+       ===================================================== */
+
+    .prediction-card {
+        border-radius: 20px;
+        padding: 1.5rem;
+        background: #f3f4f6 !important;
+        border: 1px solid #d1d5db;
+        box-shadow: 0 8px 22px rgba(0,0,0,0.06);
+        margin-top: 1rem;
+    }
+
+    .prediction-label {
+        color: #444444 !important;
+        text-transform: uppercase;
+        letter-spacing: .12em;
+        font-size: .76rem;
+        margin-bottom: .35rem;
+    }
+
+    .prediction-name {
+        color: #111111 !important;
+        font-weight: 750;
+        font-size: 2rem;
+        line-height: 1.15;
+    }
+
+    .confidence {
+        color: #111111 !important;
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-top: .55rem;
+    }
+
+    .small-note {
+        color: #4b5563 !important;
+        font-size: .9rem;
+    }
+
+    /* =====================================================
+       GENERAL TEXT
+       ===================================================== */
+
     .stMarkdown,
     .stMarkdown p,
     .stMarkdown li,
+    .stMarkdown span,
+    .stCaption,
     label,
+    h1, h2, h3, h4, h5, h6,
     [data-testid="stWidgetLabel"],
     [data-testid="stMetricLabel"],
-    [data-testid="stMetricValue"] {
-        color: #111827 !important;
+    [data-testid="stMetricValue"],
+    [data-testid="stMetricDelta"] {
+        color: #111111 !important;
     }
+
+    /* Metric value */
+    div[data-testid="stMetricValue"] {
+        font-size: 1.5rem !important;
+        line-height: 1.1 !important;
+        white-space: normal !important;
+        overflow-wrap: anywhere !important;
+    }
+
+    /* Metric label */
+    div[data-testid="stMetricLabel"] {
+        font-size: 0.9rem !important;
+    }
+
+    /* =====================================================
+       TABS
+       ===================================================== */
 
     [data-baseweb="tab-list"] {
         background: #ffffff !important;
+        border-bottom: 1px solid #e5e7eb !important;
     }
 
     [data-baseweb="tab"] {
-        color: #334155 !important;
+        color: #111111 !important;
+        background: transparent !important;
     }
 
+    [aria-selected="true"][data-baseweb="tab"] {
+        color: #111111 !important;
+        font-weight: 700 !important;
+    }
+
+    /* =====================================================
+       CHAT
+       ===================================================== */
+
     [data-testid="stChatMessage"] {
-        background: #ffffff !important;
+        background: #f8f9fa !important;
         border: 1px solid #e5e7eb !important;
-        color: #111827 !important;
+        color: #111111 !important;
+        border-radius: 16px;
+        padding: 0.45rem 0.65rem;
+        margin-bottom: 0.45rem;
+    }
+
+    [data-testid="stChatMessage"] * {
+        color: #111111 !important;
     }
 
     [data-testid="stChatInput"] {
         background: #ffffff !important;
         border: 1px solid #cbd5e1 !important;
+        border-radius: 18px !important;
     }
 
     [data-testid="stChatInput"] textarea {
-        color: #111827 !important;
+        color: #111111 !important;
+        background: #ffffff !important;
+        font-size: 1rem !important;
+    }
+
+    [data-testid="stChatInput"] textarea::placeholder {
+        color: #6b7280 !important;
+    }
+
+    /* =====================================================
+       INPUTS / SELECTS
+       ===================================================== */
+
+    [data-baseweb="input"] > div,
+    [data-baseweb="select"] > div,
+    [data-baseweb="textarea"] > div {
+        background: #ffffff !important;
+        color: #111111 !important;
+        border-color: #d1d5db !important;
+    }
+
+    input,
+    textarea,
+    select {
+        color: #111111 !important;
         background: #ffffff !important;
     }
+
+    /* =====================================================
+       BUTTONS
+       ===================================================== */
+
+    .stButton > button,
+    .stDownloadButton > button {
+        background: #f3f4f6 !important;
+        color: #111111 !important;
+        border: 1px solid #d1d5db !important;
+        border-radius: 10px !important;
+    }
+
+    .stButton > button:hover,
+    .stDownloadButton > button:hover {
+        background: #e5e7eb !important;
+        color: #111111 !important;
+        border-color: #9ca3af !important;
+    }
+
+    .stButton > button *,
+    .stDownloadButton > button * {
+        color: #111111 !important;
+    }
+
+    /* =====================================================
+       BORDERED CONTAINERS / EXPANDERS
+       ===================================================== */
 
     div[data-testid="stVerticalBlockBorderWrapper"] {
         background: #ffffff !important;
-        border-color: #e5e7eb !important;
+        border-color: #d1d5db !important;
+        border-radius: 18px;
     }
 
+    [data-testid="stExpander"] {
+        background: #f8f9fa !important;
+        border: 1px solid #e5e7eb !important;
+    }
+
+    [data-testid="stExpander"] * {
+        color: #111111 !important;
+    }
+
+    /* =====================================================
+       DATAFRAMES
+       ===================================================== */
+
+    [data-testid="stDataFrame"],
+    [data-testid="stTable"] {
+        background: #ffffff !important;
+        color: #111111 !important;
+    }
+
+    /* =====================================================
+       PROGRESS
+       ===================================================== */
+
+    [data-testid="stProgress"] > div > div {
+        background: #d1d5db !important;
+    }
+
+    [data-testid="stProgress"] > div > div > div {
+        background: #4b5563 !important;
+    }
+
+    /* =====================================================
+       STATUS COLORS
+       ===================================================== */
+
+    .status-ok {
+        color: #166534 !important;
+        font-weight: 700;
+    }
+
+    .status-bad {
+        color: #b91c1c !important;
+        font-weight: 700;
+    }
     </style>
     """,
     unsafe_allow_html=True,
