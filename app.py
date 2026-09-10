@@ -356,6 +356,145 @@ st.markdown(
         color: #b91c1c !important;
         font-weight: 700;
     }
+    
+    /* =====================================================
+       FILE UPLOADER - WHITE BUTTON / BLACK TEXT
+       ===================================================== */
+
+    [data-testid="stFileUploader"] {
+        color: #000000 !important;
+    }
+
+    [data-testid="stFileUploader"] section {
+        background: #f8f9fa !important;
+        border: 1px solid #d1d5db !important;
+        color: #000000 !important;
+    }
+
+    [data-testid="stFileUploader"] section * {
+        color: #000000 !important;
+    }
+
+    [data-testid="stFileUploader"] button {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 1px solid #9ca3af !important;
+        border-radius: 8px !important;
+    }
+
+    [data-testid="stFileUploader"] button:hover {
+        background: #f3f4f6 !important;
+        color: #000000 !important;
+        border-color: #6b7280 !important;
+    }
+
+    [data-testid="stFileUploader"] button *,
+    [data-testid="stFileUploader"] svg {
+        color: #000000 !important;
+        fill: #000000 !important;
+        stroke: #000000 !important;
+    }
+
+    /* =====================================================
+       SIDEBAR COLLAPSE / EXPAND BUTTON
+       ===================================================== */
+
+    [data-testid="stSidebarCollapseButton"] button,
+    [data-testid="stSidebarCollapsedControl"] button,
+    [data-testid="collapsedControl"] button,
+    button[kind="header"] {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 1px solid #d1d5db !important;
+    }
+
+    [data-testid="stSidebarCollapseButton"] button:hover,
+    [data-testid="stSidebarCollapsedControl"] button:hover,
+    [data-testid="collapsedControl"] button:hover,
+    button[kind="header"]:hover {
+        background: #f3f4f6 !important;
+        color: #000000 !important;
+    }
+
+    [data-testid="stSidebarCollapseButton"] svg,
+    [data-testid="stSidebarCollapsedControl"] svg,
+    [data-testid="collapsedControl"] svg,
+    button[kind="header"] svg {
+        color: #000000 !important;
+        fill: #000000 !important;
+        stroke: #000000 !important;
+    }
+
+    /* File uploader helper text */
+    [data-testid="stFileUploader"] small,
+    [data-testid="stFileUploader"] span,
+    [data-testid="stFileUploaderDropzoneInstructions"] * {
+        color: #000000 !important;
+    }
+
+    
+    /* =====================================================
+       STREAMLIT ALERTS - DARK READABLE TEXT
+       ===================================================== */
+
+    [data-testid="stAlert"],
+    div[role="alert"] {
+        color: #111111 !important;
+        border-radius: 10px !important;
+    }
+
+    [data-testid="stAlert"] *,
+    div[role="alert"] * {
+        color: #111111 !important;
+    }
+
+    /* Warning */
+    [data-testid="stAlert"][data-baseweb="notification"],
+    .stAlert {
+        color: #111111 !important;
+    }
+
+    /* Force alert text and icons dark */
+    [data-testid="stAlert"] p,
+    [data-testid="stAlert"] span,
+    [data-testid="stAlert"] div,
+    [data-testid="stAlert"] svg,
+    div[role="alert"] p,
+    div[role="alert"] span,
+    div[role="alert"] div {
+        color: #111111 !important;
+    }
+
+    [data-testid="stAlert"] svg {
+        fill: #111111 !important;
+        stroke: #111111 !important;
+    }
+
+    /* Warning box */
+    div[data-baseweb="notification"][kind="warning"],
+    [data-testid="stAlert"]:has(svg[aria-label*="warning" i]) {
+        background: #fff7cc !important;
+        border: 1px solid #e5c84b !important;
+    }
+
+    /* Info box */
+    div[data-baseweb="notification"][kind="info"] {
+        background: #eaf4ff !important;
+        border: 1px solid #93c5fd !important;
+    }
+
+    /* Success box */
+    div[data-baseweb="notification"][kind="success"] {
+        background: #ecfdf3 !important;
+        border: 1px solid #86efac !important;
+    }
+
+    /* Error box */
+    div[data-baseweb="notification"][kind="error"] {
+        background: #fff1f2 !important;
+        border: 1px solid #fca5a5 !important;
+    }
+
     </style>
     """,
     unsafe_allow_html=True,
