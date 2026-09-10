@@ -80,12 +80,12 @@ st.markdown(
     """
     <style>
     .stApp {
-        background: linear-gradient(135deg, #071426 0%, #0c213c 55%, #102e50 100%);
+        background: #ffffff;
     }
 
     [data-testid="stSidebar"] {
-        background: #071426;
-        border-right: 1px solid rgba(255,255,255,0.08);
+        background: #ffffff;
+        border-right: 1px solid #e5e7eb;
     }
 
     .hero {
@@ -102,12 +102,12 @@ st.markdown(
     .hero h1 {
         font-size: clamp(2.2rem, 5vw, 4.2rem);
         margin: 0;
-        color: #f8fbff;
+        color: #111827;
         line-height: 1.05;
     }
 
     .hero p {
-        color: #b8cee5;
+        color: #475569;
         font-size: 1.1rem;
         max-width: 760px;
         margin-top: 1rem;
@@ -131,7 +131,7 @@ st.markdown(
     }
 
     .prediction-name {
-        color: #ffffff;
+        color: #111827;
         font-weight: 750;
         font-size: 2rem;
         line-height: 1.15;
@@ -145,7 +145,7 @@ st.markdown(
     }
 
     .small-note {
-        color: #9eb6cc;
+        color: #64748b;
         font-size: .9rem;
     }
 
@@ -188,6 +188,70 @@ st.markdown(
     div[data-testid="stVerticalBlockBorderWrapper"] {
         border-radius: 18px;
     }
+    
+    /* White/light website theme */
+    html, body {
+        color-scheme: light !important;
+    }
+
+    .stApp,
+    [data-testid="stAppViewContainer"],
+    [data-testid="stMain"],
+    [data-testid="stMainBlockContainer"] {
+        background: #ffffff !important;
+        color: #111827 !important;
+    }
+
+    [data-testid="stHeader"] {
+        background: #ffffff !important;
+        border-bottom: 1px solid #e5e7eb !important;
+    }
+
+    [data-testid="stSidebar"] {
+        background: #ffffff !important;
+        border-right: 1px solid #e5e7eb !important;
+    }
+
+    [data-testid="stSidebar"] *,
+    .stMarkdown,
+    .stMarkdown p,
+    .stMarkdown li,
+    label,
+    [data-testid="stWidgetLabel"],
+    [data-testid="stMetricLabel"],
+    [data-testid="stMetricValue"] {
+        color: #111827 !important;
+    }
+
+    [data-baseweb="tab-list"] {
+        background: #ffffff !important;
+    }
+
+    [data-baseweb="tab"] {
+        color: #334155 !important;
+    }
+
+    [data-testid="stChatMessage"] {
+        background: #ffffff !important;
+        border: 1px solid #e5e7eb !important;
+        color: #111827 !important;
+    }
+
+    [data-testid="stChatInput"] {
+        background: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+    }
+
+    [data-testid="stChatInput"] textarea {
+        color: #111827 !important;
+        background: #ffffff !important;
+    }
+
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        background: #ffffff !important;
+        border-color: #e5e7eb !important;
+    }
+
     </style>
     """,
     unsafe_allow_html=True,
