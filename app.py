@@ -815,7 +815,7 @@ st.markdown(
     }
 
     [aria-selected="true"][data-baseweb="tab"] {
-        color: #dc2626 !important;
+        color: #000000 !important;
         font-weight: 700 !important;
         background: #ffffff !important;
     }
@@ -823,14 +823,14 @@ st.markdown(
     [aria-selected="true"][data-baseweb="tab"] p,
     [aria-selected="true"][data-baseweb="tab"] span,
     [aria-selected="true"][data-baseweb="tab"] div {
-        color: #dc2626 !important;
+        color: #000000 !important;
         font-weight: 700 !important;
         opacity: 1 !important;
     }
 
     /* Active tab underline */
     [data-baseweb="tab-highlight"] {
-        background-color: #dc2626 !important;
+        background-color: #000000 !important;
         height: 2px !important;
     }
 
@@ -913,6 +913,94 @@ st.markdown(
     [data-baseweb="tab-list"] button[aria-selected="true"] span,
     [data-baseweb="tab-list"] button[aria-selected="true"] div {
         color: #000000 !important;
+    }
+
+    
+    /* =====================================================
+       STREAMLIT TAB FIX - ROLE-BASED SELECTORS
+       ===================================================== */
+
+    /* Tab row */
+    [role="tablist"] {
+        background: #ffffff !important;
+        border-bottom: 1px solid #d1d5db !important;
+    }
+
+    /* ALL tab labels */
+    [role="tab"],
+    button[role="tab"] {
+        color: #374151 !important;
+        -webkit-text-fill-color: #374151 !important;
+        background: #ffffff !important;
+        opacity: 1 !important;
+        font-weight: 500 !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    [role="tab"] *,
+    button[role="tab"] *,
+    [role="tab"] p,
+    [role="tab"] span,
+    [role="tab"] div {
+        color: #374151 !important;
+        -webkit-text-fill-color: #374151 !important;
+        opacity: 1 !important;
+    }
+
+    /* Active tab */
+    [role="tab"][aria-selected="true"],
+    button[role="tab"][aria-selected="true"] {
+        color: #000000 !important;
+        -webkit-text-fill-color: #000000 !important;
+        background: #f3f4f6 !important;
+        font-weight: 700 !important;
+        border-bottom: 3px solid #4b5563 !important;
+    }
+
+    [role="tab"][aria-selected="true"] *,
+    button[role="tab"][aria-selected="true"] *,
+    [role="tab"][aria-selected="true"] p,
+    [role="tab"][aria-selected="true"] span,
+    [role="tab"][aria-selected="true"] div {
+        color: #000000 !important;
+        -webkit-text-fill-color: #000000 !important;
+        opacity: 1 !important;
+        font-weight: 700 !important;
+    }
+
+    /* Inactive tabs */
+    [role="tab"][aria-selected="false"],
+    button[role="tab"][aria-selected="false"] {
+        color: #374151 !important;
+        -webkit-text-fill-color: #374151 !important;
+        background: #ffffff !important;
+        opacity: 1 !important;
+    }
+
+    [role="tab"][aria-selected="false"] *,
+    button[role="tab"][aria-selected="false"] * {
+        color: #374151 !important;
+        -webkit-text-fill-color: #374151 !important;
+        opacity: 1 !important;
+    }
+
+    /* Hover */
+    [role="tab"]:hover,
+    button[role="tab"]:hover {
+        background: #f8f9fa !important;
+        color: #000000 !important;
+        -webkit-text-fill-color: #000000 !important;
+    }
+
+    [role="tab"]:hover * {
+        color: #000000 !important;
+        -webkit-text-fill-color: #000000 !important;
+    }
+
+    /* Disable Streamlit's colored moving underline */
+    [data-baseweb="tab-highlight"] {
+        background-color: #4b5563 !important;
     }
 
     </style>
