@@ -596,6 +596,76 @@ st.markdown(
         opacity: 1 !important;
     }
 
+    
+    /* =====================================================
+       SELECTED FILE CHIP - FORCE LIGHT MODE
+       ===================================================== */
+
+    /* Catch Streamlit/BaseWeb selected file pills */
+    [data-testid="stFileUploader"] [data-baseweb="tag"],
+    [data-testid="stFileUploader"] [data-baseweb="tag"] > div,
+    [data-testid="stFileUploader"] [data-baseweb="tag"] > span,
+    [data-testid="stFileUploader"] [role="listitem"],
+    [data-testid="stFileUploader"] [role="listitem"] > div,
+    [data-testid="stFileUploader"] li,
+    [data-testid="stFileUploader"] li > div,
+    [data-testid="stFileUploaderFile"],
+    [data-testid="stFileUploaderFile"] > div {
+        background: #ffffff !important;
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        border-color: #cbd5e1 !important;
+        box-shadow: none !important;
+    }
+
+    /* Text inside the selected file chip */
+    [data-testid="stFileUploader"] [data-baseweb="tag"] *,
+    [data-testid="stFileUploader"] [role="listitem"] *,
+    [data-testid="stFileUploader"] li *,
+    [data-testid="stFileUploaderFile"] * {
+        color: #000000 !important;
+        opacity: 1 !important;
+    }
+
+    /* Generic clickable chip fallback used in newer Streamlit builds */
+    [data-testid="stFileUploader"] div[role="button"],
+    [data-testid="stFileUploader"] span[role="button"] {
+        background: #ffffff !important;
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        border-color: #cbd5e1 !important;
+    }
+
+    [data-testid="stFileUploader"] div[role="button"] *,
+    [data-testid="stFileUploader"] span[role="button"] * {
+        color: #000000 !important;
+        opacity: 1 !important;
+    }
+
+    /* Selected filename/file-size text */
+    [data-testid="stFileUploader"] p,
+    [data-testid="stFileUploader"] small,
+    [data-testid="stFileUploader"] span {
+        color: #000000 !important;
+        opacity: 1 !important;
+    }
+
+    /* Keep icons/buttons light too */
+    [data-testid="stFileUploader"] svg {
+        color: #000000 !important;
+        stroke: #000000 !important;
+    }
+
+    [data-testid="stFileUploader"] button {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 1px solid #cbd5e1 !important;
+    }
+
+    [data-testid="stFileUploader"] button * {
+        color: #000000 !important;
+    }
+
     </style>
     """,
     unsafe_allow_html=True,
