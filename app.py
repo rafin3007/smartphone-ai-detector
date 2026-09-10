@@ -839,6 +839,82 @@ st.markdown(
         background-color: #d1d5db !important;
     }
 
+    
+    /* =====================================================
+       FINAL TAB OVERRIDE - BLACK / GRAY ONLY
+       ===================================================== */
+
+    button[data-baseweb="tab"],
+    [data-baseweb="tab"] {
+        color: #374151 !important;
+        background: #ffffff !important;
+        opacity: 1 !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    button[data-baseweb="tab"] *,
+    [data-baseweb="tab"] * {
+        color: #374151 !important;
+        opacity: 1 !important;
+    }
+
+    button[data-baseweb="tab"]:hover,
+    [data-baseweb="tab"]:hover {
+        color: #111111 !important;
+        background: #f3f4f6 !important;
+    }
+
+    button[data-baseweb="tab"]:hover *,
+    [data-baseweb="tab"]:hover * {
+        color: #111111 !important;
+    }
+
+    button[data-baseweb="tab"][aria-selected="true"],
+    [data-baseweb="tab"][aria-selected="true"] {
+        color: #000000 !important;
+        background: #f3f4f6 !important;
+        font-weight: 700 !important;
+    }
+
+    button[data-baseweb="tab"][aria-selected="true"] *,
+    [data-baseweb="tab"][aria-selected="true"] * {
+        color: #000000 !important;
+        font-weight: 700 !important;
+    }
+
+    /* Remove red active underline and replace with neutral gray */
+    [data-baseweb="tab-highlight"],
+    [data-baseweb="tab-highlight"] *,
+    div[data-baseweb="tab-highlight"] {
+        background-color: #4b5563 !important;
+        color: #4b5563 !important;
+    }
+
+    [data-baseweb="tab-border"] {
+        background-color: #d1d5db !important;
+    }
+
+    /* Streamlit sometimes uses an active bottom border instead */
+    button[data-baseweb="tab"][aria-selected="true"] {
+        border-bottom: 3px solid #4b5563 !important;
+    }
+
+    /* Ensure no red text remains on tabs */
+    [data-baseweb="tab-list"] button,
+    [data-baseweb="tab-list"] button p,
+    [data-baseweb="tab-list"] button span,
+    [data-baseweb="tab-list"] button div {
+        color: #374151 !important;
+    }
+
+    [data-baseweb="tab-list"] button[aria-selected="true"],
+    [data-baseweb="tab-list"] button[aria-selected="true"] p,
+    [data-baseweb="tab-list"] button[aria-selected="true"] span,
+    [data-baseweb="tab-list"] button[aria-selected="true"] div {
+        color: #000000 !important;
+    }
+
     </style>
     """,
     unsafe_allow_html=True,
