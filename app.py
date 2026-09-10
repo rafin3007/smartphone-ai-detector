@@ -736,6 +736,109 @@ st.markdown(
         color: #000000 !important;
     }
 
+    
+    /* =====================================================
+       FILE-UPLOADER ICON FIX
+       Keep icons visible without turning SVGs into black blocks
+       ===================================================== */
+
+    [data-testid="stFileUploader"] svg {
+        color: #111827 !important;
+        fill: none !important;
+        stroke: currentColor !important;
+    }
+
+    [data-testid="stFileUploader"] svg path,
+    [data-testid="stFileUploader"] svg circle,
+    [data-testid="stFileUploader"] svg line,
+    [data-testid="stFileUploader"] svg polyline,
+    [data-testid="stFileUploader"] svg rect {
+        stroke: currentColor !important;
+    }
+
+    /* Preserve icon shapes that legitimately use a fill */
+    [data-testid="stFileUploader"] svg path[fill]:not([fill="none"]),
+    [data-testid="stFileUploader"] svg circle[fill]:not([fill="none"]) {
+        fill: currentColor !important;
+    }
+
+    /* Selected file thumbnail/icon container */
+    [data-testid="stFileUploaderFile"] svg,
+    [data-testid="stFileUploaderFileData"] svg {
+        background: transparent !important;
+    }
+
+    /* Remove/delete and add-more controls */
+    [data-testid="stFileUploader"] button svg {
+        color: #111827 !important;
+        background: transparent !important;
+    }
+
+    [data-testid="stFileUploader"] button {
+        background: #ffffff !important;
+        color: #111827 !important;
+    }
+
+    
+    /* =====================================================
+       TABS - HIGH CONTRAST ON WHITE BACKGROUND
+       ===================================================== */
+
+    [data-baseweb="tab-list"] {
+        background: #ffffff !important;
+        border-bottom: 1px solid #d1d5db !important;
+        gap: 0.25rem !important;
+    }
+
+    [data-baseweb="tab"] {
+        color: #374151 !important;
+        background: transparent !important;
+        opacity: 1 !important;
+    }
+
+    [data-baseweb="tab"] p,
+    [data-baseweb="tab"] span,
+    [data-baseweb="tab"] div {
+        color: #374151 !important;
+        opacity: 1 !important;
+    }
+
+    [data-baseweb="tab"]:hover {
+        color: #111111 !important;
+        background: #f8f9fa !important;
+    }
+
+    [data-baseweb="tab"]:hover p,
+    [data-baseweb="tab"]:hover span,
+    [data-baseweb="tab"]:hover div {
+        color: #111111 !important;
+    }
+
+    [aria-selected="true"][data-baseweb="tab"] {
+        color: #dc2626 !important;
+        font-weight: 700 !important;
+        background: #ffffff !important;
+    }
+
+    [aria-selected="true"][data-baseweb="tab"] p,
+    [aria-selected="true"][data-baseweb="tab"] span,
+    [aria-selected="true"][data-baseweb="tab"] div {
+        color: #dc2626 !important;
+        font-weight: 700 !important;
+        opacity: 1 !important;
+    }
+
+    /* Active tab underline */
+    [data-baseweb="tab-highlight"] {
+        background-color: #dc2626 !important;
+        height: 2px !important;
+    }
+
+    /* Fallback for Streamlit versions using a motion indicator */
+    [data-baseweb="tab-border"] {
+        background-color: #d1d5db !important;
+    }
+
     </style>
     """,
     unsafe_allow_html=True,
