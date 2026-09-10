@@ -666,6 +666,76 @@ st.markdown(
         color: #000000 !important;
     }
 
+    
+    /* =====================================================
+       STRONG FILE-UPLOADER LIGHT OVERRIDE
+       Works across newer Streamlit/BaseWeb uploader versions
+       ===================================================== */
+
+    [data-testid="stFileUploader"],
+    [data-testid="stFileUploader"] section,
+    [data-testid="stFileUploader"] div,
+    [data-testid="stFileUploader"] button,
+    [data-testid="stFileUploader"] input {
+        background: #ffffff !important;
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        border-color: #cbd5e1 !important;
+        box-shadow: none !important;
+    }
+
+    [data-testid="stFileUploader"] span,
+    [data-testid="stFileUploader"] p,
+    [data-testid="stFileUploader"] small,
+    [data-testid="stFileUploader"] label {
+        color: #000000 !important;
+        opacity: 1 !important;
+        background: transparent !important;
+        background-color: transparent !important;
+    }
+
+    [data-testid="stFileUploader"] svg,
+    [data-testid="stFileUploader"] svg *,
+    [data-testid="stFileUploader"] path,
+    [data-testid="stFileUploader"] circle {
+        color: #000000 !important;
+        fill: #000000 !important;
+        stroke: #000000 !important;
+    }
+
+    /* Native browser file input fallback */
+    [data-testid="stFileUploader"] input[type="file"] {
+        color: #000000 !important;
+        background: #ffffff !important;
+    }
+
+    [data-testid="stFileUploader"] input[type="file"]::file-selector-button {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 1px solid #94a3b8 !important;
+        border-radius: 8px !important;
+    }
+
+    /* Generic BaseWeb tags/chips */
+    [data-testid="stFileUploader"] [data-baseweb="tag"],
+    [data-testid="stFileUploader"] [data-baseweb="tag"] *,
+    [data-testid="stFileUploader"] [class*="tag"],
+    [data-testid="stFileUploader"] [class*="Tag"],
+    [data-testid="stFileUploader"] [class*="file"],
+    [data-testid="stFileUploader"] [class*="File"] {
+        background: #ffffff !important;
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        opacity: 1 !important;
+    }
+
+    /* Keep hover readable */
+    [data-testid="stFileUploader"] button:hover,
+    [data-testid="stFileUploader"] div[role="button"]:hover {
+        background: #f3f4f6 !important;
+        color: #000000 !important;
+    }
+
     </style>
     """,
     unsafe_allow_html=True,
