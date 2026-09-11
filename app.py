@@ -1257,6 +1257,25 @@ st.markdown(
         font-size: 1.08rem !important;
     }
 
+    
+    /* =====================================================
+       DAMAGE METRIC TEXT - SLIGHTLY SMALLER
+       ===================================================== */
+
+    div[data-testid="stMetricValue"] {
+        font-size: 1.6rem !important;
+        line-height: 1.15 !important;
+    }
+
+    div[data-testid="stMetricDelta"] {
+        font-size: 0.9rem !important;
+        line-height: 1.15 !important;
+    }
+
+    div[data-testid="stMetricDelta"] * {
+        font-size: 0.9rem !important;
+    }
+
     </style>
     """,
     unsafe_allow_html=True,
