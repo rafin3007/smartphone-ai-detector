@@ -1114,6 +1114,149 @@ st.markdown(
         line-height: 1.5 !important;
     }
 
+    
+    /* =====================================================
+       EXTRA LARGE TEXT THROUGHOUT THE APP
+       ===================================================== */
+
+    html, body,
+    .stApp,
+    .stMarkdown,
+    .stMarkdown p,
+    .stMarkdown li,
+    label,
+    [data-testid="stWidgetLabel"] {
+        font-size: 1.22rem !important;
+        line-height: 1.6 !important;
+    }
+
+    h1 {
+        font-size: 3.4rem !important;
+        line-height: 1.12 !important;
+    }
+
+    h2 {
+        font-size: 2.6rem !important;
+        line-height: 1.18 !important;
+    }
+
+    h3 {
+        font-size: 2rem !important;
+        line-height: 1.22 !important;
+    }
+
+    h4 {
+        font-size: 1.55rem !important;
+    }
+
+    .hero h1 {
+        font-size: clamp(3.2rem, 5.5vw, 5rem) !important;
+    }
+
+    .hero p {
+        font-size: 1.35rem !important;
+        line-height: 1.65 !important;
+    }
+
+    .prediction-label {
+        font-size: 1rem !important;
+    }
+
+    .prediction-name {
+        font-size: 2.6rem !important;
+    }
+
+    .confidence {
+        font-size: 1.35rem !important;
+    }
+
+    .small-note {
+        font-size: 1.15rem !important;
+        line-height: 1.6 !important;
+    }
+
+    div[data-testid="stMetricLabel"] {
+        font-size: 1.15rem !important;
+    }
+
+    div[data-testid="stMetricValue"] {
+        font-size: 2rem !important;
+    }
+
+    div[data-testid="stMetricDelta"] {
+        font-size: 1.05rem !important;
+    }
+
+    [role="tab"],
+    [role="tab"] *,
+    [data-baseweb="tab"],
+    [data-baseweb="tab"] * {
+        font-size: 1.15rem !important;
+    }
+
+    .stButton > button,
+    .stDownloadButton > button,
+    [data-testid="stFileUploader"] button {
+        font-size: 1.15rem !important;
+        min-height: 3rem !important;
+    }
+
+    [data-testid="stChatMessage"],
+    [data-testid="stChatMessage"] p,
+    [data-testid="stChatMessage"] span,
+    [data-testid="stChatMessage"] div {
+        font-size: 1.2rem !important;
+        line-height: 1.65 !important;
+    }
+
+    [data-testid="stChatInput"] textarea {
+        font-size: 1.2rem !important;
+        min-height: 3.2rem !important;
+    }
+
+    [data-testid="stCaptionContainer"],
+    [data-testid="stCaptionContainer"] *,
+    small {
+        font-size: 1.05rem !important;
+    }
+
+    [data-testid="stFileUploader"],
+    [data-testid="stFileUploader"] *,
+    [data-testid="stFileUploader"] span,
+    [data-testid="stFileUploader"] small,
+    [data-testid="stFileUploader"] p {
+        font-size: 1.1rem !important;
+    }
+
+    input,
+    textarea,
+    select,
+    [data-baseweb="input"] *,
+    [data-baseweb="select"] * {
+        font-size: 1.15rem !important;
+    }
+
+    [data-testid="stDataFrame"],
+    [data-testid="stTable"] {
+        font-size: 1.1rem !important;
+    }
+
+    [data-testid="stAlert"],
+    [data-testid="stAlert"] *,
+    div[role="alert"],
+    div[role="alert"] * {
+        font-size: 1.15rem !important;
+        line-height: 1.6 !important;
+    }
+
+    [data-testid="stSidebar"] {
+        font-size: 1.15rem !important;
+    }
+
+    [data-testid="stSidebar"] * {
+        font-size: 1.08rem !important;
+    }
+
     </style>
     """,
     unsafe_allow_html=True,
