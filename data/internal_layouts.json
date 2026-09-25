@@ -1,0 +1,1550 @@
+{
+  "_metadata": {
+    "title": "Research-enriched internal component layout map",
+    "generated_on": "2026-09-25",
+    "coordinate_system": "[x1, y1, x2, y2], normalized to 0..1",
+    "required_image_orientation": "portrait/upright phone, rear cover removed, camera cluster at top, device tightly cropped with minimal background",
+    "critical_warning": "The component identities and general topology are grounded in cited teardown/repair sources. The normalized boxes are NOT measurements from those source images and cannot be universally 'real' without calibrating them to the exact internal image file used in your app.",
+    "recommended_workflow": [
+      "Choose one licensed/owned teardown image per model.",
+      "Crop it consistently to the device boundary.",
+      "Open it in an annotation tool.",
+      "Adjust the normalized boxes in this JSON.",
+      "Set coordinate_status to calibrated_to_reference_image after verification."
+    ]
+  },
+  "iphone_14": {
+    "brand": "Apple",
+    "model": "iPhone 14",
+    "model_numbers": [
+      "A2649",
+      "A2881",
+      "A2882",
+      "A2883",
+      "A2884"
+    ],
+    "architecture_notes": "iPhone 14 received a major internal redesign with improved rear access. iFixit documents separate battery, logic board, cameras, loudspeaker, Taptic Engine and display-related repair paths.",
+    "source_urls": [
+      "https://www.ifixit.com/Device/iPhone_14",
+      "https://www.ifixit.com/News/64865/iphone-14-teardown",
+      "https://www.ifixit.com/Guide/iPhone%2B14%2BLogic%2BBoard%2BReplacement/154852"
+    ],
+    "calibration_required": true,
+    "components": {
+      "Rear Camera Assembly": {
+        "box": [
+          0.06,
+          0.08,
+          0.28,
+          0.34
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Use iPhone 14-specific rear-open image; vanilla 14 differs internally from 14 Pro/Pro Max."
+      },
+      "Main Logic Board": {
+        "box": [
+          0.24,
+          0.08,
+          0.46,
+          0.48
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Use iPhone 14-specific rear-open image; vanilla 14 differs internally from 14 Pro/Pro Max."
+      },
+      "Memory / Storage IC": {
+        "box": [
+          0.28,
+          0.22,
+          0.43,
+          0.38
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Use iPhone 14-specific rear-open image; vanilla 14 differs internally from 14 Pro/Pro Max."
+      },
+      "Battery": {
+        "box": [
+          0.35,
+          0.25,
+          0.73,
+          0.77
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Use iPhone 14-specific rear-open image; vanilla 14 differs internally from 14 Pro/Pro Max."
+      },
+      "Charging Port Assembly": {
+        "box": [
+          0.39,
+          0.83,
+          0.63,
+          0.96
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Use iPhone 14-specific rear-open image; vanilla 14 differs internally from 14 Pro/Pro Max."
+      },
+      "Lightning Connector Assembly": {
+        "box": [
+          0.39,
+          0.83,
+          0.63,
+          0.96
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Use iPhone 14-specific rear-open image; vanilla 14 differs internally from 14 Pro/Pro Max."
+      },
+      "USB-C Charge Port": {
+        "box": [
+          0.39,
+          0.83,
+          0.63,
+          0.96
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Use iPhone 14-specific rear-open image; vanilla 14 differs internally from 14 Pro/Pro Max."
+      },
+      "Loudspeaker": {
+        "box": [
+          0.68,
+          0.7,
+          0.94,
+          0.9
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Use iPhone 14-specific rear-open image; vanilla 14 differs internally from 14 Pro/Pro Max."
+      },
+      "Speaker": {
+        "box": [
+          0.68,
+          0.7,
+          0.94,
+          0.9
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Use iPhone 14-specific rear-open image; vanilla 14 differs internally from 14 Pro/Pro Max."
+      },
+      "Taptic Engine": {
+        "box": [
+          0.08,
+          0.69,
+          0.32,
+          0.88
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Use iPhone 14-specific rear-open image; vanilla 14 differs internally from 14 Pro/Pro Max."
+      },
+      "Vibration Motor": {
+        "box": [
+          0.08,
+          0.69,
+          0.32,
+          0.88
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Use iPhone 14-specific rear-open image; vanilla 14 differs internally from 14 Pro/Pro Max."
+      },
+      "Front Camera Assembly": {
+        "box": [
+          0.36,
+          0.04,
+          0.58,
+          0.15
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Use iPhone 14-specific rear-open image; vanilla 14 differs internally from 14 Pro/Pro Max."
+      },
+      "Wireless Charging Antenna Assembly": {
+        "box": [
+          0.31,
+          0.29,
+          0.75,
+          0.69
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Use iPhone 14-specific rear-open image; vanilla 14 differs internally from 14 Pro/Pro Max."
+      },
+      "Display Assembly": {
+        "box": [
+          0.83,
+          0.16,
+          0.97,
+          0.73
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": false,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Use iPhone 14-specific rear-open image; vanilla 14 differs internally from 14 Pro/Pro Max."
+      },
+      "OLED Display Assembly": {
+        "box": [
+          0.83,
+          0.16,
+          0.97,
+          0.73
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": false,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Use iPhone 14-specific rear-open image; vanilla 14 differs internally from 14 Pro/Pro Max."
+      }
+    }
+  },
+  "iphone_14_pro_max": {
+    "brand": "Apple",
+    "model": "iPhone 14 Pro Max",
+    "model_numbers": [
+      "A2651",
+      "A2893",
+      "A2894",
+      "A2895",
+      "A2896"
+    ],
+    "architecture_notes": "Uses the older Pro/Pro Max internal architecture rather than the vanilla iPhone 14 rear-access redesign. Camera, logic-board, battery, Taptic and speaker placement therefore should be calibrated independently.",
+    "source_urls": [
+      "https://www.ifixit.com/Device/iPhone_14_Pro_Max",
+      "https://www.ifixit.com/News/65243/14-pro-max-teardown"
+    ],
+    "calibration_required": true,
+    "components": {
+      "Rear Camera Assembly": {
+        "box": [
+          0.06,
+          0.08,
+          0.28,
+          0.34
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Approximate only; calibrate against the exact iPhone 14 Pro Max teardown image."
+      },
+      "Main Logic Board": {
+        "box": [
+          0.24,
+          0.08,
+          0.46,
+          0.48
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Approximate only; calibrate against the exact iPhone 14 Pro Max teardown image."
+      },
+      "Memory / Storage IC": {
+        "box": [
+          0.28,
+          0.22,
+          0.43,
+          0.38
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Approximate only; calibrate against the exact iPhone 14 Pro Max teardown image."
+      },
+      "Battery": {
+        "box": [
+          0.35,
+          0.25,
+          0.73,
+          0.77
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Approximate only; calibrate against the exact iPhone 14 Pro Max teardown image."
+      },
+      "Charging Port Assembly": {
+        "box": [
+          0.39,
+          0.83,
+          0.63,
+          0.96
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Approximate only; calibrate against the exact iPhone 14 Pro Max teardown image."
+      },
+      "Lightning Connector Assembly": {
+        "box": [
+          0.39,
+          0.83,
+          0.63,
+          0.96
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Approximate only; calibrate against the exact iPhone 14 Pro Max teardown image."
+      },
+      "USB-C Charge Port": {
+        "box": [
+          0.39,
+          0.83,
+          0.63,
+          0.96
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Approximate only; calibrate against the exact iPhone 14 Pro Max teardown image."
+      },
+      "Loudspeaker": {
+        "box": [
+          0.68,
+          0.7,
+          0.94,
+          0.9
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Approximate only; calibrate against the exact iPhone 14 Pro Max teardown image."
+      },
+      "Speaker": {
+        "box": [
+          0.68,
+          0.7,
+          0.94,
+          0.9
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Approximate only; calibrate against the exact iPhone 14 Pro Max teardown image."
+      },
+      "Taptic Engine": {
+        "box": [
+          0.08,
+          0.69,
+          0.32,
+          0.88
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Approximate only; calibrate against the exact iPhone 14 Pro Max teardown image."
+      },
+      "Vibration Motor": {
+        "box": [
+          0.08,
+          0.69,
+          0.32,
+          0.88
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Approximate only; calibrate against the exact iPhone 14 Pro Max teardown image."
+      },
+      "Front Camera Assembly": {
+        "box": [
+          0.36,
+          0.04,
+          0.58,
+          0.15
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Approximate only; calibrate against the exact iPhone 14 Pro Max teardown image."
+      },
+      "Wireless Charging Antenna Assembly": {
+        "box": [
+          0.31,
+          0.29,
+          0.75,
+          0.69
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Approximate only; calibrate against the exact iPhone 14 Pro Max teardown image."
+      },
+      "Display Assembly": {
+        "box": [
+          0.83,
+          0.16,
+          0.97,
+          0.73
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": false,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Approximate only; calibrate against the exact iPhone 14 Pro Max teardown image."
+      },
+      "OLED Display Assembly": {
+        "box": [
+          0.83,
+          0.16,
+          0.97,
+          0.73
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": false,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Approximate only; calibrate against the exact iPhone 14 Pro Max teardown image."
+      }
+    }
+  },
+  "iphone_15_pro": {
+    "brand": "Apple",
+    "model": "iPhone 15 Pro",
+    "model_numbers": [
+      "A2848",
+      "A3101",
+      "A3102",
+      "A3104"
+    ],
+    "architecture_notes": "iFixit lists separate battery, rear cameras, front camera, USB-C charge port, loudspeaker, earpiece speaker, Taptic Engine and wireless charging assembly for this model.",
+    "source_urls": [
+      "https://www.ifixit.com/Device/iPhone_15_Pro",
+      "https://www.ifixit.com/Parts/iPhone_15_Pro"
+    ],
+    "calibration_required": true,
+    "components": {
+      "Rear Camera Assembly": {
+        "box": [
+          0.06,
+          0.08,
+          0.28,
+          0.34
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "USB-C replaces Lightning; calibrate board and port boxes to the chosen internal image."
+      },
+      "Main Logic Board": {
+        "box": [
+          0.24,
+          0.08,
+          0.46,
+          0.48
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "USB-C replaces Lightning; calibrate board and port boxes to the chosen internal image."
+      },
+      "Memory / Storage IC": {
+        "box": [
+          0.28,
+          0.22,
+          0.43,
+          0.38
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "USB-C replaces Lightning; calibrate board and port boxes to the chosen internal image."
+      },
+      "Battery": {
+        "box": [
+          0.35,
+          0.25,
+          0.73,
+          0.77
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "USB-C replaces Lightning; calibrate board and port boxes to the chosen internal image."
+      },
+      "Charging Port Assembly": {
+        "box": [
+          0.39,
+          0.83,
+          0.63,
+          0.96
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "USB-C replaces Lightning; calibrate board and port boxes to the chosen internal image."
+      },
+      "Lightning Connector Assembly": {
+        "box": [
+          0.39,
+          0.83,
+          0.63,
+          0.96
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "USB-C replaces Lightning; calibrate board and port boxes to the chosen internal image."
+      },
+      "USB-C Charge Port": {
+        "box": [
+          0.39,
+          0.83,
+          0.63,
+          0.96
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "USB-C replaces Lightning; calibrate board and port boxes to the chosen internal image."
+      },
+      "Loudspeaker": {
+        "box": [
+          0.68,
+          0.7,
+          0.94,
+          0.9
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "USB-C replaces Lightning; calibrate board and port boxes to the chosen internal image."
+      },
+      "Speaker": {
+        "box": [
+          0.68,
+          0.7,
+          0.94,
+          0.9
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "USB-C replaces Lightning; calibrate board and port boxes to the chosen internal image."
+      },
+      "Taptic Engine": {
+        "box": [
+          0.08,
+          0.69,
+          0.32,
+          0.88
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "USB-C replaces Lightning; calibrate board and port boxes to the chosen internal image."
+      },
+      "Vibration Motor": {
+        "box": [
+          0.08,
+          0.69,
+          0.32,
+          0.88
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "USB-C replaces Lightning; calibrate board and port boxes to the chosen internal image."
+      },
+      "Front Camera Assembly": {
+        "box": [
+          0.36,
+          0.04,
+          0.58,
+          0.15
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "USB-C replaces Lightning; calibrate board and port boxes to the chosen internal image."
+      },
+      "Wireless Charging Antenna Assembly": {
+        "box": [
+          0.31,
+          0.29,
+          0.75,
+          0.69
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "USB-C replaces Lightning; calibrate board and port boxes to the chosen internal image."
+      },
+      "Display Assembly": {
+        "box": [
+          0.83,
+          0.16,
+          0.97,
+          0.73
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": false,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "USB-C replaces Lightning; calibrate board and port boxes to the chosen internal image."
+      },
+      "OLED Display Assembly": {
+        "box": [
+          0.83,
+          0.16,
+          0.97,
+          0.73
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": false,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "USB-C replaces Lightning; calibrate board and port boxes to the chosen internal image."
+      }
+    }
+  },
+  "iphone_15_pro_max": {
+    "brand": "Apple",
+    "model": "iPhone 15 Pro Max",
+    "model_numbers": [
+      "A2849",
+      "A3105",
+      "A3106",
+      "A3108"
+    ],
+    "architecture_notes": "iFixit's chip-ID and repair guides document the main PCB, battery, camera modules, Taptic Engine, speakers and USB-C architecture. US board shots can differ from non-US variants because of mmWave/SIM hardware.",
+    "source_urls": [
+      "https://www.ifixit.com/Device/iPhone_15_Pro_Max",
+      "https://www.ifixit.com/Guide/iPhone%2B15%2BPro%2BMax%2BChip%2BID/165320",
+      "https://www.ifixit.com/Guide/iPhone%2B15%2BPro%2BMax%2BBattery%2BReplacement/166239"
+    ],
+    "calibration_required": true,
+    "components": {
+      "Rear Camera Assembly": {
+        "box": [
+          0.06,
+          0.08,
+          0.28,
+          0.34
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "US and global internal board details can differ; calibrate using the same regional variant as the reference image."
+      },
+      "Main Logic Board": {
+        "box": [
+          0.24,
+          0.08,
+          0.46,
+          0.48
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "US and global internal board details can differ; calibrate using the same regional variant as the reference image."
+      },
+      "Memory / Storage IC": {
+        "box": [
+          0.28,
+          0.22,
+          0.43,
+          0.38
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "US and global internal board details can differ; calibrate using the same regional variant as the reference image."
+      },
+      "Battery": {
+        "box": [
+          0.35,
+          0.25,
+          0.73,
+          0.77
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "US and global internal board details can differ; calibrate using the same regional variant as the reference image."
+      },
+      "Charging Port Assembly": {
+        "box": [
+          0.39,
+          0.83,
+          0.63,
+          0.96
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "US and global internal board details can differ; calibrate using the same regional variant as the reference image."
+      },
+      "Lightning Connector Assembly": {
+        "box": [
+          0.39,
+          0.83,
+          0.63,
+          0.96
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "US and global internal board details can differ; calibrate using the same regional variant as the reference image."
+      },
+      "USB-C Charge Port": {
+        "box": [
+          0.39,
+          0.83,
+          0.63,
+          0.96
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "US and global internal board details can differ; calibrate using the same regional variant as the reference image."
+      },
+      "Loudspeaker": {
+        "box": [
+          0.68,
+          0.7,
+          0.94,
+          0.9
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "US and global internal board details can differ; calibrate using the same regional variant as the reference image."
+      },
+      "Speaker": {
+        "box": [
+          0.68,
+          0.7,
+          0.94,
+          0.9
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "US and global internal board details can differ; calibrate using the same regional variant as the reference image."
+      },
+      "Taptic Engine": {
+        "box": [
+          0.08,
+          0.69,
+          0.32,
+          0.88
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "US and global internal board details can differ; calibrate using the same regional variant as the reference image."
+      },
+      "Vibration Motor": {
+        "box": [
+          0.08,
+          0.69,
+          0.32,
+          0.88
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "US and global internal board details can differ; calibrate using the same regional variant as the reference image."
+      },
+      "Front Camera Assembly": {
+        "box": [
+          0.36,
+          0.04,
+          0.58,
+          0.15
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "US and global internal board details can differ; calibrate using the same regional variant as the reference image."
+      },
+      "Wireless Charging Antenna Assembly": {
+        "box": [
+          0.31,
+          0.29,
+          0.75,
+          0.69
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "US and global internal board details can differ; calibrate using the same regional variant as the reference image."
+      },
+      "Display Assembly": {
+        "box": [
+          0.83,
+          0.16,
+          0.97,
+          0.73
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": false,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "US and global internal board details can differ; calibrate using the same regional variant as the reference image."
+      },
+      "OLED Display Assembly": {
+        "box": [
+          0.83,
+          0.16,
+          0.97,
+          0.73
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": false,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "US and global internal board details can differ; calibrate using the same regional variant as the reference image."
+      }
+    }
+  },
+  "s24_ultra": {
+    "brand": "Samsung",
+    "model": "Galaxy S24 Ultra",
+    "model_numbers": [
+      "SM-S928B",
+      "SM-S928B/DS",
+      "SM-S928U",
+      "SM-S928U1",
+      "SM-S928W",
+      "SM-S928N",
+      "SM-S9280",
+      "SM-S928E",
+      "SM-S928E/DS"
+    ],
+    "architecture_notes": "iFixit documents a top motherboard, large central battery, lower daughterboard/USB-C assembly, modular rear cameras, wireless-charging coil and loudspeaker.",
+    "source_urls": [
+      "https://www.ifixit.com/Device/Samsung_Galaxy_S24_Ultra",
+      "https://www.ifixit.com/Guide/Samsung%2BGalaxy%2BS24%2BUltra%2BBattery%2BReplacement/175800",
+      "https://www.ifixit.com/Guide/Samsung%2BGalaxy%2BS24%2BUltra%2BRear%2BCameras%2BReplacement/175785",
+      "https://www.ifixit.com/Guide/Samsung%2BGalaxy%2BS24%2BUltra%2BUSB-C%2BPort%2Band%2BDaughterboard%2BReplacement/175780"
+    ],
+    "calibration_required": true,
+    "components": {
+      "Rear Camera Assembly": {
+        "box": [
+          0.05,
+          0.06,
+          0.3,
+          0.34
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Use a rear-cover-removed S24 Ultra image; daughterboard and wireless-coil visibility depends on disassembly stage."
+      },
+      "Rear Camera Module": {
+        "box": [
+          0.05,
+          0.06,
+          0.3,
+          0.34
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Use a rear-cover-removed S24 Ultra image; daughterboard and wireless-coil visibility depends on disassembly stage."
+      },
+      "Main Motherboard": {
+        "box": [
+          0.26,
+          0.07,
+          0.76,
+          0.28
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Use a rear-cover-removed S24 Ultra image; daughterboard and wireless-coil visibility depends on disassembly stage."
+      },
+      "Main Logic Board": {
+        "box": [
+          0.26,
+          0.07,
+          0.76,
+          0.28
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Use a rear-cover-removed S24 Ultra image; daughterboard and wireless-coil visibility depends on disassembly stage."
+      },
+      "Battery": {
+        "box": [
+          0.23,
+          0.31,
+          0.78,
+          0.73
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Use a rear-cover-removed S24 Ultra image; daughterboard and wireless-coil visibility depends on disassembly stage."
+      },
+      "USB-C Charging Port Board": {
+        "box": [
+          0.28,
+          0.79,
+          0.73,
+          0.94
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Use a rear-cover-removed S24 Ultra image; daughterboard and wireless-coil visibility depends on disassembly stage."
+      },
+      "Charging Port Assembly": {
+        "box": [
+          0.28,
+          0.79,
+          0.73,
+          0.94
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Use a rear-cover-removed S24 Ultra image; daughterboard and wireless-coil visibility depends on disassembly stage."
+      },
+      "Loudspeaker with Vibrator": {
+        "box": [
+          0.68,
+          0.73,
+          0.95,
+          0.91
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Use a rear-cover-removed S24 Ultra image; daughterboard and wireless-coil visibility depends on disassembly stage."
+      },
+      "Loudspeaker": {
+        "box": [
+          0.68,
+          0.73,
+          0.95,
+          0.91
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Use a rear-cover-removed S24 Ultra image; daughterboard and wireless-coil visibility depends on disassembly stage."
+      },
+      "Vibration Motor": {
+        "box": [
+          0.68,
+          0.73,
+          0.95,
+          0.91
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Use a rear-cover-removed S24 Ultra image; daughterboard and wireless-coil visibility depends on disassembly stage."
+      },
+      "Front Camera": {
+        "box": [
+          0.44,
+          0.03,
+          0.57,
+          0.14
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Use a rear-cover-removed S24 Ultra image; daughterboard and wireless-coil visibility depends on disassembly stage."
+      },
+      "Wireless NFC Charging Flex": {
+        "box": [
+          0.24,
+          0.25,
+          0.78,
+          0.7
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Use a rear-cover-removed S24 Ultra image; daughterboard and wireless-coil visibility depends on disassembly stage."
+      },
+      "Earpiece Speaker": {
+        "box": [
+          0.38,
+          0.02,
+          0.63,
+          0.1
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Use a rear-cover-removed S24 Ultra image; daughterboard and wireless-coil visibility depends on disassembly stage."
+      },
+      "Display Assembly": {
+        "box": [
+          0.83,
+          0.15,
+          0.97,
+          0.74
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": false,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Use a rear-cover-removed S24 Ultra image; daughterboard and wireless-coil visibility depends on disassembly stage."
+      },
+      "OLED Display Assembly": {
+        "box": [
+          0.83,
+          0.15,
+          0.97,
+          0.74
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": false,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Use a rear-cover-removed S24 Ultra image; daughterboard and wireless-coil visibility depends on disassembly stage."
+      }
+    },
+    "component_relationships": [
+      "Wireless charging coil connects to the motherboard.",
+      "Loudspeaker and wireless charging coil are removed before deeper access.",
+      "Two interconnect cables link motherboard and daughterboard.",
+      "USB-C daughterboard is a separate lower assembly."
+    ]
+  },
+  "s25_ultra": {
+    "brand": "Samsung",
+    "model": "Galaxy S25 Ultra",
+    "model_numbers": [
+      "SM-S938U",
+      "SM-S938U1",
+      "SM-S938B",
+      "SM-S9380"
+    ],
+    "architecture_notes": "iFixit teardown notes independently removable rear camera modules and an improved battery-removal method. Motherboard placement remains in the upper section, with battery central and charging/sub-board hardware lower.",
+    "source_urls": [
+      "https://www.ifixit.com/News/108201/galaxy-s25-ultra-teardown-quick-battery-fix-slow-progress-on-repairability",
+      "https://www.ifixit.com/Guide/Samsung%2BGalaxy%2BS25%2BUltra%2BMotherboard%2BReplacement/204794"
+    ],
+    "calibration_required": true,
+    "components": {
+      "Rear Camera Assembly": {
+        "box": [
+          0.05,
+          0.06,
+          0.3,
+          0.34
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Camera modules are individually modular; a single bounding box is a UI simplification."
+      },
+      "Rear Camera Module": {
+        "box": [
+          0.05,
+          0.06,
+          0.3,
+          0.34
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Camera modules are individually modular; a single bounding box is a UI simplification."
+      },
+      "Main Motherboard": {
+        "box": [
+          0.26,
+          0.07,
+          0.76,
+          0.28
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Camera modules are individually modular; a single bounding box is a UI simplification."
+      },
+      "Main Logic Board": {
+        "box": [
+          0.26,
+          0.07,
+          0.76,
+          0.28
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Camera modules are individually modular; a single bounding box is a UI simplification."
+      },
+      "Battery": {
+        "box": [
+          0.23,
+          0.31,
+          0.78,
+          0.73
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Camera modules are individually modular; a single bounding box is a UI simplification."
+      },
+      "USB-C Charging Port Board": {
+        "box": [
+          0.28,
+          0.79,
+          0.73,
+          0.94
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Camera modules are individually modular; a single bounding box is a UI simplification."
+      },
+      "Charging Port Assembly": {
+        "box": [
+          0.28,
+          0.79,
+          0.73,
+          0.94
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Camera modules are individually modular; a single bounding box is a UI simplification."
+      },
+      "Loudspeaker with Vibrator": {
+        "box": [
+          0.68,
+          0.73,
+          0.95,
+          0.91
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Camera modules are individually modular; a single bounding box is a UI simplification."
+      },
+      "Loudspeaker": {
+        "box": [
+          0.68,
+          0.73,
+          0.95,
+          0.91
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Camera modules are individually modular; a single bounding box is a UI simplification."
+      },
+      "Vibration Motor": {
+        "box": [
+          0.68,
+          0.73,
+          0.95,
+          0.91
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Camera modules are individually modular; a single bounding box is a UI simplification."
+      },
+      "Front Camera": {
+        "box": [
+          0.44,
+          0.03,
+          0.57,
+          0.14
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Camera modules are individually modular; a single bounding box is a UI simplification."
+      },
+      "Wireless NFC Charging Flex": {
+        "box": [
+          0.24,
+          0.25,
+          0.78,
+          0.7
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Camera modules are individually modular; a single bounding box is a UI simplification."
+      },
+      "Earpiece Speaker": {
+        "box": [
+          0.38,
+          0.02,
+          0.63,
+          0.1
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Camera modules are individually modular; a single bounding box is a UI simplification."
+      },
+      "Display Assembly": {
+        "box": [
+          0.83,
+          0.15,
+          0.97,
+          0.74
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": false,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Camera modules are individually modular; a single bounding box is a UI simplification."
+      },
+      "OLED Display Assembly": {
+        "box": [
+          0.83,
+          0.15,
+          0.97,
+          0.74
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": false,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "Camera modules are individually modular; a single bounding box is a UI simplification."
+      }
+    },
+    "component_relationships": [
+      "Rear camera modules are individually removable.",
+      "Battery is designed for easier removal than earlier Galaxy generations.",
+      "Main motherboard remains a distinct service assembly."
+    ]
+  },
+  "s25_edge": {
+    "brand": "Samsung",
+    "model": "Galaxy S25 Edge",
+    "model_numbers": [
+      "SM-S937B",
+      "SM-S937U"
+    ],
+    "architecture_notes": "iFixit documents the logic board, two rear cameras, front camera, earpiece speaker, modular USB-C port, sub-board, wireless charging/loudspeaker assembly and thin central battery. The thin chassis changes component geometry relative to the Ultra models.",
+    "source_urls": [
+      "https://www.ifixit.com/Device/Samsung_Galaxy_S25_Edge",
+      "https://www.ifixit.com/News/111106/galaxy-s25-edge-teardown-what-slim-design-means-for-repair",
+      "https://www.ifixit.com/Guide/Samsung%2BGalaxy%2BS25%2BEdge%2BLogic%2BBoard%2BReplacement/190079",
+      "https://www.ifixit.com/Guide/Samsung%2BGalaxy%2BS25%2BEdge%2BRear%2BCameras%2BReplacement/190077",
+      "https://www.ifixit.com/Guide/Samsung%2BGalaxy%2BS25%2BEdge%2BSub%2BBoard%2BReplacement/190069",
+      "https://www.ifixit.com/Guide/Samsung%2BGalaxy%2BS25%2BEdge%2BUSB%E2%80%91C%2BPort%2BReplacement/190064"
+    ],
+    "calibration_required": true,
+    "components": {
+      "Rear Camera Assembly": {
+        "box": [
+          0.06,
+          0.06,
+          0.28,
+          0.31
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "S25 Edge-specific thin layout; do not reuse Ultra coordinates without calibration."
+      },
+      "Rear Camera Module": {
+        "box": [
+          0.06,
+          0.06,
+          0.28,
+          0.31
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "S25 Edge-specific thin layout; do not reuse Ultra coordinates without calibration."
+      },
+      "Rear Ultra-Wide Camera": {
+        "box": [
+          0.09,
+          0.16,
+          0.24,
+          0.29
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "S25 Edge-specific thin layout; do not reuse Ultra coordinates without calibration."
+      },
+      "Main Logic Board": {
+        "box": [
+          0.26,
+          0.07,
+          0.75,
+          0.26
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "S25 Edge-specific thin layout; do not reuse Ultra coordinates without calibration."
+      },
+      "Battery": {
+        "box": [
+          0.22,
+          0.29,
+          0.8,
+          0.74
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "S25 Edge-specific thin layout; do not reuse Ultra coordinates without calibration."
+      },
+      "Sub Board": {
+        "box": [
+          0.27,
+          0.79,
+          0.72,
+          0.92
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "S25 Edge-specific thin layout; do not reuse Ultra coordinates without calibration."
+      },
+      "PCB Board with SIM Reader": {
+        "box": [
+          0.27,
+          0.79,
+          0.72,
+          0.92
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "S25 Edge-specific thin layout; do not reuse Ultra coordinates without calibration."
+      },
+      "USB-C Charging Port Flex": {
+        "box": [
+          0.39,
+          0.84,
+          0.62,
+          0.96
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "S25 Edge-specific thin layout; do not reuse Ultra coordinates without calibration."
+      },
+      "Charging Port Assembly": {
+        "box": [
+          0.39,
+          0.84,
+          0.62,
+          0.96
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "S25 Edge-specific thin layout; do not reuse Ultra coordinates without calibration."
+      },
+      "Loudspeaker": {
+        "box": [
+          0.68,
+          0.73,
+          0.95,
+          0.91
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "S25 Edge-specific thin layout; do not reuse Ultra coordinates without calibration."
+      },
+      "Speaker": {
+        "box": [
+          0.68,
+          0.73,
+          0.95,
+          0.91
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "S25 Edge-specific thin layout; do not reuse Ultra coordinates without calibration."
+      },
+      "Earpiece Speaker": {
+        "box": [
+          0.38,
+          0.02,
+          0.63,
+          0.1
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "S25 Edge-specific thin layout; do not reuse Ultra coordinates without calibration."
+      },
+      "Front Camera": {
+        "box": [
+          0.45,
+          0.03,
+          0.56,
+          0.13
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "S25 Edge-specific thin layout; do not reuse Ultra coordinates without calibration."
+      },
+      "Wireless Charging Assembly": {
+        "box": [
+          0.23,
+          0.24,
+          0.79,
+          0.7
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": true,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "S25 Edge-specific thin layout; do not reuse Ultra coordinates without calibration."
+      },
+      "Display Assembly": {
+        "box": [
+          0.83,
+          0.14,
+          0.97,
+          0.74
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": false,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "S25 Edge-specific thin layout; do not reuse Ultra coordinates without calibration."
+      },
+      "OLED Display Assembly": {
+        "box": [
+          0.83,
+          0.14,
+          0.97,
+          0.74
+        ],
+        "coordinate_status": "approximate_ui_annotation_not_source_measured",
+        "coordinate_confidence": "low_to_medium",
+        "physical_visibility_in_standard_rear_open_view": false,
+        "placement_basis": "Normalized placement inferred from teardown/repair-guide topology for an upright, tightly cropped rear-cover-removed phone image. Recalibrate against the exact image used by the app.",
+        "notes": "S25 Edge-specific thin layout; do not reuse Ultra coordinates without calibration."
+      }
+    },
+    "component_relationships": [
+      "Rear cameras attach to the logic board with separate press connectors.",
+      "USB-C port is modular and serviced separately.",
+      "Sub-board is a distinct lower-board assembly.",
+      "Wireless charging and loudspeaker assembly is removable as an upper assembly during disassembly."
+    ]
+  }
+}

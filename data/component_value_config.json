@@ -1,0 +1,1600 @@
+{
+  "_metadata": {
+    "title": "Research-enriched smartphone component market reference values",
+    "generated_on": "2026-09-25",
+    "currency": "USD",
+    "supported_models": [
+      "iphone_14",
+      "iphone_14_pro_max",
+      "iphone_15_pro",
+      "iphone_15_pro_max",
+      "s24_ultra",
+      "s25_ultra",
+      "s25_edge"
+    ],
+    "value_semantics": "model_values are current online replacement-part asking-price benchmarks selected from cited listings. They are NOT guaranteed used-part resale values, recycler payouts, or recoverable-material values.",
+    "important_caveat": "Online parts prices are volatile and depend on OEM/service-pack vs aftermarket quality, condition, region, stock, and whether a listing is part-only or a repair kit. Re-check sources before publication, commercial quoting, or automated purchasing.",
+    "app_compatibility": "The numeric model_values mapping is retained for the Streamlit app. Detailed provenance lives under model_value_details.",
+    "source_priority": [
+      "manufacturer/service-pack or iFixit product listing where available",
+      "specialist repair-parts distributors",
+      "secondary distributor observations as cross-checks"
+    ]
+  },
+  "default_weights": {
+    "display": 0.24,
+    "main pcb": 0.18,
+    "logic board": 0.18,
+    "motherboard": 0.18,
+    "rear camera": 0.12,
+    "camera": 0.1,
+    "memory": 0.1,
+    "storage": 0.1,
+    "battery": 0.08,
+    "charging": 0.06,
+    "usb": 0.06,
+    "lightning": 0.06,
+    "taptic": 0.04,
+    "vibration": 0.04,
+    "haptic": 0.04,
+    "speaker": 0.04,
+    "other": 0.04
+  },
+  "model_values": {
+    "iphone_14": {
+      "Display Assembly": 99.99,
+      "OLED Display Assembly": 99.99,
+      "Battery": 49.99,
+      "Rear Camera Assembly": 99.99,
+      "Rear Camera Module": 99.99,
+      "Lightning Connector Assembly": 72.99,
+      "Charging Port Assembly": 72.99,
+      "Loudspeaker": 39.99,
+      "Speaker": 39.99,
+      "Taptic Engine": 12.99,
+      "Vibration Motor": 12.99,
+      "Front Camera Assembly": 49.99,
+      "Wireless Charging Antenna": 24.99,
+      "Earpiece Speaker": 27.99
+    },
+    "iphone_14_pro_max": {
+      "Display Assembly": 119.99,
+      "OLED Display Assembly": 119.99,
+      "Battery": 57.99,
+      "Rear Camera Assembly": 99.99,
+      "Rear Camera Module": 99.99,
+      "Lightning Connector Assembly": 59.99,
+      "Charging Port Assembly": 59.99,
+      "Loudspeaker": 34.99,
+      "Speaker": 34.99,
+      "Taptic Engine": 49.99,
+      "Vibration Motor": 49.99,
+      "Front Camera Assembly": 39.99,
+      "Earpiece Speaker": 29.99,
+      "LiDAR Sensor": 59.99
+    },
+    "iphone_15_pro": {
+      "Display Assembly": 119.99,
+      "OLED Display Assembly": 119.99,
+      "Battery": 49.99,
+      "Rear Camera Assembly": 124.99,
+      "Rear Camera Module": 124.99,
+      "USB-C Charge Port": 69.99,
+      "Charging Port Assembly": 69.99,
+      "Loudspeaker": 18.99,
+      "Speaker": 18.99,
+      "Taptic Engine": 10.99,
+      "Vibration Motor": 10.99,
+      "Front Camera Assembly": 49.99,
+      "Wireless Charging Antenna Assembly": 46.99,
+      "Earpiece Speaker": 58.99
+    },
+    "iphone_15_pro_max": {
+      "Display Assembly": 169.99,
+      "OLED Display Assembly": 169.99,
+      "Battery": 56.99,
+      "Rear Camera Assembly": 124.99,
+      "Rear Camera Module": 124.99,
+      "USB-C Charge Port": 76.99,
+      "Charging Port Assembly": 76.99,
+      "Loudspeaker": 21.99,
+      "Speaker": 21.99,
+      "Taptic Engine": 13.99,
+      "Vibration Motor": 13.99,
+      "Front Camera Assembly": 49.99,
+      "Earpiece Speaker": 19.99
+    },
+    "s24_ultra": {
+      "Display Assembly": 306.99,
+      "OLED Display Assembly": 306.99,
+      "Battery": 39.99,
+      "Rear Camera Assembly": 86.61,
+      "Rear Camera Module": 86.61,
+      "USB-C Charging Port Board": 12.99,
+      "Charging Port Assembly": 12.99,
+      "Loudspeaker with Vibrator": 5.71,
+      "Loudspeaker": 5.71,
+      "Vibration Motor": 5.71,
+      "Front Camera": 25.38,
+      "Wireless NFC Charging Flex": 20.35,
+      "Back Glass": 29.99
+    },
+    "s25_ultra": {
+      "Display Assembly": 233.94,
+      "OLED Display Assembly": 233.94,
+      "Battery": 14.58,
+      "Rear Camera Assembly": 91.29,
+      "Rear Camera Module": 91.29,
+      "USB-C Charging Port Board": 18.03,
+      "Charging Port Assembly": 18.03,
+      "Loudspeaker with Vibrator": 11.28,
+      "Loudspeaker": 11.28,
+      "Vibration Motor": 11.28,
+      "Front Camera": 26.81,
+      "Wireless NFC Charging Flex": 16.67,
+      "Earpiece Speaker": 5.43
+    },
+    "s25_edge": {
+      "Display Assembly": 153.03,
+      "OLED Display Assembly": 153.03,
+      "Battery": 11.45,
+      "USB-C Charging Port Flex": 5.93,
+      "Charging Port Assembly": 5.93,
+      "Rear Ultra-Wide Camera": 11.24,
+      "Front Camera": 11.75,
+      "Earpiece Speaker": 2.73,
+      "Loudspeaker": 3.6,
+      "Speaker": 3.6,
+      "Sub Board": 7.09,
+      "PCB Board with SIM Reader": 7.09,
+      "Back Glass": 14.18
+    }
+  },
+  "model_value_details": {
+    "iphone_14": {
+      "Display Assembly": {
+        "reference_value_usd": 99.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone14_screen_part_only",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/products/iphone-14-screen?variant=41194333601895",
+        "source_part_number": "iFixit listing variant: aftermarket hard OLED, part only",
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": "Selected explicit part-only hard-OLED listing as the app benchmark.",
+        "alternative_observations": [
+          {
+            "vendor": "iFixit collection",
+            "price_usd": 69.99,
+            "note": "collection price observed; variant can differ"
+          },
+          {
+            "vendor": "iFixit fix-kit listing",
+            "price_usd": 109.99,
+            "note": "hard OLED fix kit"
+          }
+        ]
+      },
+      "Battery": {
+        "reference_value_usd": 49.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone14_battery",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/products/iphone-14-battery?variant=39939377889383",
+        "source_part_number": "iFixit battery listing",
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": "Part-only listing observed.",
+        "alternative_observations": []
+      },
+      "Rear Camera Assembly": {
+        "reference_value_usd": 99.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone14_camera",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/products/iphone-14-rear-camera-assembly",
+        "source_part_number": "IF240-053-1",
+        "manufacturer_or_assembly_part_number": "821-03851",
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Lightning Connector Assembly": {
+        "reference_value_usd": 72.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone14_port",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/products/iphone-14-lightning-connector-assembly",
+        "source_part_number": "IF240-013-1",
+        "manufacturer_or_assembly_part_number": "821-03758",
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Loudspeaker": {
+        "reference_value_usd": 39.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone14_speaker",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/products/iphone-14-loudspeaker",
+        "source_part_number": "IF240-040-1",
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Taptic Engine / Vibrator": {
+        "reference_value_usd": 12.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone14_vibrator",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/products/iphone-14-vibrator",
+        "source_part_number": "IF240-044-1",
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Front Camera Assembly": {
+        "reference_value_usd": 49.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone14_parts",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/Parts/iPhone_14",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "medium",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Wireless Charging Antenna": {
+        "reference_value_usd": 24.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone14_parts",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/Parts/iPhone_14",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "medium",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Earpiece Speaker": {
+        "reference_value_usd": 27.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone14_parts",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/Parts/iPhone_14",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "medium",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Main Logic Board": {
+        "reference_value_usd": null,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone14_parts",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/Parts/iPhone_14",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": "No stable like-for-like retail benchmark used. Logic boards are configuration-, storage-, region-, pairing-, and activation-dependent; do not infer a reusable-board resale value from generic listings.",
+        "alternative_observations": []
+      }
+    },
+    "iphone_14_pro_max": {
+      "Display Assembly": {
+        "reference_value_usd": 119.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone14pm_screen",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/products/iphone-14-pro-max-screen?variant=41194338615399",
+        "source_part_number": "IF240-003-5",
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": "Aftermarket hard OLED, part-only listing.",
+        "alternative_observations": []
+      },
+      "Battery": {
+        "reference_value_usd": 57.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone14pm_battery",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/products/iphone-14-pro-max-battery?variant=39939382444135",
+        "source_part_number": "IF240-007-1",
+        "manufacturer_or_assembly_part_number": "Battery model A2830",
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Rear Camera Assembly": {
+        "reference_value_usd": 99.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone14pm_camera",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/products/iphone-14-pro-max-rear-camera-assembly",
+        "source_part_number": "IF240-062-1",
+        "manufacturer_or_assembly_part_number": "821-03921",
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Lightning Connector Assembly": {
+        "reference_value_usd": 59.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone14pm_port",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/products/iphone-14-pro-max-lightning-connector-assembly",
+        "source_part_number": "IF240-027-1",
+        "manufacturer_or_assembly_part_number": "821-03832",
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Loudspeaker": {
+        "reference_value_usd": 34.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone14pm_parts",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/Parts/iPhone_14_Pro_Max",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Taptic Engine / Vibrator": {
+        "reference_value_usd": 49.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone14pm_vibrator",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/products/iphone-14-pro-max-vibrator",
+        "source_part_number": "IF240-046-1",
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Front Camera Assembly": {
+        "reference_value_usd": 39.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone14pm_parts",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/Parts/iPhone_14_Pro_Max",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "medium",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Earpiece Speaker": {
+        "reference_value_usd": 29.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone14pm_parts",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/Parts/iPhone_14_Pro_Max",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "medium",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "LiDAR Sensor": {
+        "reference_value_usd": 59.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone14pm_parts",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/Parts/iPhone_14_Pro_Max",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "medium",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Main Logic Board": {
+        "reference_value_usd": null,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone14pm_parts",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/Parts/iPhone_14_Pro_Max",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": "No stable, configuration-independent logic-board benchmark was used; pairing and storage/region materially affect board value.",
+        "alternative_observations": []
+      }
+    },
+    "iphone_15_pro": {
+      "Display Assembly": {
+        "reference_value_usd": 119.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone15pro_parts",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/Parts/iPhone_15_Pro",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": "Current iFixit collection price; explicit soft-OLED fix-kit observation was $154.99.",
+        "alternative_observations": [
+          {
+            "vendor": "iFixit",
+            "price_usd": 154.99,
+            "note": "aftermarket soft OLED fix kit"
+          }
+        ]
+      },
+      "Battery": {
+        "reference_value_usd": 49.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone15pro_battery",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/products/iphone-15-pro-battery",
+        "source_part_number": "IF479-065-2 / IF479-065-1 depending kit/part",
+        "manufacturer_or_assembly_part_number": "Battery model A3011",
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Rear Camera Assembly": {
+        "reference_value_usd": 124.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone15pro_camera",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/products/iphone-15-pro-rear-camera-assembly",
+        "source_part_number": "IF479-060-1",
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "USB-C Charge Port": {
+        "reference_value_usd": 69.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone15pro_port",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/products/iphone-15-pro-charge-port",
+        "source_part_number": "IF479-017-2",
+        "manufacturer_or_assembly_part_number": "821-04457",
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Loudspeaker": {
+        "reference_value_usd": 18.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone15pro_speaker",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/products/iphone-15-pro-loudspeaker",
+        "source_part_number": "IF479-047-1",
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Taptic Engine / Vibrator": {
+        "reference_value_usd": 10.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone15pro_vibrator",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/products/iphone-15-pro-vibrator",
+        "source_part_number": "IF479-051-1",
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Front Camera Assembly": {
+        "reference_value_usd": 49.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone15pro_parts",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/Parts/iPhone_15_Pro",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Wireless Charging Antenna Assembly": {
+        "reference_value_usd": 46.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone15pro_parts",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/Parts/iPhone_15_Pro",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Earpiece Speaker": {
+        "reference_value_usd": 58.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone15pro_parts",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/Parts/iPhone_15_Pro",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Main Logic Board": {
+        "reference_value_usd": null,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone15pro_parts",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/Parts/iPhone_15_Pro",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": "No stable configuration-independent board price used; Apple pairing/calibration and storage/region must be accounted for.",
+        "alternative_observations": []
+      }
+    },
+    "iphone_15_pro_max": {
+      "Display Assembly": {
+        "reference_value_usd": 169.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone15pm_screen",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/products/iphone-15-pro-max-screen?variant=40711188938855",
+        "source_part_number": "IF479-003-1",
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": "Aftermarket soft OLED, part-only listing.",
+        "alternative_observations": [
+          {
+            "vendor": "iFixit",
+            "price_usd": 99.99,
+            "note": "aftermarket in-cell LCD, part only"
+          },
+          {
+            "vendor": "iFixit",
+            "price_usd": 109.99,
+            "note": "catalog/fix-kit in-cell LCD observation"
+          }
+        ]
+      },
+      "Battery": {
+        "reference_value_usd": 56.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone15pm_battery",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/products/iphone-15-pro-max-battery",
+        "source_part_number": "IF479-066-2",
+        "manufacturer_or_assembly_part_number": "Battery model A3121",
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": "Fix-kit listing; price can differ from part-only.",
+        "alternative_observations": []
+      },
+      "Rear Camera Assembly": {
+        "reference_value_usd": 124.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone15pm_camera",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/products/iphone-15-pro-max-rear-camera-assembly",
+        "source_part_number": "IF479-062-1",
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "USB-C Charge Port": {
+        "reference_value_usd": 76.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone15pm_port",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/products/iphone-15-pro-max-charge-port",
+        "source_part_number": "IF479-018-1",
+        "manufacturer_or_assembly_part_number": "821-04442",
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Loudspeaker": {
+        "reference_value_usd": 21.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone15pm_speaker",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/products/iphone-15-pro-max-loudspeaker",
+        "source_part_number": "IF479-048-1",
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Taptic Engine / Vibrator": {
+        "reference_value_usd": 13.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone15pm_vibrator",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/products/iphone-15-pro-max-vibrator",
+        "source_part_number": "IF479-052-1",
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Front Camera Assembly": {
+        "reference_value_usd": 49.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone15pm_parts",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/Parts/iPhone_15_Pro_Max",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Earpiece Speaker": {
+        "reference_value_usd": 19.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone15pm_parts",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/Parts/iPhone_15_Pro_Max",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Main Logic Board": {
+        "reference_value_usd": null,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_iphone15pm_parts",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/Parts/iPhone_15_Pro_Max",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": "No stable configuration-independent board price used; chip/board data should be treated separately from reusable-board market value.",
+        "alternative_observations": []
+      }
+    },
+    "s24_ultra": {
+      "Display Assembly": {
+        "reference_value_usd": 306.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_s24u_parts",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/Parts/Samsung_Galaxy_S24_Ultra",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": "iFixit replacement screen benchmark.",
+        "alternative_observations": [
+          {
+            "vendor": "MobileSentrix",
+            "price_usd": 94.36,
+            "note": "aftermarket plus 120Hz OLED with frame"
+          },
+          {
+            "vendor": "MobileSentrix",
+            "price_usd": 199.65,
+            "note": "service-pack OLED with frame"
+          },
+          {
+            "vendor": "eTech Parts",
+            "price_usd": 248.48,
+            "note": "OLED digitizer screen assembly with frame"
+          }
+        ]
+      },
+      "Battery": {
+        "reference_value_usd": 39.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_s24u_parts",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/Parts/Samsung_Galaxy_S24_Ultra",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": "EB-BS928ABY",
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": [
+          {
+            "vendor": "MobileSentrix",
+            "price_usd": 20.85,
+            "note": "service-pack battery"
+          },
+          {
+            "vendor": "MobileSentrix",
+            "price_usd": 15.05,
+            "note": "AmpSentrix Pro replacement"
+          }
+        ]
+      },
+      "Rear Camera Assembly": {
+        "reference_value_usd": 86.61,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "mobilesentrix_s24u",
+        "source_vendor": "MobileSentrix",
+        "source_url": "https://www.mobilesentrix.com/replacement-parts/samsung/galaxy-s-series/galaxy-s24-ultra-5g",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": "Wide + telephoto + periscope + ultrawide module bundle.",
+        "alternative_observations": []
+      },
+      "USB-C Charging Port Board": {
+        "reference_value_usd": 12.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "mobilesentrix_s24u",
+        "source_vendor": "MobileSentrix",
+        "source_url": "https://www.mobilesentrix.com/replacement-parts/samsung/galaxy-s-series/galaxy-s24-ultra-5g",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": "US S928U premium charging-port board with SIM reader.",
+        "alternative_observations": [
+          {
+            "vendor": "eTech Parts",
+            "price_usd": 19.67,
+            "note": "US charging-port board with SIM reader"
+          }
+        ]
+      },
+      "Loudspeaker with Vibrator": {
+        "reference_value_usd": 5.71,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "mobilesentrix_s24u",
+        "source_vendor": "MobileSentrix",
+        "source_url": "https://www.mobilesentrix.com/replacement-parts/samsung/galaxy-s-series/galaxy-s24-ultra-5g",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Front Camera": {
+        "reference_value_usd": 25.38,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "mobilesentrix_s24u",
+        "source_vendor": "MobileSentrix",
+        "source_url": "https://www.mobilesentrix.com/replacement-parts/samsung/galaxy-s-series/galaxy-s24-ultra-5g",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Wireless NFC Charging Flex": {
+        "reference_value_usd": 20.35,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "mobilesentrix_s24u",
+        "source_vendor": "MobileSentrix",
+        "source_url": "https://www.mobilesentrix.com/replacement-parts/samsung/galaxy-s-series/galaxy-s24-ultra-5g",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Back Glass": {
+        "reference_value_usd": 29.99,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "ifixit_s24u_parts",
+        "source_vendor": "iFixit",
+        "source_url": "https://www.ifixit.com/Parts/Samsung_Galaxy_S24_Ultra",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Main Motherboard": {
+        "reference_value_usd": null,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "mobilesentrix_s24u",
+        "source_vendor": "MobileSentrix",
+        "source_url": "https://www.mobilesentrix.com/replacement-parts/samsung/galaxy-s-series/galaxy-s24-ultra-5g",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": "No stable configuration-independent motherboard benchmark included; storage, carrier/region, IMEI/activation state and pairing strongly affect board value.",
+        "alternative_observations": []
+      }
+    },
+    "s25_ultra": {
+      "Display Assembly": {
+        "reference_value_usd": 233.94,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "mobilesentrix_s25u",
+        "source_vendor": "MobileSentrix",
+        "source_url": "https://www.mobilesentrix.com/replacement-parts/samsung/galaxy-s-series/galaxy-s25-ultra",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": "Service-pack OLED with frame reference.",
+        "alternative_observations": [
+          {
+            "vendor": "MobileSentrix",
+            "price_usd": 130.03,
+            "note": "aftermarket plus 120Hz OLED with frame"
+          },
+          {
+            "vendor": "MobileSentrix",
+            "price_usd": 219.03,
+            "note": "refurbished OLED with frame"
+          }
+        ]
+      },
+      "Battery": {
+        "reference_value_usd": 14.58,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "mobilesentrix_s25u",
+        "source_vendor": "MobileSentrix",
+        "source_url": "https://www.mobilesentrix.com/replacement-parts/samsung/galaxy-s-series/galaxy-s25-ultra",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": "AmpSentrix Pro replacement battery.",
+        "alternative_observations": [
+          {
+            "vendor": "MobileSentrix",
+            "price_usd": 18.58,
+            "note": "service-pack listing"
+          },
+          {
+            "vendor": "MobileSentrix",
+            "price_usd": 10.0,
+            "note": "premium replacement"
+          }
+        ]
+      },
+      "Rear Camera Assembly": {
+        "reference_value_usd": 91.29,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "mobilesentrix_s25u",
+        "source_vendor": "MobileSentrix",
+        "source_url": "https://www.mobilesentrix.com/replacement-parts/samsung/galaxy-s-series/galaxy-s25-ultra",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": "Wide + telephoto + ultrawide + periscope camera assembly.",
+        "alternative_observations": []
+      },
+      "USB-C Charging Port Board": {
+        "reference_value_usd": 18.03,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "mobilesentrix_s25u",
+        "source_vendor": "MobileSentrix",
+        "source_url": "https://www.mobilesentrix.com/replacement-parts/samsung/galaxy-s-series/galaxy-s25-ultra",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": "US S938U premium charging-port board with SIM reader.",
+        "alternative_observations": [
+          {
+            "vendor": "MobileSentrix",
+            "price_usd": 11.25,
+            "note": "S938B international board"
+          },
+          {
+            "vendor": "MobileSentrix",
+            "price_usd": 11.56,
+            "note": "S938R international board"
+          }
+        ]
+      },
+      "Loudspeaker with Vibrator": {
+        "reference_value_usd": 11.28,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "mobilesentrix_s25u",
+        "source_vendor": "MobileSentrix",
+        "source_url": "https://www.mobilesentrix.com/replacement-parts/samsung/galaxy-s-series/galaxy-s25-ultra",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Front Camera": {
+        "reference_value_usd": 26.81,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "mobilesentrix_s25u",
+        "source_vendor": "MobileSentrix",
+        "source_url": "https://www.mobilesentrix.com/replacement-parts/samsung/galaxy-s-series/galaxy-s25-ultra",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Wireless NFC Charging Flex": {
+        "reference_value_usd": 16.67,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "mobilesentrix_s25u",
+        "source_vendor": "MobileSentrix",
+        "source_url": "https://www.mobilesentrix.com/replacement-parts/samsung/galaxy-s-series/galaxy-s25-ultra",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Earpiece Speaker": {
+        "reference_value_usd": 5.43,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "mobilesentrix_s25u",
+        "source_vendor": "MobileSentrix",
+        "source_url": "https://www.mobilesentrix.com/replacement-parts/samsung/galaxy-s-series/galaxy-s25-ultra",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Main Motherboard": {
+        "reference_value_usd": null,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "mobilesentrix_s25u",
+        "source_vendor": "MobileSentrix",
+        "source_url": "https://www.mobilesentrix.com/replacement-parts/samsung/galaxy-s-series/galaxy-s25-ultra",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": "No stable reusable-board market benchmark included; region/storage/IMEI/activation condition must be modeled separately.",
+        "alternative_observations": []
+      }
+    },
+    "s25_edge": {
+      "Display Assembly": {
+        "reference_value_usd": 153.03,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "mobilesentrix_s25e",
+        "source_vendor": "MobileSentrix",
+        "source_url": "https://www.mobilesentrix.com/replacement-parts/samsung/galaxy-s-series/galaxy-s25-edge",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": "Aftermarket Plus OLED with frame.",
+        "alternative_observations": [
+          {
+            "vendor": "MobileSentrix",
+            "price_usd": 261.25,
+            "note": "service-pack OLED with frame"
+          },
+          {
+            "vendor": "MobileSentrix",
+            "price_usd": 274.29,
+            "note": "refurbished OLED with frame"
+          }
+        ]
+      },
+      "Battery": {
+        "reference_value_usd": 11.45,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "mobilesentrix_s25e",
+        "source_vendor": "MobileSentrix",
+        "source_url": "https://www.mobilesentrix.com/replacement-parts/samsung/galaxy-s-series/galaxy-s25-edge",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": "AmpSentrix Pro replacement battery.",
+        "alternative_observations": []
+      },
+      "USB-C Charging Port Flex": {
+        "reference_value_usd": 5.93,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "mobilesentrix_s25e",
+        "source_vendor": "MobileSentrix",
+        "source_url": "https://www.mobilesentrix.com/replacement-parts/samsung/galaxy-s-series/galaxy-s25-edge",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": [
+          {
+            "vendor": "iPartsExpert",
+            "price_usd": 5.05,
+            "note": "OEM charging-port flex listing"
+          }
+        ]
+      },
+      "Rear Ultra-Wide Camera": {
+        "reference_value_usd": 11.24,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "mobilesentrix_s25e",
+        "source_vendor": "MobileSentrix",
+        "source_url": "https://www.mobilesentrix.com/replacement-parts/samsung/galaxy-s-series/galaxy-s25-edge",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Front Camera": {
+        "reference_value_usd": 11.75,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "mobilesentrix_s25e",
+        "source_vendor": "MobileSentrix",
+        "source_url": "https://www.mobilesentrix.com/replacement-parts/samsung/galaxy-s-series/galaxy-s25-edge",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": []
+      },
+      "Earpiece Speaker": {
+        "reference_value_usd": 2.73,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "mobilesentrix_s25e",
+        "source_vendor": "MobileSentrix",
+        "source_url": "https://www.mobilesentrix.com/replacement-parts/samsung/galaxy-s-series/galaxy-s25-edge",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": [
+          {
+            "vendor": "iPartsExpert",
+            "price_usd": 3.06,
+            "note": "OEM earpiece speaker listing"
+          },
+          {
+            "vendor": "iPartsExpert",
+            "price_usd": 4.82,
+            "note": "earpiece speaker + flex cable"
+          }
+        ]
+      },
+      "Loudspeaker": {
+        "reference_value_usd": 3.6,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "mobilesentrix_s25e",
+        "source_vendor": "MobileSentrix",
+        "source_url": "https://www.mobilesentrix.com/replacement-parts/samsung/galaxy-s-series/galaxy-s25-edge",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": null,
+        "alternative_observations": [
+          {
+            "vendor": "iPartsExpert",
+            "price_usd": 1.25,
+            "note": "OEM buzzer/ringer loudspeaker module"
+          }
+        ]
+      },
+      "Sub Board / PCB Board with SIM Reader": {
+        "reference_value_usd": 7.09,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "mobilesentrix_s25e",
+        "source_vendor": "MobileSentrix",
+        "source_url": "https://www.mobilesentrix.com/replacement-parts/samsung/galaxy-s-series/galaxy-s25-edge",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": "Premium sub-board / SIM reader PCB listing for S937B/S937U variants.",
+        "alternative_observations": []
+      },
+      "Back Glass": {
+        "reference_value_usd": 14.18,
+        "basis": "online asking price",
+        "condition": "new",
+        "source_key": "mobilesentrix_s25e",
+        "source_vendor": "MobileSentrix",
+        "source_url": "https://www.mobilesentrix.com/replacement-parts/samsung/galaxy-s-series/galaxy-s25-edge",
+        "source_part_number": null,
+        "manufacturer_or_assembly_part_number": null,
+        "checked_on": "2026-09-25",
+        "confidence": "high",
+        "volatile_price": true,
+        "notes": "Aftermarket-plus back cover glass with camera lens; color-dependent pricing.",
+        "alternative_observations": []
+      }
+    }
+  },
+  "board_level_ic_examples": {
+    "s24_ultra": [
+      {
+        "component": "Wi-Fi IC",
+        "part_number": "WCN7851-101",
+        "observed_price_usd": 2.4,
+        "source_key": "mobilesentrix_s25e",
+        "notes": "Listing states compatibility across S23 Ultra / S24 / S25 series families; verify exact board revision before reuse."
+      },
+      {
+        "component": "Wireless charging IC",
+        "part_number": "CPS4038",
+        "observed_price_usd": 2.73,
+        "source_key": "mobilesentrix_s25e",
+        "notes": "Board-level IC; microsoldering component, not a drop-in assembly."
+      },
+      {
+        "component": "Audio IC",
+        "part_number": "SA257X",
+        "observed_price_usd": 2.04,
+        "source_key": "mobilesentrix_s25e",
+        "notes": "S25-series listing; verify exact model/board revision."
+      },
+      {
+        "component": "Power amplifier IC",
+        "part_number": "QPM7815A",
+        "observed_price_usd": 1.48,
+        "source_key": "mobilesentrix_s25e",
+        "notes": "S25-series listing; not asserted for S24 unless independently verified."
+      },
+      {
+        "component": "Intermediate RF IC",
+        "part_number": "SDR875004",
+        "observed_price_usd": 1.99,
+        "source_key": "mobilesentrix_s25e",
+        "notes": "Listing states S24/S25 series compatibility; verify board revision."
+      }
+    ],
+    "s25_ultra": [
+      {
+        "component": "Wi-Fi IC",
+        "part_number": "WCN7851-101",
+        "observed_price_usd": 2.4,
+        "source_key": "mobilesentrix_s25e",
+        "notes": "Listing states compatibility across S23 Ultra / S24 / S25 series families; verify exact board revision before reuse."
+      },
+      {
+        "component": "Wireless charging IC",
+        "part_number": "CPS4038",
+        "observed_price_usd": 2.73,
+        "source_key": "mobilesentrix_s25e",
+        "notes": "Board-level IC; microsoldering component, not a drop-in assembly."
+      },
+      {
+        "component": "Audio IC",
+        "part_number": "SA257X",
+        "observed_price_usd": 2.04,
+        "source_key": "mobilesentrix_s25e",
+        "notes": "S25-series listing; verify exact model/board revision."
+      },
+      {
+        "component": "Power amplifier IC",
+        "part_number": "QPM7815A",
+        "observed_price_usd": 1.48,
+        "source_key": "mobilesentrix_s25e",
+        "notes": "S25-series listing; not asserted for S24 unless independently verified."
+      },
+      {
+        "component": "Intermediate RF IC",
+        "part_number": "SDR875004",
+        "observed_price_usd": 1.99,
+        "source_key": "mobilesentrix_s25e",
+        "notes": "Listing states S24/S25 series compatibility; verify board revision."
+      }
+    ],
+    "s25_edge": [
+      {
+        "component": "Wi-Fi IC",
+        "part_number": "WCN7851-101",
+        "observed_price_usd": 2.4,
+        "source_key": "mobilesentrix_s25e",
+        "notes": "Listing states compatibility across S23 Ultra / S24 / S25 series families; verify exact board revision before reuse."
+      },
+      {
+        "component": "Wireless charging IC",
+        "part_number": "CPS4038",
+        "observed_price_usd": 2.73,
+        "source_key": "mobilesentrix_s25e",
+        "notes": "Board-level IC; microsoldering component, not a drop-in assembly."
+      },
+      {
+        "component": "Audio IC",
+        "part_number": "SA257X",
+        "observed_price_usd": 2.04,
+        "source_key": "mobilesentrix_s25e",
+        "notes": "S25-series listing; verify exact model/board revision."
+      },
+      {
+        "component": "Power amplifier IC",
+        "part_number": "QPM7815A",
+        "observed_price_usd": 1.48,
+        "source_key": "mobilesentrix_s25e",
+        "notes": "S25-series listing; not asserted for S24 unless independently verified."
+      },
+      {
+        "component": "Intermediate RF IC",
+        "part_number": "SDR875004",
+        "observed_price_usd": 1.99,
+        "source_key": "mobilesentrix_s25e",
+        "notes": "Listing states S24/S25 series compatibility; verify board revision."
+      }
+    ]
+  },
+  "sources": {
+    "ifixit_iphone14_parts": {
+      "vendor": "iFixit",
+      "url": "https://www.ifixit.com/Parts/iPhone_14",
+      "checked_on": "2026-09-25",
+      "type": "replacement_parts_catalog"
+    },
+    "ifixit_iphone14_screen_part_only": {
+      "vendor": "iFixit",
+      "url": "https://www.ifixit.com/products/iphone-14-screen?variant=41194333601895",
+      "checked_on": "2026-09-25",
+      "type": "product_listing"
+    },
+    "ifixit_iphone14_battery": {
+      "vendor": "iFixit",
+      "url": "https://www.ifixit.com/products/iphone-14-battery?variant=39939377889383",
+      "checked_on": "2026-09-25",
+      "type": "product_listing"
+    },
+    "ifixit_iphone14_camera": {
+      "vendor": "iFixit",
+      "url": "https://www.ifixit.com/products/iphone-14-rear-camera-assembly",
+      "checked_on": "2026-09-25",
+      "type": "product_listing"
+    },
+    "ifixit_iphone14_port": {
+      "vendor": "iFixit",
+      "url": "https://www.ifixit.com/products/iphone-14-lightning-connector-assembly",
+      "checked_on": "2026-09-25",
+      "type": "product_listing"
+    },
+    "ifixit_iphone14_speaker": {
+      "vendor": "iFixit",
+      "url": "https://www.ifixit.com/products/iphone-14-loudspeaker",
+      "checked_on": "2026-09-25",
+      "type": "product_listing"
+    },
+    "ifixit_iphone14_vibrator": {
+      "vendor": "iFixit",
+      "url": "https://www.ifixit.com/products/iphone-14-vibrator",
+      "checked_on": "2026-09-25",
+      "type": "product_listing"
+    },
+    "ifixit_iphone14pm_parts": {
+      "vendor": "iFixit",
+      "url": "https://www.ifixit.com/Parts/iPhone_14_Pro_Max",
+      "checked_on": "2026-09-25",
+      "type": "replacement_parts_catalog"
+    },
+    "ifixit_iphone14pm_screen": {
+      "vendor": "iFixit",
+      "url": "https://www.ifixit.com/products/iphone-14-pro-max-screen?variant=41194338615399",
+      "checked_on": "2026-09-25",
+      "type": "product_listing"
+    },
+    "ifixit_iphone14pm_battery": {
+      "vendor": "iFixit",
+      "url": "https://www.ifixit.com/products/iphone-14-pro-max-battery?variant=39939382444135",
+      "checked_on": "2026-09-25",
+      "type": "product_listing"
+    },
+    "ifixit_iphone14pm_camera": {
+      "vendor": "iFixit",
+      "url": "https://www.ifixit.com/products/iphone-14-pro-max-rear-camera-assembly",
+      "checked_on": "2026-09-25",
+      "type": "product_listing"
+    },
+    "ifixit_iphone14pm_port": {
+      "vendor": "iFixit",
+      "url": "https://www.ifixit.com/products/iphone-14-pro-max-lightning-connector-assembly",
+      "checked_on": "2026-09-25",
+      "type": "product_listing"
+    },
+    "ifixit_iphone14pm_vibrator": {
+      "vendor": "iFixit",
+      "url": "https://www.ifixit.com/products/iphone-14-pro-max-vibrator",
+      "checked_on": "2026-09-25",
+      "type": "product_listing"
+    },
+    "ifixit_iphone15pro_parts": {
+      "vendor": "iFixit",
+      "url": "https://www.ifixit.com/Parts/iPhone_15_Pro",
+      "checked_on": "2026-09-25",
+      "type": "replacement_parts_catalog"
+    },
+    "ifixit_iphone15pro_screen": {
+      "vendor": "iFixit",
+      "url": "https://www.ifixit.com/products/iphone-15-pro-screen?variant=41134624800871",
+      "checked_on": "2026-09-25",
+      "type": "product_listing"
+    },
+    "ifixit_iphone15pro_battery": {
+      "vendor": "iFixit",
+      "url": "https://www.ifixit.com/products/iphone-15-pro-battery",
+      "checked_on": "2026-09-25",
+      "type": "product_listing"
+    },
+    "ifixit_iphone15pro_camera": {
+      "vendor": "iFixit",
+      "url": "https://www.ifixit.com/products/iphone-15-pro-rear-camera-assembly",
+      "checked_on": "2026-09-25",
+      "type": "product_listing"
+    },
+    "ifixit_iphone15pro_port": {
+      "vendor": "iFixit",
+      "url": "https://www.ifixit.com/products/iphone-15-pro-charge-port",
+      "checked_on": "2026-09-25",
+      "type": "product_listing"
+    },
+    "ifixit_iphone15pro_speaker": {
+      "vendor": "iFixit",
+      "url": "https://www.ifixit.com/products/iphone-15-pro-loudspeaker",
+      "checked_on": "2026-09-25",
+      "type": "product_listing"
+    },
+    "ifixit_iphone15pro_vibrator": {
+      "vendor": "iFixit",
+      "url": "https://www.ifixit.com/products/iphone-15-pro-vibrator",
+      "checked_on": "2026-09-25",
+      "type": "product_listing"
+    },
+    "ifixit_iphone15pm_parts": {
+      "vendor": "iFixit",
+      "url": "https://www.ifixit.com/Parts/iPhone_15_Pro_Max",
+      "checked_on": "2026-09-25",
+      "type": "replacement_parts_catalog"
+    },
+    "ifixit_iphone15pm_screen": {
+      "vendor": "iFixit",
+      "url": "https://www.ifixit.com/products/iphone-15-pro-max-screen?variant=40711188938855",
+      "checked_on": "2026-09-25",
+      "type": "product_listing"
+    },
+    "ifixit_iphone15pm_battery": {
+      "vendor": "iFixit",
+      "url": "https://www.ifixit.com/products/iphone-15-pro-max-battery",
+      "checked_on": "2026-09-25",
+      "type": "product_listing"
+    },
+    "ifixit_iphone15pm_camera": {
+      "vendor": "iFixit",
+      "url": "https://www.ifixit.com/products/iphone-15-pro-max-rear-camera-assembly",
+      "checked_on": "2026-09-25",
+      "type": "product_listing"
+    },
+    "ifixit_iphone15pm_port": {
+      "vendor": "iFixit",
+      "url": "https://www.ifixit.com/products/iphone-15-pro-max-charge-port",
+      "checked_on": "2026-09-25",
+      "type": "product_listing"
+    },
+    "ifixit_iphone15pm_speaker": {
+      "vendor": "iFixit",
+      "url": "https://www.ifixit.com/products/iphone-15-pro-max-loudspeaker",
+      "checked_on": "2026-09-25",
+      "type": "product_listing"
+    },
+    "ifixit_iphone15pm_vibrator": {
+      "vendor": "iFixit",
+      "url": "https://www.ifixit.com/products/iphone-15-pro-max-vibrator",
+      "checked_on": "2026-09-25",
+      "type": "product_listing"
+    },
+    "ifixit_s24u_parts": {
+      "vendor": "iFixit",
+      "url": "https://www.ifixit.com/Parts/Samsung_Galaxy_S24_Ultra",
+      "checked_on": "2026-09-25",
+      "type": "replacement_parts_catalog"
+    },
+    "mobilesentrix_s24u": {
+      "vendor": "MobileSentrix",
+      "url": "https://www.mobilesentrix.com/replacement-parts/samsung/galaxy-s-series/galaxy-s24-ultra-5g",
+      "checked_on": "2026-09-25",
+      "type": "replacement_parts_catalog"
+    },
+    "etechparts_s24u": {
+      "vendor": "eTech Parts",
+      "url": "https://www.etechparts.com/samsung-products2/galaxy/galaxy-24-ultra",
+      "checked_on": "2026-09-25",
+      "type": "replacement_parts_catalog"
+    },
+    "mobilesentrix_s25u": {
+      "vendor": "MobileSentrix",
+      "url": "https://www.mobilesentrix.com/replacement-parts/samsung/galaxy-s-series/galaxy-s25-ultra",
+      "checked_on": "2026-09-25",
+      "type": "replacement_parts_catalog"
+    },
+    "mobilesentrix_s25e": {
+      "vendor": "MobileSentrix",
+      "url": "https://www.mobilesentrix.com/replacement-parts/samsung/galaxy-s-series/galaxy-s25-edge",
+      "checked_on": "2026-09-25",
+      "type": "replacement_parts_catalog"
+    },
+    "ipartsexpert_s25e": {
+      "vendor": "iPartsExpert",
+      "url": "https://www.ipartsexpert.com/c/for-galaxy-s25-edge-s937/",
+      "checked_on": "2026-09-25",
+      "type": "replacement_parts_catalog"
+    }
+  }
+}
