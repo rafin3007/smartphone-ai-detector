@@ -14,7 +14,7 @@ import av
 import cv2
 import numpy as np
 import pandas as pd
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 import streamlit as st
 from streamlit_webrtc import RTCConfiguration, VideoProcessorBase, WebRtcMode, webrtc_streamer
 import timm
@@ -62,6 +62,10 @@ DEFAULT_SPECS_PATH = BASE_DIR / "data" / "phone_specifications.json"
 DEFAULT_METALS_PATH = BASE_DIR / "data" / "valuable_metals.json"
 DEFAULT_COMPONENT_COUNTS_PATH = BASE_DIR / "data" / "smartphone_component_counts.json"
 DEFAULT_PRICING_PATH = BASE_DIR / "data" / "early_upgrade_pricing.xlsx"
+DEFAULT_REFERENCE_IMAGES_DIR = BASE_DIR / "data" / "reference_images"
+DEFAULT_INTERNAL_IMAGES_DIR = BASE_DIR / "data" / "internal_images"
+DEFAULT_INTERNAL_LAYOUTS_PATH = BASE_DIR / "data" / "internal_layouts.json"
+DEFAULT_COMPONENT_VALUE_CONFIG_PATH = BASE_DIR / "data" / "component_value_config.json"
 
 RTC_CONFIGURATION = RTCConfiguration(
     {
@@ -1962,11 +1966,1394 @@ def lookup_components(
     return matches
 
 
+
+# ============================================================
+# Graphical valuation demo helpers
+# ============================================================
+
+@st.cache_data(show_spinner=False)
+def load_internal_layouts(path: str) -> dict[str, Any]:
+    p = Path(path)
+    if not p.exists():
+        return {}
+    try:
+        payload = json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    if not isinstance(payload, dict):
+        return {}
+    return {
+        normalize_model_key(str(key)): value
+        for key, value in payload.items()
+        if isinstance(value, dict)
+    }
+
+
+@st.cache_data(show_spinner=False)
+def load_component_value_config(path: str) -> dict[str, Any]:
+    defaults = {
+        "default_weights": {
+            "display": 0.24,
+            "main pcb": 0.18,
+            "logic board": 0.18,
+            "motherboard": 0.18,
+            "rear camera": 0.12,
+            "camera": 0.10,
+            "memory": 0.10,
+            "storage": 0.10,
+            "battery": 0.08,
+            "charging": 0.06,
+            "usb": 0.06,
+            "lightning": 0.06,
+            "taptic": 0.04,
+            "vibration": 0.04,
+            "haptic": 0.04,
+            "speaker": 0.04,
+            "other": 0.04,
+        },
+        "model_values": {},
+    }
+
+    p = Path(path)
+    if not p.exists():
+        return defaults
+
+    try:
+        payload = json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        return defaults
+
+    if not isinstance(payload, dict):
+        return defaults
+
+    result = dict(defaults)
+    result.update(payload)
+
+    if not isinstance(result.get("default_weights"), dict):
+        result["default_weights"] = defaults["default_weights"]
+
+    if not isinstance(result.get("model_values"), dict):
+        result["model_values"] = {}
+
+    return result
+
+
+def _demo_find_image(
+    directory: Path,
+    predicted_class: str,
+) -> Image.Image | None:
+    key = normalize_model_key(predicted_class)
+
+    for extension in (
+        ".png",
+        ".jpg",
+        ".jpeg",
+        ".webp",
+    ):
+        candidate = directory / f"{key}{extension}"
+
+        if candidate.exists():
+            try:
+                return Image.open(candidate).convert("RGB")
+            except Exception:
+                continue
+
+    return None
+
+
+def _demo_font(
+    size: int,
+    bold: bool = False,
+):
+    try:
+        return ImageFont.truetype(
+            "DejaVuSans-Bold.ttf"
+            if bold
+            else "DejaVuSans.ttf",
+            size=size,
+        )
+    except Exception:
+        return ImageFont.load_default()
+
+
+def _demo_reference_placeholder(
+    predicted_class: str,
+) -> Image.Image:
+    width, height = 900, 900
+
+    image = Image.new(
+        "RGB",
+        (width, height),
+        "#f3f4f6",
+    )
+    draw = ImageDraw.Draw(image)
+
+    draw.rounded_rectangle(
+        (250, 70, 650, 770),
+        radius=72,
+        fill="#ffffff",
+        outline="#9ca3af",
+        width=7,
+    )
+    draw.rounded_rectangle(
+        (275, 100, 625, 740),
+        radius=52,
+        fill="#dbeafe",
+        outline="#cbd5e1",
+        width=3,
+    )
+
+    draw.ellipse(
+        (300, 130, 378, 208),
+        fill="#111827",
+    )
+    draw.ellipse(
+        (392, 130, 470, 208),
+        fill="#111827",
+    )
+
+    draw.text(
+        (width // 2, 812),
+        pretty_class_name(predicted_class),
+        fill="#111111",
+        font=_demo_font(34, bold=True),
+        anchor="mm",
+    )
+    draw.text(
+        (width // 2, 858),
+        "Clean reference image placeholder",
+        fill="#4b5563",
+        font=_demo_font(21),
+        anchor="mm",
+    )
+
+    return image
+
+
+def _demo_internal_placeholder(
+    predicted_class: str,
+) -> Image.Image:
+    width, height = 1500, 850
+
+    image = Image.new(
+        "RGB",
+        (width, height),
+        "#f8fafc",
+    )
+    draw = ImageDraw.Draw(image)
+
+    draw.rounded_rectangle(
+        (65, 70, 1435, 790),
+        radius=70,
+        fill="#e5e7eb",
+        outline="#64748b",
+        width=7,
+    )
+
+    for top in (145, 255, 365):
+        draw.ellipse(
+            (105, top, 215, top + 110),
+            fill="#111827",
+            outline="#94a3b8",
+            width=4,
+        )
+
+    draw.rounded_rectangle(
+        (255, 165, 625, 575),
+        radius=28,
+        fill="#334155",
+        outline="#1e293b",
+        width=4,
+    )
+    draw.text(
+        (440, 370),
+        "MAIN PCB",
+        fill="#f8fafc",
+        font=_demo_font(30, bold=True),
+        anchor="mm",
+    )
+
+    draw.rounded_rectangle(
+        (655, 145, 1190, 690),
+        radius=38,
+        fill="#111827",
+        outline="#374151",
+        width=4,
+    )
+    draw.text(
+        (922, 415),
+        "BATTERY",
+        fill="#f8fafc",
+        font=_demo_font(34, bold=True),
+        anchor="mm",
+    )
+
+    draw.rounded_rectangle(
+        (245, 620, 500, 730),
+        radius=20,
+        fill="#475569",
+    )
+    draw.rounded_rectangle(
+        (535, 620, 810, 730),
+        radius=20,
+        fill="#64748b",
+    )
+    draw.rounded_rectangle(
+        (1220, 590, 1370, 730),
+        radius=20,
+        fill="#475569",
+    )
+
+    draw.text(
+        (750, 33),
+        f"{pretty_class_name(predicted_class)} internal schematic",
+        fill="#111111",
+        font=_demo_font(30, bold=True),
+        anchor="mm",
+    )
+
+    return image
+
+
+def _demo_visual_pricing(
+    predicted_class: str,
+    damage_result: dict[str, Any],
+    pricing_data: dict[str, Any],
+) -> dict[str, Any]:
+    # The visual demo assumes the device powers on because a photo
+    # cannot verify power-on status.
+    state = {
+        "device_type": "phone",
+        "model": pretty_class_name(predicted_class),
+        "power_on": True,
+        "lcd_good": not bool(
+            damage_result.get(
+                "broken_display",
+                False,
+            )
+        ),
+        "glass_cracked": bool(
+            damage_result.get(
+                "cracked_screen",
+                False,
+            )
+        ),
+        "cloud_status": None,
+        "weight_lb": None,
+        "weight_skipped": True,
+        "battery_type": "internal",
+    }
+
+    return _manual_pricing_match(
+        state,
+        pricing_data,
+    )
+
+
+def _demo_component_weight(
+    component_name: str,
+    config: dict[str, Any],
+) -> float:
+    weights = config.get(
+        "default_weights",
+        {},
+    ) or {}
+
+    lowered = str(
+        component_name
+    ).lower()
+
+    for key in sorted(
+        weights,
+        key=len,
+        reverse=True,
+    ):
+        if (
+            key != "other"
+            and str(key).lower()
+            in lowered
+        ):
+            try:
+                return max(
+                    0.0,
+                    float(weights[key]),
+                )
+            except (TypeError, ValueError):
+                pass
+
+    try:
+        return max(
+            0.0,
+            float(
+                weights.get(
+                    "other",
+                    0.04,
+                )
+            ),
+        )
+    except (TypeError, ValueError):
+        return 0.04
+
+
+def _demo_component_values(
+    predicted_class: str,
+    component_dataframe: pd.DataFrame,
+    component_counts: dict[str, Any],
+    total_device_value: float | None,
+    config: dict[str, Any],
+) -> list[dict[str, Any]]:
+    model_key = normalize_model_key(
+        predicted_class
+    )
+
+    model_values = (
+        config.get(
+            "model_values",
+            {},
+        )
+        or {}
+    ).get(
+        model_key,
+        {},
+    ) or {}
+
+    part_data = lookup_component_counts(
+        predicted_class,
+        component_counts,
+    )
+
+    components = (
+        part_data.get(
+            "components",
+            [],
+        )
+        if part_data
+        else []
+    )
+
+    rows: list[dict[str, Any]] = []
+
+    if isinstance(
+        components,
+        list,
+    ):
+        for component in components:
+            if not isinstance(
+                component,
+                dict,
+            ):
+                continue
+
+            name = str(
+                component.get(
+                    "component_name",
+                    "Component",
+                )
+            )
+
+            try:
+                quantity = max(
+                    1,
+                    int(
+                        component.get(
+                            "quantity",
+                            1,
+                        )
+                    ),
+                )
+            except (TypeError, ValueError):
+                quantity = 1
+
+            configured_value = None
+
+            if isinstance(
+                model_values,
+                dict,
+            ):
+                for configured_name, value in (
+                    model_values.items()
+                ):
+                    if (
+                        normalize_model_key(
+                            configured_name
+                        )
+                        == normalize_model_key(
+                            name
+                        )
+                    ):
+                        try:
+                            configured_value = float(
+                                value
+                            )
+                        except (
+                            TypeError,
+                            ValueError,
+                        ):
+                            configured_value = None
+                        break
+
+            rows.append(
+                {
+                    "component_name": name,
+                    "quantity": quantity,
+                    "part_number": component.get(
+                        "part_number"
+                    ),
+                    "manufacturer_part_number": (
+                        component.get(
+                            "manufacturer_part_number"
+                        )
+                    ),
+                    "configured_value": configured_value,
+                    "weight": _demo_component_weight(
+                        name,
+                        config,
+                    ),
+                }
+            )
+
+    # Fallback to names from the CSV.
+    if not rows:
+        matches = lookup_components(
+            predicted_class,
+            component_dataframe,
+        )
+
+        component_column = next(
+            (
+                column
+                for column in (
+                    "component_name",
+                    "component",
+                    "pcb_type",
+                )
+                if column
+                in matches.columns
+            ),
+            None,
+        )
+
+        if (
+            not matches.empty
+            and component_column
+        ):
+            for name in (
+                matches[
+                    component_column
+                ]
+                .dropna()
+                .astype(str)
+                .drop_duplicates()
+                .head(20)
+            ):
+                rows.append(
+                    {
+                        "component_name": name,
+                        "quantity": 1,
+                        "part_number": None,
+                        "manufacturer_part_number": None,
+                        "configured_value": None,
+                        "weight": _demo_component_weight(
+                            name,
+                            config,
+                        ),
+                    }
+                )
+
+    if not rows:
+        return []
+
+    # Explicit model-level component values take priority.
+    if any(
+        row.get(
+            "configured_value"
+        ) is not None
+        for row in rows
+    ):
+        for row in rows:
+            row[
+                "estimated_value"
+            ] = row.get(
+                "configured_value"
+            )
+            row[
+                "value_source"
+            ] = (
+                "configured component value"
+                if row.get(
+                    "configured_value"
+                )
+                is not None
+                else "not available"
+            )
+
+        return rows
+
+    total_weight = sum(
+        float(
+            row.get(
+                "weight",
+                0.0,
+            )
+        )
+        for row in rows
+    )
+
+    if total_weight <= 0:
+        total_weight = float(
+            len(rows)
+        )
+        for row in rows:
+            row["weight"] = 1.0
+
+    for row in rows:
+        if total_device_value is None:
+            row[
+                "estimated_value"
+            ] = None
+            row[
+                "value_source"
+            ] = "not available"
+        else:
+            row[
+                "estimated_value"
+            ] = (
+                float(
+                    total_device_value
+                )
+                * float(
+                    row["weight"]
+                )
+                / total_weight
+            )
+            row[
+                "value_source"
+            ] = (
+                "illustrative allocation from "
+                "whole-device workbook value"
+            )
+
+    return rows
+
+
+def _demo_default_box(
+    component_name: str,
+) -> list[float] | None:
+    name = str(
+        component_name
+    ).lower()
+
+    rules = (
+        (
+            (
+                "rear camera",
+                "camera assembly",
+                "camera module",
+            ),
+            [0.07, 0.12, 0.22, 0.44],
+        ),
+        (
+            (
+                "main pcb",
+                "logic board",
+                "motherboard",
+            ),
+            [0.21, 0.16, 0.42, 0.54],
+        ),
+        (
+            (
+                "memory",
+                "storage",
+            ),
+            [0.27, 0.43, 0.41, 0.57],
+        ),
+        (
+            ("battery",),
+            [0.43, 0.14, 0.79, 0.77],
+        ),
+        (
+            (
+                "charging",
+                "usb",
+                "lightning",
+            ),
+            [0.45, 0.78, 0.70, 0.93],
+        ),
+        (
+            (
+                "speaker",
+                "earpiece",
+            ),
+            [0.77, 0.70, 0.92, 0.90],
+        ),
+        (
+            (
+                "taptic",
+                "vibration",
+                "haptic",
+            ),
+            [0.12, 0.72, 0.30, 0.90],
+        ),
+        (
+            (
+                "front camera",
+                "face id",
+                "sensor",
+            ),
+            [0.35, 0.07, 0.49, 0.18],
+        ),
+        (
+            ("display",),
+            [0.82, 0.16, 0.96, 0.74],
+        ),
+    )
+
+    for keywords, box in rules:
+        if any(
+            keyword in name
+            for keyword in keywords
+        ):
+            return box
+
+    return None
+
+
+def _demo_annotate_internal(
+    image: Image.Image,
+    predicted_class: str,
+    component_rows: list[dict[str, Any]],
+    layouts: dict[str, Any],
+) -> Image.Image:
+    canvas = image.convert(
+        "RGB"
+    ).copy()
+
+    draw = ImageDraw.Draw(
+        canvas
+    )
+
+    width, height = canvas.size
+
+    model_layout = layouts.get(
+        normalize_model_key(
+            predicted_class
+        ),
+        {},
+    )
+
+    explicit = (
+        model_layout.get(
+            "components",
+            {},
+        )
+        if isinstance(
+            model_layout,
+            dict,
+        )
+        else {}
+    )
+
+    palette = (
+        "#2563eb",
+        "#16a34a",
+        "#dc2626",
+        "#9333ea",
+        "#ea580c",
+        "#0891b2",
+        "#db2777",
+        "#65a30d",
+    )
+
+    label_font = _demo_font(
+        max(
+            18,
+            width // 60,
+        ),
+        bold=True,
+    )
+    value_font = _demo_font(
+        max(
+            16,
+            width // 70,
+        )
+    )
+
+    top_rows = sorted(
+        component_rows,
+        key=lambda item: (
+            item.get(
+                "estimated_value"
+            )
+            if item.get(
+                "estimated_value"
+            )
+            is not None
+            else 0.0
+        ),
+        reverse=True,
+    )[:8]
+
+    for index, item in enumerate(
+        top_rows
+    ):
+        name = str(
+            item.get(
+                "component_name",
+                "Component",
+            )
+        )
+
+        box = None
+
+        if isinstance(
+            explicit,
+            dict,
+        ):
+            for layout_name, config in (
+                explicit.items()
+            ):
+                if (
+                    normalize_model_key(
+                        layout_name
+                    )
+                    == normalize_model_key(
+                        name
+                    )
+                    and isinstance(
+                        config,
+                        dict,
+                    )
+                ):
+                    box = config.get(
+                        "box"
+                    )
+                    break
+
+        if box is None:
+            box = _demo_default_box(
+                name
+            )
+
+        if (
+            not isinstance(
+                box,
+                list,
+            )
+            or len(box) != 4
+        ):
+            continue
+
+        try:
+            x1 = int(
+                float(box[0])
+                * width
+            )
+            y1 = int(
+                float(box[1])
+                * height
+            )
+            x2 = int(
+                float(box[2])
+                * width
+            )
+            y2 = int(
+                float(box[3])
+                * height
+            )
+        except (
+            TypeError,
+            ValueError,
+        ):
+            continue
+
+        color = palette[
+            index % len(palette)
+        ]
+
+        line_width = max(
+            3,
+            width // 320,
+        )
+
+        draw.rounded_rectangle(
+            (
+                x1,
+                y1,
+                x2,
+                y2,
+            ),
+            radius=max(
+                8,
+                width // 180,
+            ),
+            outline=color,
+            width=line_width,
+        )
+
+        value = item.get(
+            "estimated_value"
+        )
+
+        value_text = (
+            f"${float(value):.0f}"
+            if value is not None
+            else "value n/a"
+        )
+
+        short_name = (
+            name
+            if len(name) <= 28
+            else name[:25] + "..."
+        )
+
+        label_text = (
+            f"{short_name}\\n"
+            f"{value_text}"
+        )
+
+        bbox = (
+            draw.multiline_textbbox(
+                (0, 0),
+                label_text,
+                font=label_font,
+                spacing=3,
+            )
+        )
+
+        label_width = (
+            bbox[2]
+            - bbox[0]
+            + 24
+        )
+        label_height = (
+            bbox[3]
+            - bbox[1]
+            + 18
+        )
+
+        label_x = max(
+            5,
+            min(
+                x1,
+                width
+                - label_width
+                - 5,
+            ),
+        )
+        label_y = max(
+            5,
+            y1
+            - label_height
+            - 8,
+        )
+
+        draw.rounded_rectangle(
+            (
+                label_x,
+                label_y,
+                label_x
+                + label_width,
+                label_y
+                + label_height,
+            ),
+            radius=10,
+            fill="#ffffff",
+            outline=color,
+            width=max(
+                2,
+                line_width // 2,
+            ),
+        )
+
+        draw.text(
+            (
+                label_x + 12,
+                label_y + 6,
+            ),
+            short_name,
+            fill="#111111",
+            font=label_font,
+        )
+        draw.text(
+            (
+                label_x + 12,
+                label_y
+                + label_height
+                // 2,
+            ),
+            value_text,
+            fill=color,
+            font=value_font,
+        )
+
+    return canvas
+
+
+def render_graphical_valuation_demo(
+    image: Image.Image,
+    top_prediction: dict[str, Any],
+    damage_result: dict[str, Any],
+    pricing_data: dict[str, Any],
+    component_dataframe: pd.DataFrame,
+    component_counts: dict[str, Any],
+    metals_data: dict[str, Any],
+    internal_layouts: dict[str, Any],
+    component_value_config: dict[str, Any],
+) -> None:
+    predicted_class = top_prediction[
+        "class_name"
+    ]
+    display_name = top_prediction[
+        "display_name"
+    ]
+
+    pricing = _demo_visual_pricing(
+        predicted_class,
+        damage_result,
+        pricing_data,
+    )
+
+    whole_device_value = pricing.get(
+        "exact_value"
+    )
+
+    component_rows = (
+        _demo_component_values(
+            predicted_class,
+            component_dataframe,
+            component_counts,
+            whole_device_value,
+            component_value_config,
+        )
+    )
+
+    st.markdown("---")
+    st.subheader(
+        "Cellphone valuation demo"
+    )
+    st.caption(
+        "Graphical damaged-vs-reference comparison, "
+        "condition-based valuation, and internal "
+        "PCB/component value deep dive."
+    )
+
+    st.markdown(
+        "### 1. Device condition & valuation"
+    )
+
+    damaged_col, reference_col, value_col = (
+        st.columns(
+            [1.0, 1.0, 0.95],
+            gap="large",
+        )
+    )
+
+    with damaged_col:
+        st.markdown(
+            "#### Uploaded damaged phone"
+        )
+        st.image(
+            image,
+            use_container_width=True,
+        )
+
+    with reference_col:
+        st.markdown(
+            "#### Reference / original appearance"
+        )
+
+        reference = _demo_find_image(
+            DEFAULT_REFERENCE_IMAGES_DIR,
+            predicted_class,
+        )
+
+        if reference is None:
+            reference = (
+                _demo_reference_placeholder(
+                    predicted_class
+                )
+            )
+            st.caption(
+                "Placeholder shown. Add the real clean image as "
+                f"data/reference_images/"
+                f"{normalize_model_key(predicted_class)}.png"
+            )
+
+        st.image(
+            reference,
+            use_container_width=True,
+        )
+
+    with value_col:
+        st.markdown(
+            "#### Valuation summary"
+        )
+
+        if (
+            whole_device_value
+            is not None
+        ):
+            st.metric(
+                "Estimated workbook value",
+                f"${float(whole_device_value):,.2f}",
+            )
+        else:
+            st.metric(
+                "Estimated workbook value",
+                "Unavailable",
+            )
+
+        st.metric(
+            "Condition code",
+            pricing.get(
+                "condition_code"
+            )
+            or "—",
+        )
+
+        st.metric(
+            "Predicted model",
+            display_name,
+        )
+
+        st.write(
+            "**Screen:** "
+            + (
+                "Cracked"
+                if damage_result.get(
+                    "cracked_screen",
+                    False,
+                )
+                else "No strong crack detected"
+            )
+        )
+
+        st.write(
+            "**Display:** "
+            + (
+                "Damage detected"
+                if damage_result.get(
+                    "broken_display",
+                    False,
+                )
+                else "No major display failure detected"
+            )
+        )
+
+        st.write(
+            "**Overall visible condition:** "
+            + str(
+                damage_result.get(
+                    "image_condition",
+                    "Unknown",
+                )
+            )
+        )
+
+        st.info(
+            "Visual pricing assumes the phone powers on. "
+            "A photo cannot confirm NP/no-power status."
+        )
+
+    st.markdown(
+        "### 2. Internal deep dive"
+    )
+    st.caption(
+        "Major internal parts are bordered and paired "
+        "with estimated values."
+    )
+
+    internal = _demo_find_image(
+        DEFAULT_INTERNAL_IMAGES_DIR,
+        predicted_class,
+    )
+
+    using_placeholder = (
+        internal is None
+    )
+
+    if internal is None:
+        internal = (
+            _demo_internal_placeholder(
+                predicted_class
+            )
+        )
+
+    annotated = (
+        _demo_annotate_internal(
+            internal,
+            predicted_class,
+            component_rows,
+            internal_layouts,
+        )
+    )
+
+    internal_col, breakdown_col = (
+        st.columns(
+            [1.65, 1.0],
+            gap="large",
+        )
+    )
+
+    with internal_col:
+        st.image(
+            annotated,
+            caption=(
+                "Internal PCB / component valuation view"
+            ),
+            use_container_width=True,
+        )
+
+        if using_placeholder:
+            st.caption(
+                "Add a real teardown image as "
+                f"data/internal_images/"
+                f"{normalize_model_key(predicted_class)}.png "
+                "and adjust boxes in "
+                "data/internal_layouts.json."
+            )
+
+    with breakdown_col:
+        st.markdown(
+            "#### Component value breakdown"
+        )
+
+        if component_rows:
+            component_table = (
+                pd.DataFrame(
+                    [
+                        {
+                            "Component": row[
+                                "component_name"
+                            ],
+                            "Qty": row.get(
+                                "quantity",
+                                1,
+                            ),
+                            "Value": (
+                                f"${row['estimated_value']:.2f}"
+                                if row.get(
+                                    "estimated_value"
+                                )
+                                is not None
+                                else "—"
+                            ),
+                            "Part number": (
+                                row.get(
+                                    "manufacturer_part_number"
+                                )
+                                or row.get(
+                                    "part_number"
+                                )
+                                or "—"
+                            ),
+                        }
+                        for row in sorted(
+                            component_rows,
+                            key=lambda item: (
+                                item.get(
+                                    "estimated_value"
+                                )
+                                if item.get(
+                                    "estimated_value"
+                                )
+                                is not None
+                                else 0.0
+                            ),
+                            reverse=True,
+                        )
+                    ]
+                )
+            )
+
+            st.dataframe(
+                component_table,
+                use_container_width=True,
+                hide_index=True,
+            )
+
+            chart_rows = [
+                {
+                    "Component": row[
+                        "component_name"
+                    ],
+                    "Estimated value": float(
+                        row[
+                            "estimated_value"
+                        ]
+                    ),
+                }
+                for row in component_rows
+                if row.get(
+                    "estimated_value"
+                )
+                is not None
+            ]
+
+            if chart_rows:
+                chart_series = (
+                    pd.DataFrame(
+                        chart_rows
+                    )
+                    .groupby(
+                        "Component"
+                    )[
+                        "Estimated value"
+                    ]
+                    .sum()
+                    .sort_values(
+                        ascending=True
+                    )
+                )
+
+                st.bar_chart(
+                    chart_series,
+                    horizontal=True,
+                )
+
+            if any(
+                row.get(
+                    "value_source"
+                )
+                == (
+                    "illustrative allocation from "
+                    "whole-device workbook value"
+                )
+                for row in component_rows
+            ):
+                st.caption(
+                    "Per-component dollar values are "
+                    "illustrative allocations of the "
+                    "whole-device workbook value. Put "
+                    "verified values in "
+                    "data/component_value_config.json "
+                    "when available."
+                )
+        else:
+            st.info(
+                "No component records are available "
+                "for this model."
+            )
+
+    phone_metals = (
+        lookup_valuable_metals(
+            predicted_class,
+            metals_data,
+        )
+    )
+
+    if phone_metals:
+        metals = phone_metals.get(
+            "valuable_metals",
+            {},
+        )
+
+        if (
+            isinstance(
+                metals,
+                dict,
+            )
+            and metals
+        ):
+            st.markdown(
+                "### 3. Material / metal estimate"
+            )
+
+            metal_rows = []
+
+            for metal_name, info in (
+                metals.items()
+            ):
+                if not isinstance(
+                    info,
+                    dict,
+                ):
+                    continue
+
+                try:
+                    quantity_g = float(
+                        info.get(
+                            "estimated_quantity_g",
+                            0,
+                        )
+                    )
+                except (
+                    TypeError,
+                    ValueError,
+                ):
+                    quantity_g = 0.0
+
+                metal_rows.append(
+                    {
+                        "Metal": metal_name.replace(
+                            "_",
+                            " ",
+                        ).title(),
+                        "Symbol": info.get(
+                            "symbol",
+                            "",
+                        ),
+                        "Estimated quantity": (
+                            _format_metal_quantity(
+                                quantity_g
+                            )
+                        ),
+                        "Quantity (g)": quantity_g,
+                        "Main locations": ", ".join(
+                            info.get(
+                                "primary_locations",
+                                [],
+                            )
+                        )
+                        or "—",
+                    }
+                )
+
+            if metal_rows:
+                metal_df = pd.DataFrame(
+                    metal_rows
+                )
+
+                table_col, chart_col = (
+                    st.columns(
+                        [1.2, 1.0],
+                        gap="large",
+                    )
+                )
+
+                with table_col:
+                    st.dataframe(
+                        metal_df[
+                            [
+                                "Metal",
+                                "Symbol",
+                                "Estimated quantity",
+                                "Main locations",
+                            ]
+                        ],
+                        use_container_width=True,
+                        hide_index=True,
+                    )
+
+                with chart_col:
+                    st.bar_chart(
+                        metal_df[
+                            [
+                                "Metal",
+                                "Quantity (g)",
+                            ]
+                        ].set_index(
+                            "Metal"
+                        ),
+                        horizontal=True,
+                    )
+
+
 # ============================================================
 # Damage rendering
 # ============================================================
 
-def render_damage_analysis(image: Image.Image) -> None:
+def render_damage_analysis(image: Image.Image) -> tuple[dict[str, Any], np.ndarray, np.ndarray]:
     st.subheader("Visible damage analysis")
     st.caption(
         "This estimates visible surface damage from the submitted photo. "
@@ -2014,6 +3401,8 @@ def render_damage_analysis(image: Image.Image) -> None:
     with overlay_tabs[2]:
         st.json(damage_result)
 
+    return damage_result, scratch_mask, crack_mask
+
 # ============================================================
 # Result rendering
 # ============================================================
@@ -2026,7 +3415,7 @@ def render_prediction(
     metals_data: dict[str, Any],
     threshold: float,
     image: Image.Image | None = None,
-) -> None:
+) -> dict[str, Any] | None:
     if not predictions:
         return
 
@@ -2068,8 +3457,12 @@ def render_prediction(
 
     st.bar_chart(chart_dataframe)
 
+    damage_result = None
+
     if image is not None:
-        render_damage_analysis(image)
+        damage_result, _, _ = render_damage_analysis(
+            image
+        )
 
     render_phone_specification(
         top["class_name"],
@@ -2096,7 +3489,10 @@ def render_prediction(
             "No matching component records were found. "
             "The smartphone prediction still works without the component CSV."
         )
-        return
+        return {
+            "top": top,
+            "damage_result": damage_result,
+        }
 
     st.subheader("Expected internal components")
     st.caption(
@@ -2161,6 +3557,10 @@ def render_prediction(
             ):
                 st.write(f"• {value}")
 
+    return {
+        "top": top,
+        "damage_result": damage_result,
+    }
 
 
 # ============================================================
@@ -3814,6 +5214,12 @@ phone_specifications = load_phone_specifications(specifications_path)
 component_counts = load_component_counts(component_counts_path)
 valuable_metals_data = load_valuable_metals(metals_path)
 pricing_data = load_pricing_workbook(pricing_path)
+internal_layouts = load_internal_layouts(
+    str(DEFAULT_INTERNAL_LAYOUTS_PATH)
+)
+component_value_config = load_component_value_config(
+    str(DEFAULT_COMPONENT_VALUE_CONFIG_PATH)
+)
 
 status_columns = st.columns(8)
 
@@ -3961,7 +5367,7 @@ with mode[0]:
                                 top_k=top_k,
                             )
 
-                        render_prediction(
+                        prediction_result = render_prediction(
                             predictions,
                             component_dataframe,
                             component_counts,
@@ -3969,6 +5375,27 @@ with mode[0]:
                             valuable_metals_data,
                             confidence_threshold,
                             image=uploaded_image,
+                        )
+
+                    if (
+                        prediction_result
+                        and prediction_result.get(
+                            "damage_result"
+                        )
+                        is not None
+                    ):
+                        render_graphical_valuation_demo(
+                            image=uploaded_image,
+                            top_prediction=prediction_result["top"],
+                            damage_result=prediction_result[
+                                "damage_result"
+                            ],
+                            pricing_data=pricing_data,
+                            component_dataframe=component_dataframe,
+                            component_counts=component_counts,
+                            metals_data=valuable_metals_data,
+                            internal_layouts=internal_layouts,
+                            component_value_config=component_value_config,
                         )
         else:
             st.info(
@@ -4007,7 +5434,7 @@ with mode[1]:
                         top_k=top_k,
                     )
 
-                render_prediction(
+                camera_prediction_result = render_prediction(
                     predictions,
                     component_dataframe,
                     component_counts,
@@ -4016,6 +5443,29 @@ with mode[1]:
                     confidence_threshold,
                     image=camera_image,
                 )
+
+                if (
+                    camera_prediction_result
+                    and camera_prediction_result.get(
+                        "damage_result"
+                    )
+                    is not None
+                ):
+                    render_graphical_valuation_demo(
+                        image=camera_image,
+                        top_prediction=camera_prediction_result[
+                            "top"
+                        ],
+                        damage_result=camera_prediction_result[
+                            "damage_result"
+                        ],
+                        pricing_data=pricing_data,
+                        component_dataframe=component_dataframe,
+                        component_counts=component_counts,
+                        metals_data=valuable_metals_data,
+                        internal_layouts=internal_layouts,
+                        component_value_config=component_value_config,
+                    )
             else:
                 st.info(
                     "Allow camera access and "
