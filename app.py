@@ -1129,6 +1129,46 @@ st.markdown(
         font-size: 0.95rem !important;
     }
 
+    
+    /* =====================================================
+       COMPACT FULL-WIDTH RESULT LAYOUT
+       ===================================================== */
+
+    [data-testid="stMainBlockContainer"] {
+        max-width: 100% !important;
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
+    }
+
+    [data-testid="stVerticalBlock"] {
+        gap: 0.65rem !important;
+    }
+
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        padding-top: 0.15rem !important;
+        padding-bottom: 0.15rem !important;
+    }
+
+    .prediction-card {
+        margin-top: 0 !important;
+        margin-bottom: 0.45rem !important;
+        padding: 1.15rem !important;
+    }
+
+    [data-testid="stImage"] {
+        margin-bottom: 0.25rem !important;
+    }
+
+    [data-testid="stVegaLiteChart"],
+    [data-testid="stArrowVegaLiteChart"] {
+        width: 100% !important;
+    }
+
+    h2, h3, h4 {
+        margin-top: 0.65rem !important;
+        margin-bottom: 0.35rem !important;
+    }
+
     </style>
     """,
     unsafe_allow_html=True,
@@ -3264,147 +3304,152 @@ def render_prediction(
     metals_data: dict[str, Any],
     threshold: float,
     image: Image.Image | None = None,
+    show_summary: bool = True,
+    show_details: bool = True,
 ) -> dict[str, Any] | None:
     if not predictions:
         return
 
     top = predictions[0]
 
-    if top["confidence"] < threshold:
-        st.warning(
-            "The prediction is below the selected confidence threshold. "
-            "Try a clearer rear-camera or full-device view."
+    if show_summary:
+        if top["confidence"] < threshold:
+            st.warning(
+                "The prediction is below the selected confidence threshold. "
+                "Try a clearer rear-camera or full-device view."
+            )
+
+        st.markdown(
+            f"""
+            <div class="prediction-card">
+                <div class="prediction-label">Predicted smartphone</div>
+                <div class="prediction-name">{top["display_name"]}</div>
+                <div class="confidence">
+                    Confidence: {top["confidence"] * 100:.2f}%
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
         )
 
-    st.markdown(
-        f"""
-        <div class="prediction-card">
-            <div class="prediction-label">Predicted smartphone</div>
-            <div class="prediction-name">{top["display_name"]}</div>
-            <div class="confidence">
-                Confidence: {top["confidence"] * 100:.2f}%
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+        st.subheader("Top predictions")
 
-    st.subheader("Top predictions")
+        chart_dataframe = pd.DataFrame(
+            {
+                "Model": [
+                    item["display_name"]
+                    for item in predictions
+                ],
+                "Confidence": [
+                    item["confidence"]
+                    for item in predictions
+                ],
+            }
+        ).set_index("Model")
 
-    chart_dataframe = pd.DataFrame(
-        {
-            "Model": [
-                item["display_name"]
-                for item in predictions
-            ],
-            "Confidence": [
-                item["confidence"]
-                for item in predictions
-            ],
-        }
-    ).set_index("Model")
+        st.bar_chart(chart_dataframe)
 
-    st.bar_chart(chart_dataframe)
 
     damage_result = None
 
-    if image is not None:
-        damage_result, _, _ = render_damage_analysis(
-            image
+    if show_details:
+        if image is not None:
+            damage_result, _, _ = render_damage_analysis(
+                image
+            )
+
+        render_phone_specification(
+            top["class_name"],
+            specifications,
         )
 
-    render_phone_specification(
-        top["class_name"],
-        specifications,
-    )
-
-    render_component_counts(
-        top["class_name"],
-        component_counts,
-    )
-
-    render_valuable_metals(
-        top["class_name"],
-        metals_data,
-    )
-
-    matches = lookup_components(
-        top["class_name"],
-        component_dataframe,
-    )
-
-    if matches.empty:
-        st.info(
-            "No matching component records were found. "
-            "The smartphone prediction still works without the component CSV."
+        render_component_counts(
+            top["class_name"],
+            component_counts,
         )
-        return {
-            "top": top,
-            "damage_result": damage_result,
-        }
 
-    st.subheader("Expected internal components")
-    st.caption(
-        "These components come from the component database for the predicted "
-        "model. They are not visually detected through the exterior."
-    )
-
-    board_column = next(
-        (
-            column
-            for column in ("is_pcb_or_board", "pcb_type")
-            if column in matches.columns
-        ),
-        None,
-    )
-
-    if board_column == "is_pcb_or_board":
-        board_mask = (
-            matches[board_column]
-            .astype(str)
-            .str.lower()
-            .isin(["true", "1", "yes"])
+        render_valuable_metals(
+            top["class_name"],
+            metals_data,
         )
-    elif board_column == "pcb_type":
-        board_mask = matches[board_column].notna()
-    else:
-        board_mask = pd.Series(False, index=matches.index)
 
-    boards = matches[board_mask]
-    other_components = matches[~board_mask]
+        matches = lookup_components(
+            top["class_name"],
+            component_dataframe,
+        )
 
-    first, second = st.columns(2)
+        if matches.empty:
+            st.info(
+                "No matching component records were found. "
+                "The smartphone prediction still works without the component CSV."
+            )
+            return {
+                "top": top,
+                "damage_result": damage_result,
+            }
 
-    component_name_column = next(
-        (
-            column
-            for column in ("component_name", "component", "pcb_type")
-            if column in matches.columns
-        ),
-        None,
-    )
+        st.subheader("Expected internal components")
+        st.caption(
+            "These components come from the component database for the predicted "
+            "model. They are not visually detected through the exterior."
+        )
 
-    with first:
-        st.markdown("#### PCB and boards")
+        board_column = next(
+            (
+                column
+                for column in ("is_pcb_or_board", "pcb_type")
+                if column in matches.columns
+            ),
+            None,
+        )
 
-        if boards.empty or component_name_column is None:
-            st.write("No PCB records available.")
+        if board_column == "is_pcb_or_board":
+            board_mask = (
+                matches[board_column]
+                .astype(str)
+                .str.lower()
+                .isin(["true", "1", "yes"])
+            )
+        elif board_column == "pcb_type":
+            board_mask = matches[board_column].notna()
         else:
-            for value in boards[component_name_column].dropna().unique():
-                st.write(f"• {value}")
+            board_mask = pd.Series(False, index=matches.index)
 
-    with second:
-        st.markdown("#### Other components")
+        boards = matches[board_mask]
+        other_components = matches[~board_mask]
 
-        if other_components.empty or component_name_column is None:
-            st.write("No component records available.")
-        else:
-            for value in (
-                other_components[component_name_column]
-                .dropna()
-                .unique()[:30]
-            ):
-                st.write(f"• {value}")
+        first, second = st.columns(2)
+
+        component_name_column = next(
+            (
+                column
+                for column in ("component_name", "component", "pcb_type")
+                if column in matches.columns
+            ),
+            None,
+        )
+
+        with first:
+            st.markdown("#### PCB and boards")
+
+            if boards.empty or component_name_column is None:
+                st.write("No PCB records available.")
+            else:
+                for value in boards[component_name_column].dropna().unique():
+                    st.write(f"• {value}")
+
+        with second:
+            st.markdown("#### Other components")
+
+            if other_components.empty or component_name_column is None:
+                st.write("No component records available.")
+            else:
+                for value in (
+                    other_components[component_name_column]
+                    .dropna()
+                    .unique()[:30]
+                ):
+                    st.write(f"• {value}")
 
     return {
         "top": top,
@@ -5193,9 +5238,18 @@ with mode[0]:
                         f"{uploaded_file.name}"
                     )
 
+                    with st.spinner(
+                        f"Analyzing {uploaded_file.name}..."
+                    ):
+                        predictions = predict_pil_image(
+                            uploaded_image,
+                            model_bundle,
+                            top_k=top_k,
+                        )
+
                     first, second = st.columns(
-                        [1.05, 0.95],
-                        gap="large",
+                        [1.08, 0.92],
+                        gap="medium",
                     )
 
                     with first:
@@ -5206,39 +5260,40 @@ with mode[0]:
                         )
 
                     with second:
-                        with st.spinner(
-                            f"Analyzing "
-                            f"{uploaded_file.name}..."
-                        ):
-                            predictions = predict_pil_image(
-                                uploaded_image,
-                                model_bundle,
-                                top_k=top_k,
-                            )
-
-                        prediction_result = render_prediction(
+                        render_prediction(
                             predictions,
                             component_dataframe,
                             component_counts,
                             phone_specifications,
                             valuable_metals_data,
                             confidence_threshold,
-                            image=uploaded_image,
+                            image=None,
+                            show_summary=True,
+                            show_details=False,
                         )
+
+                    # All detailed analysis now uses the full width below
+                    # the image/prediction summary row.
+                    prediction_result = render_prediction(
+                        predictions,
+                        component_dataframe,
+                        component_counts,
+                        phone_specifications,
+                        valuable_metals_data,
+                        confidence_threshold,
+                        image=uploaded_image,
+                        show_summary=False,
+                        show_details=True,
+                    )
 
                     if (
                         prediction_result
-                        and prediction_result.get(
-                            "damage_result"
-                        )
-                        is not None
+                        and prediction_result.get("damage_result") is not None
                     ):
                         render_graphical_valuation_demo(
                             image=uploaded_image,
                             top_prediction=prediction_result["top"],
-                            damage_result=prediction_result[
-                                "damage_result"
-                            ],
+                            damage_result=prediction_result["damage_result"],
                             pricing_data=pricing_data,
                             component_dataframe=component_dataframe,
                             component_counts=component_counts,
@@ -5258,68 +5313,78 @@ with mode[1]:
             "Use the Manual valuation assistant tab instead."
         )
     else:
-        snapshot_columns = st.columns(
-            [1.05, 0.95],
-            gap="large",
+        camera_file = st.camera_input(
+            "Take a clear smartphone photo"
         )
 
-        with snapshot_columns[0]:
-            camera_file = st.camera_input(
-                "Take a clear smartphone photo"
+        if camera_file is not None:
+            camera_image = Image.open(
+                camera_file
+            ).convert("RGB")
+
+            with st.spinner(
+                "Analyzing camera image..."
+            ):
+                predictions = predict_pil_image(
+                    camera_image,
+                    model_bundle,
+                    top_k=top_k,
+                )
+
+            snapshot_left, snapshot_right = st.columns(
+                [1.08, 0.92],
+                gap="medium",
             )
 
-        with snapshot_columns[1]:
-            if camera_file is not None:
-                camera_image = Image.open(
-                    camera_file
-                ).convert("RGB")
+            with snapshot_left:
+                st.image(
+                    camera_image,
+                    caption="Captured smartphone image",
+                    use_container_width=True,
+                )
 
-                with st.spinner(
-                    "Analyzing camera image..."
-                ):
-                    predictions = predict_pil_image(
-                        camera_image,
-                        model_bundle,
-                        top_k=top_k,
-                    )
-
-                camera_prediction_result = render_prediction(
+            with snapshot_right:
+                render_prediction(
                     predictions,
                     component_dataframe,
                     component_counts,
                     phone_specifications,
                     valuable_metals_data,
                     confidence_threshold,
-                    image=camera_image,
+                    image=None,
+                    show_summary=True,
+                    show_details=False,
                 )
 
-                if (
-                    camera_prediction_result
-                    and camera_prediction_result.get(
-                        "damage_result"
-                    )
-                    is not None
-                ):
-                    render_graphical_valuation_demo(
-                        image=camera_image,
-                        top_prediction=camera_prediction_result[
-                            "top"
-                        ],
-                        damage_result=camera_prediction_result[
-                            "damage_result"
-                        ],
-                        pricing_data=pricing_data,
-                        component_dataframe=component_dataframe,
-                        component_counts=component_counts,
-                        metals_data=valuable_metals_data,
-                        internal_layouts=internal_layouts,
-                        component_value_config=component_value_config,
-                    )
-            else:
-                st.info(
-                    "Allow camera access and "
-                    "take a picture."
+            camera_prediction_result = render_prediction(
+                predictions,
+                component_dataframe,
+                component_counts,
+                phone_specifications,
+                valuable_metals_data,
+                confidence_threshold,
+                image=camera_image,
+                show_summary=False,
+                show_details=True,
+            )
+
+            if (
+                camera_prediction_result
+                and camera_prediction_result.get("damage_result") is not None
+            ):
+                render_graphical_valuation_demo(
+                    image=camera_image,
+                    top_prediction=camera_prediction_result["top"],
+                    damage_result=camera_prediction_result["damage_result"],
+                    pricing_data=pricing_data,
+                    component_dataframe=component_dataframe,
+                    component_counts=component_counts,
+                    metals_data=valuable_metals_data,
+                    internal_layouts=internal_layouts,
+                    component_value_config=component_value_config,
                 )
+        else:
+            st.info("Allow camera access and take a picture.")
 
 with mode[2]:
     if not model_ready:
