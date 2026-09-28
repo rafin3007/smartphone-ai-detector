@@ -66,6 +66,7 @@ DEFAULT_REFERENCE_IMAGES_DIR = BASE_DIR / "data" / "reference_images"
 DEFAULT_INTERNAL_IMAGES_DIR = BASE_DIR / "data" / "internal_images"
 DEFAULT_INTERNAL_LAYOUTS_PATH = BASE_DIR / "data" / "internal_layouts.json"
 DEFAULT_COMPONENT_VALUE_CONFIG_PATH = BASE_DIR / "data" / "component_value_config.json"
+DEFAULT_RESEARCHED_COMPONENT_VALUE_CONFIG_PATH = BASE_DIR / "data" / "component_value_config_researched.json"
 
 RTC_CONFIGURATION = RTCConfiguration(
     {
@@ -1904,6 +1905,13 @@ def load_component_value_config(path: str) -> dict[str, Any]:
     }
 
     p = Path(path)
+
+    if (
+        not p.exists()
+        and DEFAULT_RESEARCHED_COMPONENT_VALUE_CONFIG_PATH.exists()
+    ):
+        p = DEFAULT_RESEARCHED_COMPONENT_VALUE_CONFIG_PATH
+
     if not p.exists():
         return defaults
 
@@ -1923,6 +1931,34 @@ def load_component_value_config(path: str) -> dict[str, Any]:
 
     if not isinstance(result.get("model_values"), dict):
         result["model_values"] = {}
+
+    has_values = any(
+        isinstance(values, dict) and bool(values)
+        for values in result.get("model_values", {}).values()
+    )
+
+    if (
+        not has_values
+        and DEFAULT_RESEARCHED_COMPONENT_VALUE_CONFIG_PATH.exists()
+        and p != DEFAULT_RESEARCHED_COMPONENT_VALUE_CONFIG_PATH
+    ):
+        try:
+            researched = json.loads(
+                DEFAULT_RESEARCHED_COMPONENT_VALUE_CONFIG_PATH.read_text(
+                    encoding="utf-8"
+                )
+            )
+            researched_values = researched.get("model_values", {})
+            if (
+                isinstance(researched_values, dict)
+                and any(
+                    isinstance(values, dict) and bool(values)
+                    for values in researched_values.values()
+                )
+            ):
+                return researched
+        except Exception:
+            pass
 
     return result
 
@@ -2184,6 +2220,100 @@ def _demo_component_weight(
         return 0.04
 
 
+
+def _demo_unique_market_values(
+    predicted_class: str,
+    config: dict[str, Any],
+) -> list[dict[str, Any]]:
+    model_key = normalize_model_key(predicted_class)
+    model_values = (config.get("model_values", {}) or {}).get(model_key, {}) or {}
+    if not isinstance(model_values, dict):
+        return []
+
+    normalized = {}
+    for name, value in model_values.items():
+        try:
+            normalized[normalize_model_key(str(name))] = (str(name), float(value))
+        except (TypeError, ValueError):
+            continue
+
+    rows = []
+    used = set()
+
+    def add_group(label, aliases):
+        chosen = next((a for a in aliases if a in normalized and a not in used), None)
+        if chosen is None:
+            return
+        rows.append({
+            "component_name": label,
+            "quantity": 1,
+            "estimated_value": normalized[chosen][1],
+            "value_source": "online component reference price",
+            "part_number": None,
+            "manufacturer_part_number": None,
+        })
+        for a in aliases:
+            if a in normalized:
+                used.add(a)
+
+    combined = next((k for k in normalized if "loudspeaker" in k and "vibrator" in k), None)
+    if combined:
+        rows.append({
+            "component_name": normalized[combined][0],
+            "quantity": 1,
+            "estimated_value": normalized[combined][1],
+            "value_source": "online component reference price",
+            "part_number": None,
+            "manufacturer_part_number": None,
+        })
+        used.add(combined)
+        for k in ("loudspeaker", "speaker", "vibration_motor", "taptic_engine"):
+            if k in normalized:
+                used.add(k)
+    else:
+        add_group("Loudspeaker", ["loudspeaker", "speaker"])
+        add_group("Taptic / Vibration Motor", ["taptic_engine", "vibration_motor"])
+
+    groups = [
+        ("Display Assembly", ["display_assembly", "oled_display_assembly"]),
+        ("Battery", ["battery"]),
+        ("Rear Camera Assembly", ["rear_camera_assembly", "rear_camera_module"]),
+        ("Charging Port Assembly", ["usb_c_charging_port_board", "usb_c_charge_port", "usb_c_charging_port_flex", "charging_port_assembly", "lightning_connector_assembly"]),
+        ("Front Camera", ["front_camera", "front_camera_assembly"]),
+        ("Wireless Charging / NFC", ["wireless_nfc_charging_flex", "wireless_charging_antenna", "wireless_charging_antenna_assembly", "wireless_charging_assembly"]),
+        ("Earpiece Speaker", ["earpiece_speaker"]),
+        ("Back Glass", ["back_glass"]),
+        ("LiDAR Sensor", ["lidar_sensor"]),
+        ("Sub Board / PCB", ["sub_board", "pcb_board_with_sim_reader"]),
+        ("Rear Ultra-Wide Camera", ["rear_ultra_wide_camera"]),
+    ]
+    for label, aliases in groups:
+        add_group(label, aliases)
+
+    for key, (original_name, value) in normalized.items():
+        if key in used:
+            continue
+        rows.append({
+            "component_name": original_name,
+            "quantity": 1,
+            "estimated_value": value,
+            "value_source": "online component reference price",
+            "part_number": None,
+            "manufacturer_part_number": None,
+        })
+
+    rows.sort(key=lambda r: float(r.get("estimated_value", 0.0)), reverse=True)
+    return rows
+
+
+def _demo_component_market_total(
+    predicted_class: str,
+    config: dict[str, Any],
+) -> float | None:
+    rows = _demo_unique_market_values(predicted_class, config)
+    values = [float(r["estimated_value"]) for r in rows if r.get("estimated_value") is not None]
+    return sum(values) if values else None
+
 def _demo_component_values(
     predicted_class: str,
     component_dataframe: pd.DataFrame,
@@ -2191,236 +2321,78 @@ def _demo_component_values(
     total_device_value: float | None,
     config: dict[str, Any],
 ) -> list[dict[str, Any]]:
-    model_key = normalize_model_key(
-        predicted_class
-    )
+    researched_rows = _demo_unique_market_values(predicted_class, config)
 
-    model_values = (
-        config.get(
-            "model_values",
-            {},
-        )
-        or {}
-    ).get(
-        model_key,
-        {},
-    ) or {}
+    if researched_rows:
+        part_data = lookup_component_counts(predicted_class, component_counts)
+        known_components = part_data.get("components", []) if part_data else []
 
-    part_data = lookup_component_counts(
-        predicted_class,
-        component_counts,
-    )
-
-    components = (
-        part_data.get(
-            "components",
-            [],
-        )
-        if part_data
-        else []
-    )
-
-    rows: list[dict[str, Any]] = []
-
-    if isinstance(
-        components,
-        list,
-    ):
-        for component in components:
-            if not isinstance(
-                component,
-                dict,
-            ):
-                continue
-
-            name = str(
-                component.get(
-                    "component_name",
-                    "Component",
-                )
-            )
-
-            try:
-                quantity = max(
-                    1,
-                    int(
-                        component.get(
-                            "quantity",
-                            1,
-                        )
-                    ),
-                )
-            except (TypeError, ValueError):
-                quantity = 1
-
-            configured_value = None
-
-            if isinstance(
-                model_values,
-                dict,
-            ):
-                for configured_name, value in (
-                    model_values.items()
-                ):
-                    if (
-                        normalize_model_key(
-                            configured_name
-                        )
-                        == normalize_model_key(
-                            name
-                        )
-                    ):
-                        try:
-                            configured_value = float(
-                                value
-                            )
-                        except (
-                            TypeError,
-                            ValueError,
-                        ):
-                            configured_value = None
+        if isinstance(known_components, list):
+            for row in researched_rows:
+                row_key = normalize_model_key(row["component_name"])
+                for component in known_components:
+                    if not isinstance(component, dict):
+                        continue
+                    candidate_name = str(component.get("component_name", ""))
+                    candidate_key = normalize_model_key(candidate_name)
+                    if row_key == candidate_key or row_key in candidate_key or candidate_key in row_key:
+                        row["quantity"] = component.get("quantity", 1)
+                        row["part_number"] = component.get("part_number")
+                        row["manufacturer_part_number"] = component.get("manufacturer_part_number")
                         break
 
-            rows.append(
-                {
-                    "component_name": name,
-                    "quantity": quantity,
-                    "part_number": component.get(
-                        "part_number"
-                    ),
-                    "manufacturer_part_number": (
-                        component.get(
-                            "manufacturer_part_number"
-                        )
-                    ),
-                    "configured_value": configured_value,
-                    "weight": _demo_component_weight(
-                        name,
-                        config,
-                    ),
-                }
-            )
+        return researched_rows
 
-    # Fallback to names from the CSV.
+    part_data = lookup_component_counts(predicted_class, component_counts)
+    components = part_data.get("components", []) if part_data else []
+    rows = []
+
+    if isinstance(components, list):
+        for component in components:
+            if not isinstance(component, dict):
+                continue
+            name = str(component.get("component_name", "Component"))
+            try:
+                quantity = max(1, int(component.get("quantity", 1)))
+            except (TypeError, ValueError):
+                quantity = 1
+            rows.append({
+                "component_name": name,
+                "quantity": quantity,
+                "part_number": component.get("part_number"),
+                "manufacturer_part_number": component.get("manufacturer_part_number"),
+                "weight": _demo_component_weight(name, config),
+            })
+
     if not rows:
-        matches = lookup_components(
-            predicted_class,
-            component_dataframe,
-        )
-
-        component_column = next(
-            (
-                column
-                for column in (
-                    "component_name",
-                    "component",
-                    "pcb_type",
-                )
-                if column
-                in matches.columns
-            ),
-            None,
-        )
-
-        if (
-            not matches.empty
-            and component_column
-        ):
-            for name in (
-                matches[
-                    component_column
-                ]
-                .dropna()
-                .astype(str)
-                .drop_duplicates()
-                .head(20)
-            ):
-                rows.append(
-                    {
-                        "component_name": name,
-                        "quantity": 1,
-                        "part_number": None,
-                        "manufacturer_part_number": None,
-                        "configured_value": None,
-                        "weight": _demo_component_weight(
-                            name,
-                            config,
-                        ),
-                    }
-                )
+        matches = lookup_components(predicted_class, component_dataframe)
+        component_column = next((c for c in ("component_name", "component", "pcb_type") if c in matches.columns), None)
+        if not matches.empty and component_column:
+            for name in matches[component_column].dropna().astype(str).drop_duplicates().head(20):
+                rows.append({
+                    "component_name": name,
+                    "quantity": 1,
+                    "part_number": None,
+                    "manufacturer_part_number": None,
+                    "weight": _demo_component_weight(name, config),
+                })
 
     if not rows:
         return []
 
-    # Explicit model-level component values take priority.
-    if any(
-        row.get(
-            "configured_value"
-        ) is not None
-        for row in rows
-    ):
-        for row in rows:
-            row[
-                "estimated_value"
-            ] = row.get(
-                "configured_value"
-            )
-            row[
-                "value_source"
-            ] = (
-                "configured component value"
-                if row.get(
-                    "configured_value"
-                )
-                is not None
-                else "not available"
-            )
-
-        return rows
-
-    total_weight = sum(
-        float(
-            row.get(
-                "weight",
-                0.0,
-            )
-        )
-        for row in rows
-    )
-
+    total_weight = sum(float(r.get("weight", 0.0)) for r in rows)
     if total_weight <= 0:
-        total_weight = float(
-            len(rows)
-        )
-        for row in rows:
-            row["weight"] = 1.0
+        total_weight = float(len(rows))
+        for r in rows:
+            r["weight"] = 1.0
 
-    for row in rows:
+    for r in rows:
         if total_device_value is None:
-            row[
-                "estimated_value"
-            ] = None
-            row[
-                "value_source"
-            ] = "not available"
+            r["estimated_value"] = None
+            r["value_source"] = "not available"
         else:
-            row[
-                "estimated_value"
-            ] = (
-                float(
-                    total_device_value
-                )
-                * float(
-                    row["weight"]
-                )
-                / total_weight
-            )
-            row[
-                "value_source"
-            ] = (
-                "illustrative allocation from "
-                "whole-device workbook value"
-            )
+            r["estimated_value"] = float(total_device_value) * float(r["weight"]) / total_weight
+            r["value_source"] = "illustrative allocation from whole-device workbook value"
 
     return rows
 
@@ -2806,6 +2778,11 @@ def render_graphical_valuation_demo(
         "exact_value"
     )
 
+    component_market_total = _demo_component_market_total(
+        predicted_class,
+        component_value_config,
+    )
+
     component_rows = (
         _demo_component_values(
             predicted_class,
@@ -2821,7 +2798,7 @@ def render_graphical_valuation_demo(
         "Cellphone valuation demo"
     )
     st.caption(
-        "Graphical damaged-vs-reference comparison, "
+        "Condition-based valuation, researched component market references, "
         "condition-based valuation, and internal "
         "PCB/component value deep dive."
     )
@@ -2830,9 +2807,9 @@ def render_graphical_valuation_demo(
         "### 1. Device condition & valuation"
     )
 
-    damaged_col, reference_col, value_col = (
+    damaged_col, value_col = (
         st.columns(
-            [1.0, 1.0, 0.95],
+            [1.15, 0.85],
             gap="large",
         )
     )
@@ -2846,50 +2823,41 @@ def render_graphical_valuation_demo(
             use_container_width=True,
         )
 
-    with reference_col:
-        st.markdown(
-            "#### Reference / original appearance"
-        )
-
-        reference = _demo_find_image(
-            DEFAULT_REFERENCE_IMAGES_DIR,
-            predicted_class,
-        )
-
-        if reference is None:
-            reference = (
-                _demo_reference_placeholder(
-                    predicted_class
-                )
-            )
-            st.caption(
-                "Placeholder shown. Add the real clean image as "
-                f"data/reference_images/"
-                f"{normalize_model_key(predicted_class)}.png"
-            )
-
-        st.image(
-            reference,
-            use_container_width=True,
-        )
-
     with value_col:
         st.markdown(
             "#### Valuation summary"
         )
 
-        if (
-            whole_device_value
-            is not None
-        ):
+        if whole_device_value is not None:
             st.metric(
-                "Estimated workbook value",
+                "Whole-phone workbook value",
                 f"${float(whole_device_value):,.2f}",
+            )
+            st.caption(
+                "Exact model + condition price from your Excel workbook."
+            )
+        elif component_market_total is not None:
+            st.metric(
+                "Known component market references",
+                f"${float(component_market_total):,.2f}",
+            )
+            st.caption(
+                "Sum of de-duplicated researched replacement-part "
+                "reference prices. This is not a whole-phone resale value."
+            )
+            st.info(
+                f"{display_name} is not currently listed with a usable "
+                "whole-phone price for this condition in the Excel workbook, "
+                "so researched component market values are shown instead."
             )
         else:
             st.metric(
-                "Estimated workbook value",
+                "Valuation",
                 "Unavailable",
+            )
+            st.caption(
+                "No whole-phone workbook price or researched component "
+                "market references were found."
             )
 
         st.metric(
@@ -2945,114 +2913,55 @@ def render_graphical_valuation_demo(
         )
 
     st.markdown(
-        "### 2. Internal deep dive"
+        "### 2. Internal component value deep dive"
     )
     st.caption(
-        "Major internal parts are bordered and paired "
-        "with estimated values."
+        "Research-populated component market references for the predicted "
+        "phone. Internal images are not required for this table."
     )
 
-    internal = _demo_find_image(
-        DEFAULT_INTERNAL_IMAGES_DIR,
-        predicted_class,
-    )
-
-    using_placeholder = (
-        internal is None
-    )
-
-    if internal is None:
-        internal = (
-            _demo_internal_placeholder(
-                predicted_class
-            )
-        )
-
-    annotated = (
-        _demo_annotate_internal(
-            internal,
-            predicted_class,
+    if component_rows:
+        sorted_rows = sorted(
             component_rows,
-            internal_layouts,
+            key=lambda item: (
+                item.get("estimated_value")
+                if item.get("estimated_value") is not None
+                else 0.0
+            ),
+            reverse=True,
         )
-    )
 
-    internal_col, breakdown_col = (
-        st.columns(
-            [1.65, 1.0],
+        table_col, chart_col = st.columns(
+            [1.25, 0.75],
             gap="large",
         )
-    )
 
-    with internal_col:
-        st.image(
-            annotated,
-            caption=(
-                "Internal PCB / component valuation view"
-            ),
-            use_container_width=True,
-        )
+        with table_col:
+            st.markdown("#### Component value table")
 
-        if using_placeholder:
-            st.caption(
-                "Add a real teardown image as "
-                f"data/internal_images/"
-                f"{normalize_model_key(predicted_class)}.png "
-                "and adjust boxes in "
-                "data/internal_layouts.json."
-            )
-
-    with breakdown_col:
-        st.markdown(
-            "#### Component value breakdown"
-        )
-
-        if component_rows:
-            component_table = (
-                pd.DataFrame(
-                    [
-                        {
-                            "Component": row[
-                                "component_name"
-                            ],
-                            "Qty": row.get(
-                                "quantity",
-                                1,
-                            ),
-                            "Value": (
-                                f"${row['estimated_value']:.2f}"
-                                if row.get(
-                                    "estimated_value"
-                                )
-                                is not None
-                                else "—"
-                            ),
-                            "Part number": (
-                                row.get(
-                                    "manufacturer_part_number"
-                                )
-                                or row.get(
-                                    "part_number"
-                                )
-                                or "—"
-                            ),
-                        }
-                        for row in sorted(
-                            component_rows,
-                            key=lambda item: (
-                                item.get(
-                                    "estimated_value"
-                                )
-                                if item.get(
-                                    "estimated_value"
-                                )
-                                is not None
-                                else 0.0
-                            ),
-                            reverse=True,
-                        )
-                    ]
-                )
+            component_table = pd.DataFrame(
+                [
+                    {
+                        "Component": row["component_name"],
+                        "Qty": row.get("quantity", 1),
+                        "Reference value": (
+                            f"${float(row['estimated_value']):,.2f}"
+                            if row.get("estimated_value") is not None
+                            else "—"
+                        ),
+                        "Part number": (
+                            row.get("manufacturer_part_number")
+                            or row.get("part_number")
+                            or "—"
+                        ),
+                        "Basis": (
+                            "Online replacement-part reference"
+                            if row.get("value_source") == "online component reference price"
+                            else row.get("value_source", "—")
+                        ),
+                    }
+                    for row in sorted_rows
+                ]
             )
 
             st.dataframe(
@@ -3061,38 +2970,23 @@ def render_graphical_valuation_demo(
                 hide_index=True,
             )
 
+        with chart_col:
+            st.markdown("#### Highest-value components")
+
             chart_rows = [
                 {
-                    "Component": row[
-                        "component_name"
-                    ],
-                    "Estimated value": float(
-                        row[
-                            "estimated_value"
-                        ]
-                    ),
+                    "Component": row["component_name"],
+                    "Reference value": float(row["estimated_value"]),
                 }
-                for row in component_rows
-                if row.get(
-                    "estimated_value"
-                )
-                is not None
+                for row in sorted_rows
+                if row.get("estimated_value") is not None
             ]
 
             if chart_rows:
                 chart_series = (
-                    pd.DataFrame(
-                        chart_rows
-                    )
-                    .groupby(
-                        "Component"
-                    )[
-                        "Estimated value"
-                    ]
-                    .sum()
-                    .sort_values(
-                        ascending=True
-                    )
+                    pd.DataFrame(chart_rows)
+                    .set_index("Component")["Reference value"]
+                    .sort_values(ascending=True)
                 )
 
                 st.bar_chart(
@@ -3100,29 +2994,22 @@ def render_graphical_valuation_demo(
                     horizontal=True,
                 )
 
-            if any(
-                row.get(
-                    "value_source"
-                )
-                == (
-                    "illustrative allocation from "
-                    "whole-device workbook value"
-                )
-                for row in component_rows
-            ):
-                st.caption(
-                    "Per-component dollar values are "
-                    "illustrative allocations of the "
-                    "whole-device workbook value. Put "
-                    "verified values in "
-                    "data/component_value_config.json "
-                    "when available."
-                )
-        else:
-            st.info(
-                "No component records are available "
-                "for this model."
+        if component_market_total is not None:
+            st.metric(
+                "Total of known component market references",
+                f"${float(component_market_total):,.2f}",
             )
+
+        st.caption(
+            "Component figures are online replacement-part market "
+            "references from the researched dataset. They are not "
+            "guaranteed used-part resale prices or recycler payouts."
+        )
+    else:
+        st.info(
+            "No researched component market values are available "
+            "for this model yet."
+        )
 
     phone_metals = (
         lookup_valuable_metals(
