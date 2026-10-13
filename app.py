@@ -2375,19 +2375,29 @@ def _ctia_find_pricing_row(
 def _ctia_base_reference_price(
     model: str,
     pricing_data: dict[str, Any],
+    config: dict[str, Any],
     device_type: str = "phone",
     cloud_status: str | None = None,
+    storage_gb: int | None = None,
 ) -> dict[str, Any]:
     """
-    Use the existing workbook only as the model-level market baseline.
+    Baseline priority:
+    1. Existing partner/internal workbook PTG value.
+    2. Highest available workbook value if PTG is missing.
+    3. Storage-aware current used-market reference from CTIA config.
 
-    PTG is preferred because it is the workbook's strongest clean/working
-    reference. If PTG is absent, the highest available model price is used.
+    A storage-unknown market fallback returns a low/high range.
     """
     result = {
         "value": None,
+        "low": None,
+        "high": None,
         "source_code": None,
         "source_label": None,
+        "source_url": None,
+        "checked_on": None,
+        "storage_gb": storage_gb,
+        "is_range": False,
     }
 
     row = _ctia_find_pricing_row(
@@ -2396,9 +2406,6 @@ def _ctia_base_reference_price(
         device_type=device_type,
         cloud_status=cloud_status,
     )
-
-    if row is None:
-        return result
 
     def numeric(
         value: Any,
@@ -2417,54 +2424,99 @@ def _ctia_base_reference_price(
         ):
             return None
 
-    ptg = numeric(
-        row.get("PTG")
-    )
-
-    if ptg is not None:
-        result.update(
-            {
-                "value": ptg,
-                "source_code": "PTG",
-                "source_label": (
-                    "Existing workbook PTG model reference"
-                ),
-            }
-        )
-        return result
-
-    candidates = []
-
-    for code in (
-        "PTC",
-        "PBL",
-        "NP",
-    ):
-        value = numeric(
-            row.get(code)
+    if row is not None:
+        ptg = numeric(
+            row.get("PTG")
         )
 
-        if value is not None:
-            candidates.append(
-                (
-                    value,
-                    code,
-                )
+        if ptg is not None:
+            result.update(
+                {
+                    "value": ptg,
+                    "low": ptg,
+                    "high": ptg,
+                    "source_code": "PTG",
+                    "source_label": "Existing workbook PTG model reference",
+                    "is_range": False,
+                }
+            )
+            return result
+
+        candidates = []
+
+        for code in (
+            "PTC",
+            "PBL",
+            "NP",
+        ):
+            value = numeric(
+                row.get(code)
             )
 
-    if candidates:
-        value, code = max(
-            candidates,
-            key=lambda item: item[0],
+            if value is not None:
+                candidates.append(
+                    (
+                        value,
+                        code,
+                    )
+                )
+
+        if candidates:
+            value, code = max(
+                candidates,
+                key=lambda item: item[0],
+            )
+
+            result.update(
+                {
+                    "value": value,
+                    "low": value,
+                    "high": value,
+                    "source_code": code,
+                    "source_label": f"Highest available workbook reference ({code})",
+                    "is_range": False,
+                }
+            )
+            return result
+
+    market = _ctia_market_baseline(
+        model,
+        config,
+        storage_gb=storage_gb,
+    )
+
+    if market.get("low") is not None:
+        low = float(
+            market["low"]
+        )
+        high = float(
+            market.get(
+                "high",
+                low,
+            )
         )
 
         result.update(
             {
-                "value": value,
-                "source_code": code,
-                "source_label": (
-                    f"Highest available workbook reference ({code})"
+                "value": market.get(
+                    "value"
                 ),
+                "low": low,
+                "high": high,
+                "source_code": "MARKET",
+                "source_label": market.get(
+                    "source_label"
+                ),
+                "source_url": market.get(
+                    "source_url"
+                ),
+                "checked_on": market.get(
+                    "checked_on"
+                ),
+                "storage_gb": storage_gb,
+                "is_range": abs(
+                    high - low
+                ) > 0.005,
             }
         )
 
@@ -2552,12 +2604,15 @@ def _ctia_estimate_value(
     primary_grade: str | None = None,
     device_type: str = "phone",
     cloud_status: str | None = None,
+    storage_gb: int | None = None,
 ) -> dict[str, Any]:
     base = _ctia_base_reference_price(
         model,
         pricing_data,
+        config,
         device_type=device_type,
         cloud_status=cloud_status,
+        storage_gb=storage_gb,
     )
 
     factor, factor_source = (
@@ -2569,36 +2624,212 @@ def _ctia_estimate_value(
     )
 
     estimate = None
+    estimate_low = None
+    estimate_high = None
 
-    if (
-        base.get("value")
-        is not None
-        and factor is not None
-    ):
-        estimate = (
-            float(
-                base["value"]
+    if factor is not None:
+        if base.get("value") is not None:
+            estimate = (
+                float(
+                    base["value"]
+                )
+                * float(
+                    factor
+                )
             )
-            * float(
-                factor
+
+            estimate_low = estimate
+            estimate_high = estimate
+
+        elif (
+            base.get("low")
+            is not None
+            and base.get("high")
+            is not None
+        ):
+            estimate_low = (
+                float(
+                    base["low"]
+                )
+                * float(
+                    factor
+                )
             )
-        )
+
+            estimate_high = (
+                float(
+                    base["high"]
+                )
+                * float(
+                    factor
+                )
+            )
 
     return {
         "estimated_value": estimate,
-        "base_value": base.get(
-            "value"
-        ),
-        "base_source": base.get(
-            "source_label"
-        ),
-        "base_code": base.get(
-            "source_code"
-        ),
+        "estimated_low": estimate_low,
+        "estimated_high": estimate_high,
+        "base_value": base.get("value"),
+        "base_low": base.get("low"),
+        "base_high": base.get("high"),
+        "base_source": base.get("source_label"),
+        "base_source_url": base.get("source_url"),
+        "base_checked_on": base.get("checked_on"),
+        "base_code": base.get("source_code"),
+        "base_is_range": base.get("is_range", False),
+        "storage_gb": storage_gb,
         "factor": factor,
         "factor_source": factor_source,
         "primary_grade": primary_grade,
         "cosmetic_grade": cosmetic_grade,
+    }
+
+
+def _extract_storage_gb(
+    text: str,
+) -> int | None:
+    lower = str(text).lower().strip()
+
+    tb_match = re.search(
+        r"(\d+(?:\.\d+)?)\s*tb",
+        lower,
+    )
+
+    if tb_match:
+        try:
+            return int(
+                round(
+                    float(tb_match.group(1))
+                    * 1024
+                )
+            )
+        except Exception:
+            return None
+
+    gb_match = re.search(
+        r"\b(64|128|256|512|1024|2048)\s*gb\b",
+        lower,
+    )
+
+    if gb_match:
+        return int(
+            gb_match.group(1)
+        )
+
+    if lower in {
+        "128",
+        "256",
+        "512",
+        "1024",
+    }:
+        return int(lower)
+
+    return None
+
+
+def _ctia_market_baseline(
+    model: str,
+    config: dict[str, Any],
+    storage_gb: int | None = None,
+) -> dict[str, Any]:
+    model_key = normalize_model_key(
+        model
+    )
+
+    market = (
+        config.get(
+            "market_baselines",
+            {},
+        )
+        or {}
+    ).get(
+        model_key,
+        {},
+    )
+
+    if not isinstance(
+        market,
+        dict,
+    ):
+        return {
+            "value": None,
+            "low": None,
+            "high": None,
+            "storage_gb": storage_gb,
+            "source_label": None,
+            "source_url": None,
+            "checked_on": None,
+        }
+
+    prices = market.get(
+        "storage_sale_prices",
+        {},
+    ) or {}
+
+    clean = {}
+
+    for key, value in prices.items():
+        try:
+            clean[int(key)] = float(value)
+        except (
+            TypeError,
+            ValueError,
+        ):
+            continue
+
+    if not clean:
+        return {
+            "value": None,
+            "low": None,
+            "high": None,
+            "storage_gb": storage_gb,
+            "source_label": None,
+            "source_url": market.get("source_url"),
+            "checked_on": market.get("checked_on"),
+        }
+
+    exact = None
+
+    if (
+        storage_gb is not None
+        and int(storage_gb) in clean
+    ):
+        exact = clean[
+            int(storage_gb)
+        ]
+
+    low = min(
+        clean.values()
+    )
+    high = max(
+        clean.values()
+    )
+
+    return {
+        "value": exact,
+        "low": (
+            exact
+            if exact is not None
+            else low
+        ),
+        "high": (
+            exact
+            if exact is not None
+            else high
+        ),
+        "storage_gb": storage_gb,
+        "available_storage_gb": sorted(
+            clean.keys()
+        ),
+        "source_label": (
+            f"{market.get('source', 'Market')} average sale price"
+        ),
+        "source_url": market.get(
+            "source_url"
+        ),
+        "checked_on": market.get(
+            "checked_on"
+        ),
     }
 
 
@@ -3735,7 +3966,7 @@ def render_graphical_valuation_demo(
         )
 
         st.metric(
-            "Estimated CTIA cosmetic grade",
+            "CTIA-aligned cosmetic estimate",
             cosmetic_grade,
         )
 
@@ -3757,10 +3988,8 @@ def render_graphical_valuation_demo(
             is not None
         ):
             st.metric(
-                "CTIA-informed estimated value",
-                (
-                    f"${float(ctia_value['estimated_value']):,.2f}"
-                ),
+                "Preliminary CTIA-informed value",
+                f"${float(ctia_value['estimated_value']):,.2f}",
             )
 
             st.write(
@@ -3776,24 +4005,91 @@ def render_graphical_valuation_demo(
             )
 
         elif (
+            ctia_value.get(
+                "estimated_low"
+            )
+            is not None
+            and ctia_value.get(
+                "estimated_high"
+            )
+            is not None
+        ):
+            low_value = float(
+                ctia_value[
+                    "estimated_low"
+                ]
+            )
+            high_value = float(
+                ctia_value[
+                    "estimated_high"
+                ]
+            )
+
+            st.metric(
+                "Preliminary CTIA-informed value range",
+                (
+                    f"${low_value:,.0f} – ${high_value:,.0f}"
+                    if abs(
+                        high_value
+                        - low_value
+                    )
+                    > 0.50
+                    else f"${low_value:,.0f}"
+                ),
+            )
+
+            if (
+                ctia_value.get(
+                    "base_low"
+                )
+                is not None
+                and ctia_value.get(
+                    "base_high"
+                )
+                is not None
+            ):
+                st.write(
+                    "**Used-market baseline:** "
+                    f"${float(ctia_value['base_low']):,.0f}"
+                    " – "
+                    f"${float(ctia_value['base_high']):,.0f}"
+                    " depending on storage"
+                    f" · {ctia_value.get('base_source') or 'Market reference'}"
+                )
+
+            st.write(
+                "**Valuation factor:** "
+                f"{float(ctia_value['factor']):.0%}"
+                f" · {ctia_value.get('factor_source')}"
+            )
+
+            st.caption(
+                "Storage capacity cannot be determined reliably from this exterior "
+                "photo, so the app shows a range. Enter storage in the Manual "
+                "valuation assistant to narrow it to one value."
+            )
+
+            if ctia_value.get(
+                "base_checked_on"
+            ):
+                st.caption(
+                    "Market reference checked "
+                    f"{ctia_value['base_checked_on']}."
+                )
+
+        elif (
             component_market_total
             is not None
         ):
             st.metric(
-                "Whole-phone CTIA estimate",
-                "Unavailable",
-            )
-
-            st.metric(
-                "Known component market references",
-                f"${float(component_market_total):,.2f}",
+                "Preliminary whole-phone value",
+                "Needs market baseline",
             )
 
             st.info(
-                "This model does not currently have a usable whole-phone "
-                "baseline in the pricing workbook. Component reference "
-                "prices are shown separately below and are not a substitute "
-                "for whole-phone resale value."
+                "No whole-phone market baseline is available for this model. "
+                "The component values below remain useful as replacement-part "
+                "references, but they are not a whole-phone resale valuation."
             )
         else:
             st.metric(
@@ -3814,14 +4110,14 @@ def render_graphical_valuation_demo(
         )
 
         st.write(
-            "**Display:** "
+            "**Display functionality:** "
             + (
-                "Damage detected"
+                "Visible signs consistent with display damage"
                 if damage_result.get(
                     "broken_display",
                     False,
                 )
-                else "No major display failure detected"
+                else "Not confirmed from a still photo"
             )
         )
 
@@ -3836,11 +4132,10 @@ def render_graphical_valuation_demo(
         )
 
         st.info(
-            "Image mode provides a CTIA-aligned cosmetic estimate only. "
-            "A full CTIA primary grade also requires functional class, "
-            "battery health, customer/enterprise/operator lock status, "
-            "and RF-test information. Use Manual valuation assistant "
-            "for the full grading workflow."
+            "This is a photo-based CTIA-aligned cosmetic estimate, not a "
+            "CTIA-certified grade. A full primary grade requires functional "
+            "testing, battery health, customer/enterprise/operator lock status, "
+            "and RF-test information. Use Manual valuation assistant to finalize it."
         )
 
     st.markdown(
@@ -4587,6 +4882,7 @@ def _manual_default_state() -> dict[str, Any]:
     return {
         "device_type": None,
         "model": None,
+        "storage_gb": None,
         "power_on": None,
         "lcd_good": None,
         "glass_cracked": None,
@@ -5001,6 +5297,15 @@ def _manual_next_question(
         )
 
     if state.get(
+        "storage_gb"
+    ) is None:
+        return (
+            "What is the storage capacity? "
+            "For example 128 GB, 256 GB, 512 GB, or 1 TB. "
+            "If you do not know, reply 'unknown'."
+        )
+
+    if state.get(
         "power_on"
     ) is None:
         return (
@@ -5222,6 +5527,33 @@ def _manual_answer_current_question(
     lower_text = text.lower().strip()
 
     if (
+        "storage capacity"
+        in lower_question
+        and state.get(
+            "storage_gb"
+        )
+        is None
+    ):
+        storage = _extract_storage_gb(
+            text
+        )
+
+        if storage is not None:
+            state[
+                "storage_gb"
+            ] = storage
+
+        elif (
+            "unknown"
+            in lower_text
+            or "skip"
+            in lower_text
+        ):
+            state[
+                "storage_gb"
+            ] = -1
+
+    elif (
         "power on"
         in lower_question
         and state.get(
@@ -5610,6 +5942,11 @@ def _manual_summary_text(
             cloud_status=state.get(
                 "cloud_status"
             ),
+            storage_gb=(
+                state.get("storage_gb")
+                if state.get("storage_gb") not in {None, -1}
+                else None
+            ),
         )
     )
 
@@ -5621,6 +5958,21 @@ def _manual_summary_text(
     ):
         value_text = (
             f"${float(ctia_value['estimated_value']):,.2f}"
+        )
+    elif (
+        ctia_value.get(
+            "estimated_low"
+        )
+        is not None
+        and ctia_value.get(
+            "estimated_high"
+        )
+        is not None
+    ):
+        value_text = (
+            f"${float(ctia_value['estimated_low']):,.0f}"
+            "–"
+            f"${float(ctia_value['estimated_high']):,.0f}"
         )
     else:
         value_text = (
@@ -5776,6 +6128,11 @@ def render_manual_valuation_report(
             cloud_status=state.get(
                 "cloud_status"
             ),
+            storage_gb=(
+                state.get("storage_gb")
+                if state.get("storage_gb") not in {None, -1}
+                else None
+            ),
         )
     )
 
@@ -5829,24 +6186,32 @@ def render_manual_valuation_report(
             f"${float(ctia_value['base_value']):,.2f}",
         )
 
-        value_cols[2].metric(
-            "Grade factor",
-            f"{float(ctia_value['factor']):.0%}",
+    elif (
+        ctia_value.get(
+            "estimated_low"
         )
-
-        value_cols[3].metric(
-            "Battery type",
+        is not None
+        and ctia_value.get(
+            "estimated_high"
+        )
+        is not None
+    ):
+        value_cols[0].metric(
+            "CTIA-informed estimate",
             (
-                f"Type {battery_type}"
-                if battery_type
-                is not None
-                else "Unknown"
+                f"${float(ctia_value['estimated_low']):,.0f}"
+                " – "
+                f"${float(ctia_value['estimated_high']):,.0f}"
             ),
         )
 
-        st.caption(
-            f"Base source: {ctia_value.get('base_source') or '—'} · "
-            f"Factor source: {ctia_value.get('factor_source') or '—'}"
+        value_cols[1].metric(
+            "Base reference",
+            (
+                f"${float(ctia_value['base_low']):,.0f}"
+                " – "
+                f"${float(ctia_value['base_high']):,.0f}"
+            ),
         )
 
     else:
@@ -5857,37 +6222,35 @@ def render_manual_valuation_report(
 
         value_cols[1].metric(
             "Base reference",
-            (
-                f"${float(ctia_value['base_value']):,.2f}"
-                if ctia_value.get(
-                    "base_value"
-                )
-                is not None
-                else "Unavailable"
-            ),
+            "Unavailable",
         )
 
-        value_cols[2].metric(
-            "Grade factor",
-            (
-                f"{float(ctia_value['factor']):.0%}"
-                if ctia_value.get(
-                    "factor"
-                )
-                is not None
-                else "Unavailable"
-            ),
-        )
+    value_cols[2].metric(
+        "Grade factor",
+        (
+            f"{float(ctia_value['factor']):.0%}"
+            if ctia_value.get(
+                "factor"
+            )
+            is not None
+            else "Unavailable"
+        ),
+    )
 
-        value_cols[3].metric(
-            "Battery type",
-            (
-                f"Type {battery_type}"
-                if battery_type
-                is not None
-                else "Unknown"
-            ),
-        )
+    value_cols[3].metric(
+        "Battery type",
+        (
+            f"Type {battery_type}"
+            if battery_type
+            is not None
+            else "Unknown"
+        ),
+    )
+
+    st.caption(
+        f"Base source: {ctia_value.get('base_source') or '—'} · "
+        f"Factor source: {ctia_value.get('factor_source') or '—'}"
+    )
 
     st.info(
         "CTIA defines the grading framework, not resale-price multipliers. "
@@ -6041,6 +6404,11 @@ def render_manual_valuation_report(
                 "icloud_mdm": state.get("cloud_status"),
                 "weight_lb": state.get("weight_lb"),
                 "battery_type": state.get("battery_type"),
+                "storage_gb": (
+                    None
+                    if state.get("storage_gb") == -1
+                    else state.get("storage_gb")
+                ),
                 "ctia_cosmetic_grade": state.get("ctia_cosmetic_grade"),
                 "ctia_display_failure": state.get("ctia_display_failure"),
                 "ctia_other_failure": state.get("ctia_other_failure"),
@@ -6063,6 +6431,7 @@ def _manual_progress(
     required = [
         state.get("model") is not None,
         state.get("device_type") is not None,
+        state.get("storage_gb") is not None,
         state.get("power_on") is not None,
         state.get("ctia_cosmetic_grade") is not None,
         state.get("customer_lock_type") is not None,
@@ -6202,6 +6571,18 @@ def _manual_quick_replies(
                 "💻 Tablet",
                 "tablet",
             ),
+        ]
+
+    if (
+        "storage capacity"
+        in question_lower
+    ):
+        return [
+            ("128 GB", "128 GB"),
+            ("256 GB", "256 GB"),
+            ("512 GB", "512 GB"),
+            ("1 TB", "1 TB"),
+            ("Unknown", "unknown"),
         ]
 
     if (
@@ -6682,6 +7063,21 @@ def render_manual_valuation_assistant(
                 "Cracked"
                 if state["glass_cracked"]
                 else "Good"
+            )
+        )
+
+    if state.get("storage_gb") is not None:
+        collected.append(
+            "**Storage:** "
+            + (
+                "Unknown"
+                if state.get("storage_gb") == -1
+                else (
+                    f"{state['storage_gb'] // 1024} TB"
+                    if state.get("storage_gb", 0) >= 1024
+                    and state.get("storage_gb", 0) % 1024 == 0
+                    else f"{state['storage_gb']} GB"
+                )
             )
         )
 
