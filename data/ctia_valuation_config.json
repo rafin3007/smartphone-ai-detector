@@ -5,7 +5,8 @@
     "source_version": "5.1",
     "source_date": "June 2026",
     "purpose": "Use CTIA grading categories as the condition reference while keeping dollar-price multipliers as an application-specific layer.",
-    "important_note": "CTIA defines grading criteria, not resale-price multipliers. All valuation factors in this file are demo calibration values for this application and should be fitted to transaction/partner data."
+    "important_note": "CTIA defines grading criteria, not resale-price multipliers. All valuation factors in this file are demo calibration values for this application and should be fitted to transaction/partner data.",
+    "market_baseline_note": "When the internal pricing workbook has no usable model baseline, the app may fall back to the storage-specific used-market average sale prices in market_baselines. These market figures are time-sensitive and should be refreshed periodically."
   },
   "cosmetic_grades": {
     "A": {
@@ -407,6 +408,100 @@
       "D": 0.45,
       "E": 0.25,
       "N": null
+    }
+  },
+  "market_baselines": {
+    "iphone_14": {
+      "model": "iPhone 14",
+      "currency": "USD",
+      "source": "Swappa",
+      "source_url": "https://swappa.com/prices/apple-iphone-14",
+      "checked_on": "2026-10-12",
+      "basis": "average_sale_price_by_storage",
+      "storage_sale_prices": {
+        "128": 285.0,
+        "256": 314.0,
+        "512": 361.0
+      }
+    },
+    "iphone_14_pro_max": {
+      "model": "iPhone 14 Pro Max",
+      "currency": "USD",
+      "source": "Swappa",
+      "source_url": "https://swappa.com/prices/apple-iphone-14-pro-max",
+      "checked_on": "2026-10-12",
+      "basis": "average_sale_price_by_storage",
+      "storage_sale_prices": {
+        "128": 443.0,
+        "256": 468.0,
+        "512": 517.0,
+        "1024": 564.0
+      }
+    },
+    "iphone_15_pro": {
+      "model": "iPhone 15 Pro",
+      "currency": "USD",
+      "source": "Swappa",
+      "source_url": "https://swappa.com/prices/apple-iphone-15-pro",
+      "checked_on": "2026-10-12",
+      "basis": "average_sale_price_by_storage",
+      "storage_sale_prices": {
+        "128": 487.0,
+        "256": 530.0,
+        "512": 560.0,
+        "1024": 559.0
+      }
+    },
+    "iphone_15_pro_max": {
+      "model": "iPhone 15 Pro Max",
+      "currency": "USD",
+      "source": "Swappa",
+      "source_url": "https://swappa.com/listings/apple-iphone-15-pro-max",
+      "checked_on": "2026-10-03",
+      "basis": "average_sale_price_by_storage",
+      "storage_sale_prices": {
+        "256": 582.0,
+        "512": 625.0,
+        "1024": 718.0
+      }
+    },
+    "s24_ultra": {
+      "model": "Galaxy S24 Ultra",
+      "currency": "USD",
+      "source": "Swappa",
+      "source_url": "https://swappa.com/prices/samsung-galaxy-s24-ultra",
+      "checked_on": "2026-10-12",
+      "basis": "average_sale_price_by_storage",
+      "storage_sale_prices": {
+        "256": 541.0,
+        "512": 591.0,
+        "1024": 667.0
+      }
+    },
+    "s25_ultra": {
+      "model": "Galaxy S25 Ultra",
+      "currency": "USD",
+      "source": "Swappa",
+      "source_url": "https://swappa.com/prices/samsung-galaxy-s25-ultra",
+      "checked_on": "2026-10-12",
+      "basis": "average_sale_price_by_storage",
+      "storage_sale_prices": {
+        "256": 659.0,
+        "512": 722.0,
+        "1024": 846.0
+      }
+    },
+    "s25_edge": {
+      "model": "Galaxy S25 Edge",
+      "currency": "USD",
+      "source": "Swappa",
+      "source_url": "https://swappa.com/prices/samsung-galaxy-s25-edge",
+      "checked_on": "2026-10-12",
+      "basis": "average_sale_price_by_storage",
+      "storage_sale_prices": {
+        "256": 458.0,
+        "512": 505.0
+      }
     }
   }
 }
