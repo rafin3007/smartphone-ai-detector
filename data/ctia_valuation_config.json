@@ -1,0 +1,412 @@
+{
+  "_metadata": {
+    "title": "CTIA-informed smartphone grading and valuation configuration",
+    "source_document": "Wireless Device Grading Scales Criteria and Definitions",
+    "source_version": "5.1",
+    "source_date": "June 2026",
+    "purpose": "Use CTIA grading categories as the condition reference while keeping dollar-price multipliers as an application-specific layer.",
+    "important_note": "CTIA defines grading criteria, not resale-price multipliers. All valuation factors in this file are demo calibration values for this application and should be fitted to transaction/partner data."
+  },
+  "cosmetic_grades": {
+    "A": {
+      "summary": "Like-new condition with minimal scratches or blemishes."
+    },
+    "B": {
+      "summary": "Light wear and tear; more scratches/blemishes than A and no lens cracks."
+    },
+    "C": {
+      "summary": "More aggressive wear; certain camera/rear-lens cracks may be allowed, but not a display cover-lens crack."
+    },
+    "D": {
+      "summary": "Heavy cosmetic damage with cover-lens cracks, without internal display-structure damage."
+    },
+    "E": {
+      "summary": "Heavy cosmetic damage including internal display-structure damage."
+    },
+    "N": {
+      "summary": "Not graded / cosmetic condition unknown."
+    }
+  },
+  "functional_classes": {
+    "1": {
+      "power_on": true,
+      "display_failure": "none",
+      "other_failure": "none",
+      "summary": "Fully functional"
+    },
+    "2": {
+      "power_on": true,
+      "display_failure": "minor",
+      "other_failure": "none"
+    },
+    "3": {
+      "power_on": true,
+      "display_failure": "minor",
+      "other_failure": "minor"
+    },
+    "4": {
+      "power_on": true,
+      "display_failure": "minor",
+      "other_failure": "major"
+    },
+    "5": {
+      "power_on": true,
+      "display_failure": "major",
+      "other_failure": "minor"
+    },
+    "6": {
+      "power_on": true,
+      "display_failure": "major",
+      "other_failure": "major"
+    },
+    "7": {
+      "power_on": true,
+      "display_failure": "inoperable",
+      "other_failure": "unverified"
+    },
+    "8": {
+      "power_on": false,
+      "display_failure": "unverified",
+      "other_failure": "unverified"
+    },
+    "9": {
+      "summary": "Not tested or functionality unverified"
+    }
+  },
+  "battery_types": {
+    "1": {
+      "minimum_percent": 80,
+      "summary": "Battery health >= 80%"
+    },
+    "2": {
+      "minimum_percent": 70,
+      "maximum_percent": 79.999,
+      "summary": "Battery health 70-79%"
+    },
+    "3": {
+      "maximum_percent": 69.999,
+      "summary": "Battery health < 70%"
+    }
+  },
+  "lock_types": {
+    "customer": {
+      "1": "Data wiped and customer lock absent",
+      "2": "Data wiped and customer lock present",
+      "3": "Data not wiped and customer lock absent",
+      "4": "Data not wiped and customer lock present",
+      "5": "Unverified"
+    },
+    "enterprise": {
+      "1": "No enterprise lock",
+      "2": "Enterprise locked",
+      "3": "Unverified"
+    },
+    "operator": {
+      "1": "Not operator locked",
+      "2": "Operator locked",
+      "3": "Unverified"
+    }
+  },
+  "rf_types": {
+    "1": "No functionality check conducted",
+    "2": "Passed network-detection check",
+    "3": "Failed network-detection check",
+    "4": "Passed live-call check",
+    "5": "Failed live-call check",
+    "6": "Passed RF shielded-box check",
+    "7": "Failed RF shielded-box check"
+  },
+  "primary_grade_matrix": {
+    "AA": {
+      "cosmetic": [
+        "A"
+      ],
+      "functional": [
+        1
+      ],
+      "battery": [
+        1
+      ],
+      "customer_lock": [
+        1
+      ],
+      "enterprise_lock": [
+        1
+      ],
+      "operator_lock": [
+        1,
+        2
+      ],
+      "rf": [
+        6
+      ]
+    },
+    "A+": {
+      "cosmetic": [
+        "A"
+      ],
+      "functional": [
+        1
+      ],
+      "battery": [
+        1
+      ],
+      "customer_lock": [
+        1
+      ],
+      "enterprise_lock": [
+        1
+      ],
+      "operator_lock": [
+        1,
+        2
+      ],
+      "rf": [
+        1,
+        2,
+        4,
+        6
+      ]
+    },
+    "A": {
+      "cosmetic": [
+        "A"
+      ],
+      "functional": [
+        1,
+        2
+      ],
+      "battery": [
+        1
+      ],
+      "customer_lock": [
+        1
+      ],
+      "enterprise_lock": [
+        1
+      ],
+      "operator_lock": [
+        1,
+        2
+      ],
+      "rf": [
+        1,
+        2,
+        4,
+        6
+      ]
+    },
+    "B+": {
+      "cosmetic": [
+        "B"
+      ],
+      "functional": [
+        1,
+        2
+      ],
+      "battery": [
+        1,
+        2
+      ],
+      "customer_lock": [
+        1
+      ],
+      "enterprise_lock": [
+        1
+      ],
+      "operator_lock": [
+        1,
+        2
+      ],
+      "rf": [
+        1,
+        2,
+        4,
+        6
+      ]
+    },
+    "B": {
+      "cosmetic": [
+        "B"
+      ],
+      "functional": [
+        1,
+        2,
+        3
+      ],
+      "battery": [
+        1,
+        2
+      ],
+      "customer_lock": [
+        1
+      ],
+      "enterprise_lock": [
+        1
+      ],
+      "operator_lock": [
+        1,
+        2
+      ],
+      "rf": [
+        1,
+        2,
+        4,
+        6
+      ]
+    },
+    "C+": {
+      "cosmetic": [
+        "C"
+      ],
+      "functional": [
+        1,
+        2
+      ],
+      "battery": [
+        1,
+        2,
+        3
+      ],
+      "customer_lock": [
+        1
+      ],
+      "enterprise_lock": [
+        1
+      ],
+      "operator_lock": [
+        1,
+        2,
+        3
+      ],
+      "rf": [
+        1,
+        2,
+        4,
+        6
+      ]
+    },
+    "C": {
+      "cosmetic": [
+        "C"
+      ],
+      "functional": [
+        1,
+        2,
+        3
+      ],
+      "battery": [
+        1,
+        2,
+        3
+      ],
+      "customer_lock": [
+        1
+      ],
+      "enterprise_lock": [
+        1
+      ],
+      "operator_lock": [
+        1,
+        2,
+        3
+      ],
+      "rf": [
+        1,
+        2,
+        4,
+        6
+      ]
+    },
+    "D+": {
+      "cosmetic": [
+        "D"
+      ],
+      "functional": [
+        1,
+        2
+      ],
+      "battery": [
+        1,
+        2,
+        3
+      ],
+      "customer_lock": [
+        1
+      ],
+      "enterprise_lock": [
+        1
+      ],
+      "operator_lock": [
+        1,
+        2,
+        3
+      ],
+      "rf": "any"
+    },
+    "D": {
+      "cosmetic": [
+        "D"
+      ],
+      "functional": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "battery": [
+        3
+      ],
+      "customer_lock": [
+        1
+      ],
+      "enterprise_lock": [
+        1
+      ],
+      "operator_lock": [
+        1,
+        2,
+        3
+      ],
+      "rf": "any"
+    },
+    "E": {
+      "cosmetic": [
+        "E"
+      ],
+      "functional": "any",
+      "battery": [
+        3
+      ],
+      "customer_lock": "any",
+      "enterprise_lock": "any",
+      "operator_lock": "any",
+      "rf": "any"
+    }
+  },
+  "valuation": {
+    "factor_semantics": "Application-specific demo factors, not CTIA-defined monetary values. Calibrate with observed resale or partner transaction data.",
+    "primary_grade_factors": {
+      "AA": 1.0,
+      "A+": 0.97,
+      "A": 0.93,
+      "B+": 0.88,
+      "B": 0.82,
+      "C+": 0.74,
+      "C": 0.68,
+      "D+": 0.56,
+      "D": 0.45,
+      "E": 0.25
+    },
+    "cosmetic_only_factors": {
+      "A": 0.93,
+      "B": 0.82,
+      "C": 0.68,
+      "D": 0.45,
+      "E": 0.25,
+      "N": null
+    }
+  }
+}
