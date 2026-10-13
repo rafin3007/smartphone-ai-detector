@@ -66,6 +66,7 @@ DEFAULT_REFERENCE_IMAGES_DIR = BASE_DIR / "data" / "reference_images"
 DEFAULT_INTERNAL_IMAGES_DIR = BASE_DIR / "data" / "internal_images"
 DEFAULT_INTERNAL_LAYOUTS_PATH = BASE_DIR / "data" / "internal_layouts.json"
 DEFAULT_COMPONENT_VALUE_CONFIG_PATH = BASE_DIR / "data" / "component_value_config.json"
+DEFAULT_CTIA_VALUATION_CONFIG_PATH = BASE_DIR / "data" / "ctia_valuation_config.json"
 DEFAULT_RESEARCHED_COMPONENT_VALUE_CONFIG_PATH = BASE_DIR / "data" / "component_value_config_researched.json"
 
 RTC_CONFIGURATION = RTCConfiguration(
@@ -1963,6 +1964,709 @@ def load_component_value_config(path: str) -> dict[str, Any]:
     return result
 
 
+
+@st.cache_data(show_spinner=False)
+def load_ctia_valuation_config(path: str) -> dict[str, Any]:
+    p = Path(path)
+
+    defaults = {
+        "cosmetic_grades": {},
+        "functional_classes": {},
+        "battery_types": {},
+        "primary_grade_matrix": {},
+        "valuation": {
+            "primary_grade_factors": {},
+            "cosmetic_only_factors": {},
+        },
+    }
+
+    if not p.exists():
+        return defaults
+
+    try:
+        payload = json.loads(
+            p.read_text(encoding="utf-8")
+        )
+    except Exception:
+        return defaults
+
+    if not isinstance(payload, dict):
+        return defaults
+
+    result = dict(defaults)
+    result.update(payload)
+    return result
+
+
+def _ctia_cosmetic_grade_from_damage(
+    damage_result: dict[str, Any],
+) -> tuple[str, str]:
+    """
+    Produce an image-only CTIA-aligned cosmetic estimate.
+
+    This is intentionally conservative. A single photo cannot complete
+    the physical/tactile CTIA inspection process, so the UI labels the
+    result as an estimate rather than a certified CTIA grade.
+    """
+    quality = damage_result.get(
+        "image_quality",
+        {},
+    ) or {}
+
+    try:
+        quality_score = float(
+            quality.get(
+                "quality_score",
+                1.0,
+            )
+        )
+    except (TypeError, ValueError):
+        quality_score = 1.0
+
+    if quality_score < 0.45:
+        return (
+            "N",
+            "Image quality is too low for a reliable cosmetic estimate.",
+        )
+
+    if bool(
+        damage_result.get(
+            "broken_display",
+            False,
+        )
+    ):
+        return (
+            "E",
+            "Internal/major display damage was detected.",
+        )
+
+    if bool(
+        damage_result.get(
+            "cracked_screen",
+            False,
+        )
+    ):
+        return (
+            "D",
+            "A display cover-lens/screen crack was detected.",
+        )
+
+    if bool(
+        damage_result.get(
+            "camera_lens_damage",
+            False,
+        )
+    ):
+        return (
+            "C",
+            "Camera-lens damage was detected while no display-cover crack was detected.",
+        )
+
+    if bool(
+        damage_result.get(
+            "damaged_back_or_body",
+            False,
+        )
+    ):
+        return (
+            "C",
+            "More aggressive body/back wear or damage was detected.",
+        )
+
+    if bool(
+        damage_result.get(
+            "visible_scratches",
+            False,
+        )
+    ):
+        return (
+            "B",
+            "Visible wear/scratching was detected without a display-cover crack.",
+        )
+
+    return (
+        "A",
+        "No strong visible defects were detected in the submitted photo.",
+    )
+
+
+def _ctia_battery_type(
+    battery_health_percent: float | None,
+) -> int | None:
+    if battery_health_percent is None:
+        return None
+
+    try:
+        value = float(
+            battery_health_percent
+        )
+    except (TypeError, ValueError):
+        return None
+
+    if value >= 80:
+        return 1
+
+    if value >= 70:
+        return 2
+
+    return 3
+
+
+def _ctia_functional_class(
+    power_on: bool | None,
+    display_failure: str | None,
+    other_failure: str | None,
+) -> int:
+    """
+    Map the user's functional observations to CTIA Table 2.8-3.
+
+    Returns 9 when the supplied combination is unverified or does not
+    exactly map to one of the defined combinations.
+    """
+    if power_on is False:
+        return 8
+
+    if power_on is not True:
+        return 9
+
+    display = (
+        str(display_failure).strip().lower()
+        if display_failure is not None
+        else "unverified"
+    )
+
+    other = (
+        str(other_failure).strip().lower()
+        if other_failure is not None
+        else "unverified"
+    )
+
+    if display == "inoperable":
+        return 7
+
+    mapping = {
+        ("none", "none"): 1,
+        ("minor", "none"): 2,
+        ("minor", "minor"): 3,
+        ("minor", "major"): 4,
+        ("major", "minor"): 5,
+        ("major", "major"): 6,
+    }
+
+    return mapping.get(
+        (display, other),
+        9,
+    )
+
+
+def _ctia_manual_cosmetic_grade(
+    state: dict[str, Any],
+) -> str:
+    explicit = state.get(
+        "ctia_cosmetic_grade"
+    )
+
+    if explicit in {
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "N",
+    }:
+        return explicit
+
+    # Conservative fallback from the older questions.
+    if state.get("lcd_good") is False:
+        return "E"
+
+    if state.get("glass_cracked") is True:
+        return "D"
+
+    return "N"
+
+
+def _ctia_value_allowed(
+    actual: int | None,
+    allowed: Any,
+) -> bool:
+    if allowed == "any":
+        return True
+
+    if actual is None:
+        return False
+
+    if isinstance(
+        allowed,
+        list,
+    ):
+        return actual in allowed
+
+    try:
+        return int(actual) == int(allowed)
+    except Exception:
+        return False
+
+
+def _ctia_primary_grade(
+    cosmetic_grade: str,
+    functional_class: int,
+    battery_type: int | None,
+    customer_lock_type: int | None,
+    enterprise_lock_type: int | None,
+    operator_lock_type: int | None,
+    rf_type: int | None,
+    config: dict[str, Any],
+) -> str | None:
+    matrix = config.get(
+        "primary_grade_matrix",
+        {},
+    ) or {}
+
+    # Highest grade first.
+    order = [
+        "AA",
+        "A+",
+        "A",
+        "B+",
+        "B",
+        "C+",
+        "C",
+        "D+",
+        "D",
+        "E",
+    ]
+
+    for grade in order:
+        rule = matrix.get(
+            grade,
+            {},
+        )
+
+        if not isinstance(
+            rule,
+            dict,
+        ):
+            continue
+
+        if cosmetic_grade not in rule.get(
+            "cosmetic",
+            [],
+        ):
+            continue
+
+        if not _ctia_value_allowed(
+            functional_class,
+            rule.get(
+                "functional",
+                [],
+            ),
+        ):
+            continue
+
+        if not _ctia_value_allowed(
+            battery_type,
+            rule.get(
+                "battery",
+                [],
+            ),
+        ):
+            continue
+
+        if not _ctia_value_allowed(
+            customer_lock_type,
+            rule.get(
+                "customer_lock",
+                [],
+            ),
+        ):
+            continue
+
+        if not _ctia_value_allowed(
+            enterprise_lock_type,
+            rule.get(
+                "enterprise_lock",
+                [],
+            ),
+        ):
+            continue
+
+        if not _ctia_value_allowed(
+            operator_lock_type,
+            rule.get(
+                "operator_lock",
+                [],
+            ),
+        ):
+            continue
+
+        if not _ctia_value_allowed(
+            rf_type,
+            rule.get(
+                "rf",
+                [],
+            ),
+        ):
+            continue
+
+        return grade
+
+    return None
+
+
+def _ctia_find_pricing_row(
+    model: str,
+    pricing_data: dict[str, Any],
+    device_type: str = "phone",
+    cloud_status: str | None = None,
+) -> pd.Series | None:
+    table_name = (
+        "tablets"
+        if device_type == "tablet"
+        else "phones"
+    )
+
+    dataframe = pricing_data.get(
+        table_name,
+        pd.DataFrame(),
+    )
+
+    if (
+        not isinstance(
+            dataframe,
+            pd.DataFrame,
+        )
+        or dataframe.empty
+    ):
+        return None
+
+    model_key = normalize_model_key(
+        model
+    )
+
+    matches = dataframe[
+        dataframe["model_key"]
+        == model_key
+    ]
+
+    if (
+        table_name == "tablets"
+        and not matches.empty
+        and cloud_status in {
+            "on",
+            "off",
+        }
+        and "cloud_status"
+        in matches.columns
+    ):
+        matches = matches[
+            matches[
+                "cloud_status"
+            ]
+            == cloud_status
+        ]
+
+    if matches.empty:
+        return None
+
+    return matches.iloc[0]
+
+
+def _ctia_base_reference_price(
+    model: str,
+    pricing_data: dict[str, Any],
+    device_type: str = "phone",
+    cloud_status: str | None = None,
+) -> dict[str, Any]:
+    """
+    Use the existing workbook only as the model-level market baseline.
+
+    PTG is preferred because it is the workbook's strongest clean/working
+    reference. If PTG is absent, the highest available model price is used.
+    """
+    result = {
+        "value": None,
+        "source_code": None,
+        "source_label": None,
+    }
+
+    row = _ctia_find_pricing_row(
+        model,
+        pricing_data,
+        device_type=device_type,
+        cloud_status=cloud_status,
+    )
+
+    if row is None:
+        return result
+
+    def numeric(
+        value: Any,
+    ) -> float | None:
+        try:
+            if pd.isna(value):
+                return None
+        except Exception:
+            pass
+
+        try:
+            return float(value)
+        except (
+            TypeError,
+            ValueError,
+        ):
+            return None
+
+    ptg = numeric(
+        row.get("PTG")
+    )
+
+    if ptg is not None:
+        result.update(
+            {
+                "value": ptg,
+                "source_code": "PTG",
+                "source_label": (
+                    "Existing workbook PTG model reference"
+                ),
+            }
+        )
+        return result
+
+    candidates = []
+
+    for code in (
+        "PTC",
+        "PBL",
+        "NP",
+    ):
+        value = numeric(
+            row.get(code)
+        )
+
+        if value is not None:
+            candidates.append(
+                (
+                    value,
+                    code,
+                )
+            )
+
+    if candidates:
+        value, code = max(
+            candidates,
+            key=lambda item: item[0],
+        )
+
+        result.update(
+            {
+                "value": value,
+                "source_code": code,
+                "source_label": (
+                    f"Highest available workbook reference ({code})"
+                ),
+            }
+        )
+
+    return result
+
+
+def _ctia_valuation_factor(
+    primary_grade: str | None,
+    cosmetic_grade: str,
+    config: dict[str, Any],
+) -> tuple[float | None, str]:
+    valuation = config.get(
+        "valuation",
+        {},
+    ) or {}
+
+    primary = valuation.get(
+        "primary_grade_factors",
+        {},
+    ) or {}
+
+    cosmetic = valuation.get(
+        "cosmetic_only_factors",
+        {},
+    ) or {}
+
+    if (
+        primary_grade
+        and primary_grade in primary
+    ):
+        try:
+            return (
+                float(
+                    primary[
+                        primary_grade
+                    ]
+                ),
+                (
+                    "Primary-grade factor "
+                    f"({primary_grade})"
+                ),
+            )
+        except (
+            TypeError,
+            ValueError,
+        ):
+            pass
+
+    if cosmetic_grade in cosmetic:
+        value = cosmetic.get(
+            cosmetic_grade
+        )
+
+        if value is None:
+            return (
+                None,
+                "No valuation factor for ungraded condition",
+            )
+
+        try:
+            return (
+                float(value),
+                (
+                    "Cosmetic-only factor "
+                    f"({cosmetic_grade})"
+                ),
+            )
+        except (
+            TypeError,
+            ValueError,
+        ):
+            pass
+
+    return (
+        None,
+        "No valuation factor available",
+    )
+
+
+def _ctia_estimate_value(
+    model: str,
+    pricing_data: dict[str, Any],
+    config: dict[str, Any],
+    cosmetic_grade: str,
+    primary_grade: str | None = None,
+    device_type: str = "phone",
+    cloud_status: str | None = None,
+) -> dict[str, Any]:
+    base = _ctia_base_reference_price(
+        model,
+        pricing_data,
+        device_type=device_type,
+        cloud_status=cloud_status,
+    )
+
+    factor, factor_source = (
+        _ctia_valuation_factor(
+            primary_grade,
+            cosmetic_grade,
+            config,
+        )
+    )
+
+    estimate = None
+
+    if (
+        base.get("value")
+        is not None
+        and factor is not None
+    ):
+        estimate = (
+            float(
+                base["value"]
+            )
+            * float(
+                factor
+            )
+        )
+
+    return {
+        "estimated_value": estimate,
+        "base_value": base.get(
+            "value"
+        ),
+        "base_source": base.get(
+            "source_label"
+        ),
+        "base_code": base.get(
+            "source_code"
+        ),
+        "factor": factor,
+        "factor_source": factor_source,
+        "primary_grade": primary_grade,
+        "cosmetic_grade": cosmetic_grade,
+    }
+
+
+def _extract_percent(
+    text: str,
+) -> float | None:
+    match = re.search(
+        r"(\d{1,3}(?:\.\d+)?)\s*%",
+        str(text),
+    )
+
+    if not match:
+        # Accept a bare number for a battery-health question.
+        stripped = str(
+            text
+        ).strip()
+
+        if re.fullmatch(
+            r"\d{1,3}(?:\.\d+)?",
+            stripped,
+        ):
+            value = float(
+                stripped
+            )
+
+            if 0 <= value <= 100:
+                return value
+
+        return None
+
+    value = float(
+        match.group(1)
+    )
+
+    if 0 <= value <= 100:
+        return value
+
+    return None
+
+
+def _ctia_grade_description(
+    grade: str,
+    config: dict[str, Any],
+) -> str:
+    data = (
+        config.get(
+            "cosmetic_grades",
+            {},
+        )
+        or {}
+    ).get(
+        grade,
+        {},
+    )
+
+    if isinstance(
+        data,
+        dict,
+    ):
+        return str(
+            data.get(
+                "summary",
+                grade,
+            )
+        )
+
+    return grade
+
 def _demo_find_image(
     directory: Path,
     predicted_class: str,
@@ -2226,83 +2930,155 @@ def _demo_unique_market_values(
     config: dict[str, Any],
 ) -> list[dict[str, Any]]:
     model_key = normalize_model_key(predicted_class)
-    model_values = (config.get("model_values", {}) or {}).get(model_key, {}) or {}
+
+    model_values = (
+        config.get("model_values", {}) or {}
+    ).get(model_key, {}) or {}
+
     if not isinstance(model_values, dict):
         return []
 
-    normalized = {}
+    normalized: dict[str, tuple[str, float]] = {}
+
     for name, value in model_values.items():
         try:
-            normalized[normalize_model_key(str(name))] = (str(name), float(value))
+            normalized[normalize_model_key(str(name))] = (
+                str(name),
+                float(value),
+            )
         except (TypeError, ValueError):
             continue
 
-    rows = []
-    used = set()
+    if not normalized:
+        return []
 
-    def add_group(label, aliases):
-        chosen = next((a for a in aliases if a in normalized and a not in used), None)
+    rows: list[dict[str, Any]] = []
+    used: set[str] = set()
+
+    def add_group(label: str, aliases: list[str]) -> None:
+        chosen = next(
+            (
+                alias
+                for alias in aliases
+                if alias in normalized and alias not in used
+            ),
+            None,
+        )
         if chosen is None:
             return
-        rows.append({
-            "component_name": label,
-            "quantity": 1,
-            "estimated_value": normalized[chosen][1],
-            "value_source": "online component reference price",
-            "part_number": None,
-            "manufacturer_part_number": None,
-        })
-        for a in aliases:
-            if a in normalized:
-                used.add(a)
 
-    combined = next((k for k in normalized if "loudspeaker" in k and "vibrator" in k), None)
+        rows.append(
+            {
+                "component_name": label,
+                "quantity": 1,
+                "estimated_value": normalized[chosen][1],
+                "value_source": "online component reference price",
+                "part_number": None,
+                "manufacturer_part_number": None,
+            }
+        )
+
+        for alias in aliases:
+            if alias in normalized:
+                used.add(alias)
+
+    # Combined Samsung loudspeaker/vibrator modules should only be counted once.
+    combined = next(
+        (
+            key
+            for key in normalized
+            if "loudspeaker" in key and "vibrator" in key
+        ),
+        None,
+    )
+
     if combined:
-        rows.append({
-            "component_name": normalized[combined][0],
-            "quantity": 1,
-            "estimated_value": normalized[combined][1],
-            "value_source": "online component reference price",
-            "part_number": None,
-            "manufacturer_part_number": None,
-        })
+        rows.append(
+            {
+                "component_name": normalized[combined][0],
+                "quantity": 1,
+                "estimated_value": normalized[combined][1],
+                "value_source": "online component reference price",
+                "part_number": None,
+                "manufacturer_part_number": None,
+            }
+        )
         used.add(combined)
-        for k in ("loudspeaker", "speaker", "vibration_motor", "taptic_engine"):
-            if k in normalized:
-                used.add(k)
+        used.update(
+            key
+            for key in (
+                "loudspeaker",
+                "speaker",
+                "vibration_motor",
+                "taptic_engine",
+            )
+            if key in normalized
+        )
     else:
-        add_group("Loudspeaker", ["loudspeaker", "speaker"])
-        add_group("Taptic / Vibration Motor", ["taptic_engine", "vibration_motor"])
+        add_group(
+            "Loudspeaker",
+            ["loudspeaker", "speaker"],
+        )
+        add_group(
+            "Taptic / Vibration Motor",
+            ["taptic_engine", "vibration_motor"],
+        )
 
     groups = [
         ("Display Assembly", ["display_assembly", "oled_display_assembly"]),
         ("Battery", ["battery"]),
         ("Rear Camera Assembly", ["rear_camera_assembly", "rear_camera_module"]),
-        ("Charging Port Assembly", ["usb_c_charging_port_board", "usb_c_charge_port", "usb_c_charging_port_flex", "charging_port_assembly", "lightning_connector_assembly"]),
+        (
+            "Charging Port Assembly",
+            [
+                "usb_c_charging_port_board",
+                "usb_c_charge_port",
+                "usb_c_charging_port_flex",
+                "charging_port_assembly",
+                "lightning_connector_assembly",
+            ],
+        ),
         ("Front Camera", ["front_camera", "front_camera_assembly"]),
-        ("Wireless Charging / NFC", ["wireless_nfc_charging_flex", "wireless_charging_antenna", "wireless_charging_antenna_assembly", "wireless_charging_assembly"]),
+        (
+            "Wireless Charging / NFC",
+            [
+                "wireless_nfc_charging_flex",
+                "wireless_charging_antenna",
+                "wireless_charging_antenna_assembly",
+                "wireless_charging_assembly",
+            ],
+        ),
         ("Earpiece Speaker", ["earpiece_speaker"]),
         ("Back Glass", ["back_glass"]),
         ("LiDAR Sensor", ["lidar_sensor"]),
         ("Sub Board / PCB", ["sub_board", "pcb_board_with_sim_reader"]),
         ("Rear Ultra-Wide Camera", ["rear_ultra_wide_camera"]),
     ]
+
     for label, aliases in groups:
         add_group(label, aliases)
 
+    # Preserve any remaining distinct researched values.
     for key, (original_name, value) in normalized.items():
         if key in used:
             continue
-        rows.append({
-            "component_name": original_name,
-            "quantity": 1,
-            "estimated_value": value,
-            "value_source": "online component reference price",
-            "part_number": None,
-            "manufacturer_part_number": None,
-        })
+        rows.append(
+            {
+                "component_name": original_name,
+                "quantity": 1,
+                "estimated_value": value,
+                "value_source": "online component reference price",
+                "part_number": None,
+                "manufacturer_part_number": None,
+            }
+        )
+        used.add(key)
 
-    rows.sort(key=lambda r: float(r.get("estimated_value", 0.0)), reverse=True)
+    rows.sort(
+        key=lambda row: float(row.get("estimated_value", 0.0)),
+        reverse=True,
+    )
+
     return rows
 
 
@@ -2310,9 +3086,19 @@ def _demo_component_market_total(
     predicted_class: str,
     config: dict[str, Any],
 ) -> float | None:
-    rows = _demo_unique_market_values(predicted_class, config)
-    values = [float(r["estimated_value"]) for r in rows if r.get("estimated_value") is not None]
+    rows = _demo_unique_market_values(
+        predicted_class,
+        config,
+    )
+
+    values = [
+        float(row["estimated_value"])
+        for row in rows
+        if row.get("estimated_value") is not None
+    ]
+
     return sum(values) if values else None
+
 
 def _demo_component_values(
     predicted_class: str,
@@ -2321,78 +3107,178 @@ def _demo_component_values(
     total_device_value: float | None,
     config: dict[str, Any],
 ) -> list[dict[str, Any]]:
-    researched_rows = _demo_unique_market_values(predicted_class, config)
+    researched_rows = _demo_unique_market_values(
+        predicted_class,
+        config,
+    )
 
     if researched_rows:
-        part_data = lookup_component_counts(predicted_class, component_counts)
-        known_components = part_data.get("components", []) if part_data else []
+        # Add known part numbers where component names align.
+        part_data = lookup_component_counts(
+            predicted_class,
+            component_counts,
+        )
+
+        known_components = (
+            part_data.get("components", [])
+            if part_data
+            else []
+        )
 
         if isinstance(known_components, list):
             for row in researched_rows:
-                row_key = normalize_model_key(row["component_name"])
+                row_key = normalize_model_key(
+                    row["component_name"]
+                )
+
                 for component in known_components:
                     if not isinstance(component, dict):
                         continue
-                    candidate_name = str(component.get("component_name", ""))
-                    candidate_key = normalize_model_key(candidate_name)
-                    if row_key == candidate_key or row_key in candidate_key or candidate_key in row_key:
-                        row["quantity"] = component.get("quantity", 1)
-                        row["part_number"] = component.get("part_number")
-                        row["manufacturer_part_number"] = component.get("manufacturer_part_number")
+
+                    candidate_name = str(
+                        component.get(
+                            "component_name",
+                            "",
+                        )
+                    )
+                    candidate_key = normalize_model_key(
+                        candidate_name
+                    )
+
+                    if (
+                        row_key == candidate_key
+                        or row_key in candidate_key
+                        or candidate_key in row_key
+                    ):
+                        row["quantity"] = component.get(
+                            "quantity",
+                            1,
+                        )
+                        row["part_number"] = component.get(
+                            "part_number"
+                        )
+                        row["manufacturer_part_number"] = component.get(
+                            "manufacturer_part_number"
+                        )
                         break
 
         return researched_rows
 
-    part_data = lookup_component_counts(predicted_class, component_counts)
-    components = part_data.get("components", []) if part_data else []
-    rows = []
+    # Fallback when researched market values are unavailable.
+    part_data = lookup_component_counts(
+        predicted_class,
+        component_counts,
+    )
+
+    components = (
+        part_data.get("components", [])
+        if part_data
+        else []
+    )
+
+    rows: list[dict[str, Any]] = []
 
     if isinstance(components, list):
         for component in components:
             if not isinstance(component, dict):
                 continue
-            name = str(component.get("component_name", "Component"))
+
+            name = str(
+                component.get(
+                    "component_name",
+                    "Component",
+                )
+            )
+
             try:
-                quantity = max(1, int(component.get("quantity", 1)))
+                quantity = max(
+                    1,
+                    int(component.get("quantity", 1)),
+                )
             except (TypeError, ValueError):
                 quantity = 1
-            rows.append({
-                "component_name": name,
-                "quantity": quantity,
-                "part_number": component.get("part_number"),
-                "manufacturer_part_number": component.get("manufacturer_part_number"),
-                "weight": _demo_component_weight(name, config),
-            })
+
+            rows.append(
+                {
+                    "component_name": name,
+                    "quantity": quantity,
+                    "part_number": component.get("part_number"),
+                    "manufacturer_part_number": component.get(
+                        "manufacturer_part_number"
+                    ),
+                    "weight": _demo_component_weight(
+                        name,
+                        config,
+                    ),
+                }
+            )
 
     if not rows:
-        matches = lookup_components(predicted_class, component_dataframe)
-        component_column = next((c for c in ("component_name", "component", "pcb_type") if c in matches.columns), None)
+        matches = lookup_components(
+            predicted_class,
+            component_dataframe,
+        )
+
+        component_column = next(
+            (
+                column
+                for column in (
+                    "component_name",
+                    "component",
+                    "pcb_type",
+                )
+                if column in matches.columns
+            ),
+            None,
+        )
+
         if not matches.empty and component_column:
-            for name in matches[component_column].dropna().astype(str).drop_duplicates().head(20):
-                rows.append({
-                    "component_name": name,
-                    "quantity": 1,
-                    "part_number": None,
-                    "manufacturer_part_number": None,
-                    "weight": _demo_component_weight(name, config),
-                })
+            for name in (
+                matches[component_column]
+                .dropna()
+                .astype(str)
+                .drop_duplicates()
+                .head(20)
+            ):
+                rows.append(
+                    {
+                        "component_name": name,
+                        "quantity": 1,
+                        "part_number": None,
+                        "manufacturer_part_number": None,
+                        "weight": _demo_component_weight(
+                            name,
+                            config,
+                        ),
+                    }
+                )
 
     if not rows:
         return []
 
-    total_weight = sum(float(r.get("weight", 0.0)) for r in rows)
+    total_weight = sum(
+        float(row.get("weight", 0.0))
+        for row in rows
+    )
+
     if total_weight <= 0:
         total_weight = float(len(rows))
-        for r in rows:
-            r["weight"] = 1.0
+        for row in rows:
+            row["weight"] = 1.0
 
-    for r in rows:
+    for row in rows:
         if total_device_value is None:
-            r["estimated_value"] = None
-            r["value_source"] = "not available"
+            row["estimated_value"] = None
+            row["value_source"] = "not available"
         else:
-            r["estimated_value"] = float(total_device_value) * float(r["weight"]) / total_weight
-            r["value_source"] = "illustrative allocation from whole-device workbook value"
+            row["estimated_value"] = (
+                float(total_device_value)
+                * float(row["weight"])
+                / total_weight
+            )
+            row["value_source"] = (
+                "illustrative allocation from whole-device workbook value"
+            )
 
     return rows
 
@@ -2760,27 +3646,39 @@ def render_graphical_valuation_demo(
     metals_data: dict[str, Any],
     internal_layouts: dict[str, Any],
     component_value_config: dict[str, Any],
+    ctia_config: dict[str, Any],
 ) -> None:
     predicted_class = top_prediction[
         "class_name"
     ]
+
     display_name = top_prediction[
         "display_name"
     ]
 
-    pricing = _demo_visual_pricing(
-        predicted_class,
-        damage_result,
+    cosmetic_grade, grade_reason = (
+        _ctia_cosmetic_grade_from_damage(
+            damage_result
+        )
+    )
+
+    # A photo cannot establish the full CTIA functional, battery,
+    # lock, and RF classifications. Therefore image mode uses the
+    # cosmetic-only factor and clearly labels it as a visual estimate.
+    ctia_value = _ctia_estimate_value(
+        display_name,
         pricing_data,
+        ctia_config,
+        cosmetic_grade=cosmetic_grade,
+        primary_grade=None,
+        device_type="phone",
     )
 
-    whole_device_value = pricing.get(
-        "exact_value"
-    )
-
-    component_market_total = _demo_component_market_total(
-        predicted_class,
-        component_value_config,
+    component_market_total = (
+        _demo_component_market_total(
+            predicted_class,
+            component_value_config,
+        )
     )
 
     component_rows = (
@@ -2788,7 +3686,9 @@ def render_graphical_valuation_demo(
             predicted_class,
             component_dataframe,
             component_counts,
-            whole_device_value,
+            ctia_value.get(
+                "estimated_value"
+            ),
             component_value_config,
         )
     )
@@ -2797,10 +3697,10 @@ def render_graphical_valuation_demo(
     st.subheader(
         "Cellphone valuation demo"
     )
+
     st.caption(
-        "Condition-based valuation, researched component market references, "
-        "condition-based valuation, and internal "
-        "PCB/component value deep dive."
+        "CTIA-aligned cosmetic grading, CTIA-informed valuation, "
+        "researched component market references, and material analysis."
     )
 
     st.markdown(
@@ -2818,6 +3718,7 @@ def render_graphical_valuation_demo(
         st.markdown(
             "#### Uploaded damaged phone"
         )
+
         st.image(
             image,
             use_container_width=True,
@@ -2828,50 +3729,77 @@ def render_graphical_valuation_demo(
             "#### Valuation summary"
         )
 
-        if whole_device_value is not None:
+        st.metric(
+            "Predicted model",
+            display_name,
+        )
+
+        st.metric(
+            "Estimated CTIA cosmetic grade",
+            cosmetic_grade,
+        )
+
+        st.caption(
+            _ctia_grade_description(
+                cosmetic_grade,
+                ctia_config,
+            )
+        )
+
+        st.write(
+            f"**Visual grading reason:** {grade_reason}"
+        )
+
+        if (
+            ctia_value.get(
+                "estimated_value"
+            )
+            is not None
+        ):
             st.metric(
-                "Whole-phone workbook value",
-                f"${float(whole_device_value):,.2f}",
+                "CTIA-informed estimated value",
+                (
+                    f"${float(ctia_value['estimated_value']):,.2f}"
+                ),
             )
-            st.caption(
-                "Exact model + condition price from your Excel workbook."
+
+            st.write(
+                "**Base market reference:** "
+                f"${float(ctia_value['base_value']):,.2f}"
+                f" · {ctia_value.get('base_source') or 'Workbook'}"
             )
-        elif component_market_total is not None:
+
+            st.write(
+                "**Valuation factor:** "
+                f"{float(ctia_value['factor']):.0%}"
+                f" · {ctia_value.get('factor_source')}"
+            )
+
+        elif (
+            component_market_total
+            is not None
+        ):
+            st.metric(
+                "Whole-phone CTIA estimate",
+                "Unavailable",
+            )
+
             st.metric(
                 "Known component market references",
                 f"${float(component_market_total):,.2f}",
             )
-            st.caption(
-                "Sum of de-duplicated researched replacement-part "
-                "reference prices. This is not a whole-phone resale value."
-            )
+
             st.info(
-                f"{display_name} is not currently listed with a usable "
-                "whole-phone price for this condition in the Excel workbook, "
-                "so researched component market values are shown instead."
+                "This model does not currently have a usable whole-phone "
+                "baseline in the pricing workbook. Component reference "
+                "prices are shown separately below and are not a substitute "
+                "for whole-phone resale value."
             )
         else:
             st.metric(
                 "Valuation",
                 "Unavailable",
             )
-            st.caption(
-                "No whole-phone workbook price or researched component "
-                "market references were found."
-            )
-
-        st.metric(
-            "Condition code",
-            pricing.get(
-                "condition_code"
-            )
-            or "—",
-        )
-
-        st.metric(
-            "Predicted model",
-            display_name,
-        )
 
         st.write(
             "**Screen:** "
@@ -2908,56 +3836,87 @@ def render_graphical_valuation_demo(
         )
 
         st.info(
-            "Visual pricing assumes the phone powers on. "
-            "A photo cannot confirm NP/no-power status."
+            "Image mode provides a CTIA-aligned cosmetic estimate only. "
+            "A full CTIA primary grade also requires functional class, "
+            "battery health, customer/enterprise/operator lock status, "
+            "and RF-test information. Use Manual valuation assistant "
+            "for the full grading workflow."
         )
 
     st.markdown(
         "### 2. Internal component value deep dive"
     )
+
     st.caption(
         "Research-populated component market references for the predicted "
-        "phone. Internal images are not required for this table."
+        "phone. These values are separate from the CTIA whole-phone estimate."
     )
 
     if component_rows:
         sorted_rows = sorted(
             component_rows,
             key=lambda item: (
-                item.get("estimated_value")
-                if item.get("estimated_value") is not None
+                item.get(
+                    "estimated_value"
+                )
+                if item.get(
+                    "estimated_value"
+                )
+                is not None
                 else 0.0
             ),
             reverse=True,
         )
 
-        table_col, chart_col = st.columns(
-            [1.25, 0.75],
-            gap="large",
+        table_col, chart_col = (
+            st.columns(
+                [1.25, 0.75],
+                gap="large",
+            )
         )
 
         with table_col:
-            st.markdown("#### Component value table")
+            st.markdown(
+                "#### Component value table"
+            )
 
             component_table = pd.DataFrame(
                 [
                     {
-                        "Component": row["component_name"],
-                        "Qty": row.get("quantity", 1),
+                        "Component": row[
+                            "component_name"
+                        ],
+                        "Qty": row.get(
+                            "quantity",
+                            1,
+                        ),
                         "Reference value": (
                             f"${float(row['estimated_value']):,.2f}"
-                            if row.get("estimated_value") is not None
+                            if row.get(
+                                "estimated_value"
+                            )
+                            is not None
                             else "—"
                         ),
                         "Part number": (
-                            row.get("manufacturer_part_number")
-                            or row.get("part_number")
+                            row.get(
+                                "manufacturer_part_number"
+                            )
+                            or row.get(
+                                "part_number"
+                            )
                             or "—"
                         ),
                         "Basis": (
                             "Online replacement-part reference"
-                            if row.get("value_source") == "online component reference price"
-                            else row.get("value_source", "—")
+                            if row.get(
+                                "value_source"
+                            )
+                            == "online component reference price"
+                            else row.get(
+                                "value_source",
+                                "—",
+                            )
                         ),
                     }
                     for row in sorted_rows
@@ -2971,22 +3930,41 @@ def render_graphical_valuation_demo(
             )
 
         with chart_col:
-            st.markdown("#### Highest-value components")
+            st.markdown(
+                "#### Highest-value components"
+            )
 
             chart_rows = [
                 {
-                    "Component": row["component_name"],
-                    "Reference value": float(row["estimated_value"]),
+                    "Component": row[
+                        "component_name"
+                    ],
+                    "Reference value": float(
+                        row[
+                            "estimated_value"
+                        ]
+                    ),
                 }
                 for row in sorted_rows
-                if row.get("estimated_value") is not None
+                if row.get(
+                    "estimated_value"
+                )
+                is not None
             ]
 
             if chart_rows:
                 chart_series = (
-                    pd.DataFrame(chart_rows)
-                    .set_index("Component")["Reference value"]
-                    .sort_values(ascending=True)
+                    pd.DataFrame(
+                        chart_rows
+                    )
+                    .set_index(
+                        "Component"
+                    )[
+                        "Reference value"
+                    ]
+                    .sort_values(
+                        ascending=True
+                    )
                 )
 
                 st.bar_chart(
@@ -2994,7 +3972,10 @@ def render_graphical_valuation_demo(
                     horizontal=True,
                 )
 
-        if component_market_total is not None:
+        if (
+            component_market_total
+            is not None
+        ):
             st.metric(
                 "Total of known component market references",
                 f"${float(component_market_total):,.2f}",
@@ -3003,8 +3984,10 @@ def render_graphical_valuation_demo(
         st.caption(
             "Component figures are online replacement-part market "
             "references from the researched dataset. They are not "
-            "guaranteed used-part resale prices or recycler payouts."
+            "guaranteed used-part resale prices, recycler payouts, "
+            "or CTIA-defined values."
         )
+
     else:
         st.info(
             "No researched component market values are available "
@@ -3611,6 +4594,14 @@ def _manual_default_state() -> dict[str, Any]:
         "weight_lb": None,
         "weight_skipped": False,
         "battery_type": None,
+        "ctia_cosmetic_grade": None,
+        "ctia_display_failure": None,
+        "ctia_other_failure": None,
+        "battery_health_percent": None,
+        "customer_lock_type": None,
+        "enterprise_lock_type": None,
+        "operator_lock_type": None,
+        "rf_type": None,
         "notes": [],
     }
 
@@ -4002,39 +4993,213 @@ def _manual_next_question(
             "For example: iPhone 14, iPhone 15 Pro, Galaxy S24 Ultra, or iPad 9."
         )
 
-    if not state.get("device_type"):
-        return "Is this a phone or a tablet?"
-
-    if state.get("power_on") is None:
-        return "Does the device power on?"
-
-    if state.get("power_on") is True and state.get("lcd_good") is None:
+    if not state.get(
+        "device_type"
+    ):
         return (
-            "Is the LCD/display working normally? "
-            "Tell me if it has a bad LCD, black screen, lines, or other display failure."
+            "Is this a phone or a tablet?"
+        )
+
+    if state.get(
+        "power_on"
+    ) is None:
+        return (
+            "Does the device power on?"
         )
 
     if (
-        state.get("power_on") is True
-        and state.get("lcd_good") is True
-        and state.get("glass_cracked") is None
+        state.get(
+            "power_on"
+        )
+        is True
+        and state.get(
+            "lcd_good"
+        )
+        is None
     ):
-        return "Is the front glass cracked or broken?"
+        return (
+            "Is the LCD/display working normally? "
+            "Tell me if it has a bad LCD, black screen, lines, "
+            "or other display failure."
+        )
 
     if (
-        state.get("device_type") == "tablet"
-        and state.get("cloud_status") is None
+        state.get(
+            "power_on"
+        )
+        is True
+        and state.get(
+            "lcd_good"
+        )
+        is True
+        and state.get(
+            "glass_cracked"
+        )
+        is None
     ):
-        return "Is iCloud/MDM ON or OFF?"
+        return (
+            "Is the front glass cracked or broken?"
+        )
 
-    if _manual_needs_commodity_fallback(state, pricing_data):
-        if state.get("device_type") == "phone" and not state.get("battery_type"):
+    if (
+        state.get(
+            "ctia_cosmetic_grade"
+        )
+        is None
+    ):
+        return (
+            "For the CTIA cosmetic grade, which best describes the device? "
+            "A = like-new/minimal wear; B = light wear; "
+            "C = more aggressive wear or certain camera/rear-lens cracks "
+            "but no display-cover crack; D = heavy cosmetic damage with "
+            "display cover-lens crack but no internal display damage; "
+            "E = internal display structure damage; N = not graded/unknown."
+        )
+
+    if (
+        state.get(
+            "power_on"
+        )
+        is True
+        and state.get(
+            "ctia_display_failure"
+        )
+        is None
+    ):
+        return (
+            "For CTIA functional classification, what is the "
+            "display failure severity: None, Minor, Major, or Inoperable?"
+        )
+
+    if (
+        state.get(
+            "power_on"
+        )
+        is True
+        and state.get(
+            "ctia_display_failure"
+        )
+        != "inoperable"
+        and state.get(
+            "ctia_other_failure"
+        )
+        is None
+    ):
+        return (
+            "Are there other functional failures besides the display? "
+            "Choose None, Minor, Major, or Unverified."
+        )
+
+    if (
+        state.get(
+            "power_on"
+        )
+        is True
+        and state.get(
+            "battery_health_percent"
+        )
+        is None
+        and not state.get(
+            "battery_health_skipped",
+            False,
+        )
+    ):
+        return (
+            "What is the battery health percentage? "
+            "For example 88%. If unavailable, reply 'unknown'."
+        )
+
+    if (
+        state.get(
+            "customer_lock_type"
+        )
+        is None
+    ):
+        return (
+            "What is the CTIA customer lock/data-wipe status? "
+            "Type 1 = data wiped + customer/activation lock cleared; "
+            "Type 2 = data wiped + customer lock present; "
+            "Type 3 = data not wiped + no customer lock; "
+            "Type 4 = data not wiped + customer lock present; "
+            "Type 5 = unverified."
+        )
+
+    if (
+        state.get(
+            "enterprise_lock_type"
+        )
+        is None
+    ):
+        return (
+            "Enterprise lock status: No, Yes, or Unverified?"
+        )
+
+    if (
+        state.get(
+            "operator_lock_type"
+        )
+        is None
+    ):
+        return (
+            "Operator/carrier lock status: Unlocked, Locked, or Unverified?"
+        )
+
+    if (
+        state.get(
+            "rf_type"
+        )
+        is None
+    ):
+        return (
+            "CTIA RF functionality check type? "
+            "1 = not tested; 2 = passed network detection; "
+            "3 = failed network detection; 4 = passed live call; "
+            "5 = failed live call; 6 = passed shielded-box test; "
+            "7 = failed shielded-box test."
+        )
+
+    if (
+        state.get(
+            "device_type"
+        )
+        == "tablet"
+        and state.get(
+            "cloud_status"
+        )
+        is None
+    ):
+        return (
+            "Is iCloud/MDM ON or OFF?"
+        )
+
+    if _manual_needs_commodity_fallback(
+        state,
+        pricing_data,
+    ):
+        if (
+            state.get(
+                "device_type"
+            )
+            == "phone"
+            and not state.get(
+                "battery_type"
+            )
+        ):
             return (
                 "The workbook has no exact price for this model/condition. "
-                "For the commodity-rate fallback, is the phone battery internal or external?"
+                "For the commodity-rate fallback, is the phone battery "
+                "internal or external?"
             )
 
-        if state.get("weight_lb") is None and not state.get("weight_skipped"):
+        if (
+            state.get(
+                "weight_lb"
+            )
+            is None
+            and not state.get(
+                "weight_skipped"
+            )
+        ):
             return (
                 "The workbook has no exact model price for this condition. "
                 "If you want a commodity-rate fallback, provide the device weight "
@@ -4056,29 +5221,316 @@ def _manual_answer_current_question(
     lower_question = question.lower()
     lower_text = text.lower().strip()
 
-    if "power on" in lower_question and state.get("power_on") is None:
-        state["power_on"] = _parse_yes_no(text)
+    if (
+        "power on"
+        in lower_question
+        and state.get(
+            "power_on"
+        )
+        is None
+    ):
+        state["power_on"] = (
+            _parse_yes_no(
+                text
+            )
+        )
 
-    elif "lcd/display" in lower_question and state.get("lcd_good") is None:
-        state["lcd_good"] = _parse_yes_no(text)
+    elif (
+        "lcd/display"
+        in lower_question
+        and state.get(
+            "lcd_good"
+        )
+        is None
+    ):
+        state["lcd_good"] = (
+            _parse_yes_no(
+                text
+            )
+        )
 
-    elif "front glass" in lower_question and state.get("glass_cracked") is None:
-        answer = _parse_yes_no(text)
-        # Here "yes" means yes, it is cracked.
+        if (
+            state.get(
+                "lcd_good"
+            )
+            is True
+        ):
+            state[
+                "ctia_display_failure"
+            ] = "none"
+
+    elif (
+        "front glass"
+        in lower_question
+        and state.get(
+            "glass_cracked"
+        )
+        is None
+    ):
+        answer = _parse_yes_no(
+            text
+        )
+
         if answer is not None:
-            state["glass_cracked"] = answer
+            state[
+                "glass_cracked"
+            ] = answer
 
-    elif "icloud/mdm" in lower_question and state.get("cloud_status") is None:
-        if "off" in lower_text or "unlocked" in lower_text:
-            state["cloud_status"] = "off"
-        elif "on" in lower_text or "locked" in lower_text:
-            state["cloud_status"] = "on"
+    elif (
+        "ctia cosmetic"
+        in lower_question
+    ):
+        match = re.search(
+            r"\b([abcden])\b",
+            lower_text,
+            flags=re.I,
+        )
 
-    elif "battery internal or external" in lower_question:
+        if match:
+            state[
+                "ctia_cosmetic_grade"
+            ] = (
+                match.group(1)
+                .upper()
+            )
+
+    elif (
+        "display failure severity"
+        in lower_question
+    ):
+        if "inoperable" in lower_text:
+            state[
+                "ctia_display_failure"
+            ] = "inoperable"
+        elif "major" in lower_text:
+            state[
+                "ctia_display_failure"
+            ] = "major"
+        elif "minor" in lower_text:
+            state[
+                "ctia_display_failure"
+            ] = "minor"
+        elif (
+            "none"
+            in lower_text
+            or "no failure"
+            in lower_text
+        ):
+            state[
+                "ctia_display_failure"
+            ] = "none"
+
+    elif (
+        "other functional failures"
+        in lower_question
+    ):
+        if "major" in lower_text:
+            state[
+                "ctia_other_failure"
+            ] = "major"
+        elif "minor" in lower_text:
+            state[
+                "ctia_other_failure"
+            ] = "minor"
+        elif (
+            "none"
+            in lower_text
+            or "no other"
+            in lower_text
+            or "no failure"
+            in lower_text
+        ):
+            state[
+                "ctia_other_failure"
+            ] = "none"
+        elif (
+            "unknown"
+            in lower_text
+            or "unverified"
+            in lower_text
+        ):
+            state[
+                "ctia_other_failure"
+            ] = "unverified"
+
+    elif (
+        "battery health"
+        in lower_question
+    ):
+        percent = _extract_percent(
+            text
+        )
+
+        if percent is not None:
+            state[
+                "battery_health_percent"
+            ] = percent
+        elif (
+            "unknown"
+            in lower_text
+            or "skip"
+            in lower_text
+        ):
+            state[
+                "battery_health_percent"
+            ] = None
+            state[
+                "battery_health_skipped"
+            ] = True
+
+    elif (
+        "customer lock/data-wipe"
+        in lower_question
+    ):
+        mapping = {
+            "type 1": 1,
+            "type1": 1,
+            "cleared / unlocked": 1,
+            "wiped + unlocked": 1,
+            "type 2": 2,
+            "type2": 2,
+            "wiped + locked": 2,
+            "type 3": 3,
+            "type3": 3,
+            "not wiped + unlocked": 3,
+            "type 4": 4,
+            "type4": 4,
+            "not wiped + locked": 4,
+            "type 5": 5,
+            "type5": 5,
+            "unverified": 5,
+        }
+
+        for token, value in mapping.items():
+            if token in lower_text:
+                state[
+                    "customer_lock_type"
+                ] = value
+                break
+
+    elif (
+        "enterprise lock"
+        in lower_question
+    ):
+        if (
+            "unverified"
+            in lower_text
+            or "unknown"
+            in lower_text
+        ):
+            state[
+                "enterprise_lock_type"
+            ] = 3
+        elif (
+            "yes"
+            in lower_text
+            or "locked"
+            in lower_text
+        ):
+            state[
+                "enterprise_lock_type"
+            ] = 2
+        elif (
+            "no"
+            in lower_text
+            or "not locked"
+            in lower_text
+            or "unlocked"
+            in lower_text
+        ):
+            state[
+                "enterprise_lock_type"
+            ] = 1
+
+    elif (
+        "operator/carrier lock"
+        in lower_question
+    ):
+        if (
+            "unverified"
+            in lower_text
+            or "unknown"
+            in lower_text
+        ):
+            state[
+                "operator_lock_type"
+            ] = 3
+        elif (
+            "locked"
+            in lower_text
+            and "unlocked"
+            not in lower_text
+        ):
+            state[
+                "operator_lock_type"
+            ] = 2
+        elif (
+            "unlocked"
+            in lower_text
+            or "no"
+            in lower_text
+        ):
+            state[
+                "operator_lock_type"
+            ] = 1
+
+    elif (
+        "rf functionality check"
+        in lower_question
+    ):
+        match = re.search(
+            r"\b([1-7])\b",
+            lower_text,
+        )
+
+        if match:
+            state[
+                "rf_type"
+            ] = int(
+                match.group(1)
+            )
+
+    elif (
+        "icloud/mdm"
+        in lower_question
+        and state.get(
+            "cloud_status"
+        )
+        is None
+    ):
+        if (
+            "off"
+            in lower_text
+            or "unlocked"
+            in lower_text
+        ):
+            state[
+                "cloud_status"
+            ] = "off"
+
+        elif (
+            "on"
+            in lower_text
+            or "locked"
+            in lower_text
+        ):
+            state[
+                "cloud_status"
+            ] = "on"
+
+    elif (
+        "battery internal or external"
+        in lower_question
+    ):
         if "external" in lower_text:
-            state["battery_type"] = "external"
+            state[
+                "battery_type"
+            ] = "external"
+
         elif "internal" in lower_text:
-            state["battery_type"] = "internal"
+            state[
+                "battery_type"
+            ] = "internal"
 
 
 def _manual_summary_text(
@@ -4087,37 +5539,153 @@ def _manual_summary_text(
     component_counts: dict[str, Any],
     metals_data: dict[str, Any],
 ) -> str:
-    pricing = _manual_pricing_match(state, pricing_data)
-    code = pricing.get("condition_code") or "Unknown"
-    terms = pricing_data.get("terms", {}) or {}
-    condition_text = terms.get(code, code)
+    ctia_config = st.session_state.get(
+        "manual_ctia_config",
+        {},
+    )
 
-    if pricing.get("exact_value") is not None:
-        price_text = f"{pricing['exact_value']:.2f} from the workbook"
-    elif pricing.get("commodity_estimate") is not None:
-        price_text = (
-            f"{pricing['commodity_estimate']:.2f} using the workbook commodity rate "
-            f"({pricing['commodity_rate']} × {state['weight_lb']:.3f} lb)"
+    cosmetic_grade = (
+        _ctia_manual_cosmetic_grade(
+            state
+        )
+    )
+
+    functional_class = (
+        _ctia_functional_class(
+            state.get(
+                "power_on"
+            ),
+            state.get(
+                "ctia_display_failure"
+            ),
+            state.get(
+                "ctia_other_failure"
+            ),
+        )
+    )
+
+    battery_type = _ctia_battery_type(
+        state.get(
+            "battery_health_percent"
+        )
+    )
+
+    primary_grade = (
+        _ctia_primary_grade(
+            cosmetic_grade,
+            functional_class,
+            battery_type,
+            state.get(
+                "customer_lock_type"
+            ),
+            state.get(
+                "enterprise_lock_type"
+            ),
+            state.get(
+                "operator_lock_type"
+            ),
+            state.get(
+                "rf_type"
+            ),
+            ctia_config,
+        )
+    )
+
+    ctia_value = (
+        _ctia_estimate_value(
+            str(
+                state.get(
+                    "model",
+                    "",
+                )
+            ),
+            pricing_data,
+            ctia_config,
+            cosmetic_grade=cosmetic_grade,
+            primary_grade=primary_grade,
+            device_type=state.get(
+                "device_type",
+                "phone",
+            ),
+            cloud_status=state.get(
+                "cloud_status"
+            ),
+        )
+    )
+
+    if (
+        ctia_value.get(
+            "estimated_value"
+        )
+        is not None
+    ):
+        value_text = (
+            f"${float(ctia_value['estimated_value']):,.2f}"
         )
     else:
-        price_text = "No exact workbook price is available for the supplied model/condition"
+        value_text = (
+            "unavailable because no usable model baseline "
+            "and/or grading factor is available"
+        )
 
-    part_data = lookup_component_counts(
-        str(state.get("model", "")),
-        component_counts,
+    part_data = (
+        lookup_component_counts(
+            str(
+                state.get(
+                    "model",
+                    "",
+                )
+            ),
+            component_counts,
+        )
     )
-    part_count = len(part_data.get("components", [])) if part_data else 0
 
-    metal_data = lookup_valuable_metals(
-        str(state.get("model", "")),
-        metals_data,
+    part_count = (
+        len(
+            part_data.get(
+                "components",
+                [],
+            )
+        )
+        if part_data
+        else 0
     )
-    metal_count = len(metal_data.get("valuable_metals", {})) if metal_data else 0
+
+    metal_data = (
+        lookup_valuable_metals(
+            str(
+                state.get(
+                    "model",
+                    "",
+                )
+            ),
+            metals_data,
+        )
+    )
+
+    metal_count = (
+        len(
+            metal_data.get(
+                "valuable_metals",
+                {},
+            )
+        )
+        if metal_data
+        else 0
+    )
+
+    primary_text = (
+        primary_grade
+        or "not resolved"
+    )
 
     return (
-        f"I have enough information to prepare the estimate. "
-        f"Model: **{state.get('model')}**. Condition: **{condition_text}**. "
-        f"Pricing result: **{price_text}**. "
+        "I have enough information to prepare the CTIA-informed estimate. "
+        f"Model: **{state.get('model')}**. "
+        f"CTIA cosmetic grade: **{cosmetic_grade}**. "
+        f"Functional class: **{functional_class}**. "
+        f"Primary grade: **{primary_text}**. "
+        f"Estimated value: **{value_text}**. "
         f"I also found **{part_count} component records** and "
         f"**{metal_count} valuable-metal records** for this model. "
         "The detailed report is shown below."
@@ -4131,59 +5699,303 @@ def render_manual_valuation_report(
     component_counts: dict[str, Any],
     specifications: dict[str, Any],
     metals_data: dict[str, Any],
+    ctia_config: dict[str, Any],
 ) -> None:
     model = state.get("model")
+
     if not model:
         return
 
-    pricing = _manual_pricing_match(state, pricing_data)
-    code = pricing.get("condition_code")
+    legacy_pricing = (
+        _manual_pricing_match(
+            state,
+            pricing_data,
+        )
+    )
+
+    cosmetic_grade = (
+        _ctia_manual_cosmetic_grade(
+            state
+        )
+    )
+
+    functional_class = (
+        _ctia_functional_class(
+            state.get(
+                "power_on"
+            ),
+            state.get(
+                "ctia_display_failure"
+            ),
+            state.get(
+                "ctia_other_failure"
+            ),
+        )
+    )
+
+    battery_type = (
+        _ctia_battery_type(
+            state.get(
+                "battery_health_percent"
+            )
+        )
+    )
+
+    primary_grade = (
+        _ctia_primary_grade(
+            cosmetic_grade,
+            functional_class,
+            battery_type,
+            state.get(
+                "customer_lock_type"
+            ),
+            state.get(
+                "enterprise_lock_type"
+            ),
+            state.get(
+                "operator_lock_type"
+            ),
+            state.get(
+                "rf_type"
+            ),
+            ctia_config,
+        )
+    )
+
+    ctia_value = (
+        _ctia_estimate_value(
+            model,
+            pricing_data,
+            ctia_config,
+            cosmetic_grade=cosmetic_grade,
+            primary_grade=primary_grade,
+            device_type=state.get(
+                "device_type",
+                "phone",
+            ),
+            cloud_status=state.get(
+                "cloud_status"
+            ),
+        )
+    )
 
     st.markdown("---")
-    st.subheader("Manual valuation report")
+    st.subheader(
+        "Manual valuation report"
+    )
 
-    summary_cols = st.columns(4)
-    summary_cols[0].metric("Model", model)
-    summary_cols[1].metric("Condition code", code or "—")
+    summary_cols = st.columns(
+        4
+    )
 
-    if pricing.get("exact_value") is not None:
-        summary_cols[2].metric(
-            "Workbook price",
-            f"{pricing['exact_value']:.2f}",
+    summary_cols[0].metric(
+        "Model",
+        model,
+    )
+
+    summary_cols[1].metric(
+        "CTIA cosmetic",
+        cosmetic_grade,
+    )
+
+    summary_cols[2].metric(
+        "Functional class",
+        functional_class,
+    )
+
+    summary_cols[3].metric(
+        "CTIA primary grade",
+        primary_grade
+        or "Not resolved",
+    )
+
+    value_cols = st.columns(
+        4
+    )
+
+    if (
+        ctia_value.get(
+            "estimated_value"
         )
-        summary_cols[3].metric(
-            "Price source",
-            "Model / condition",
+        is not None
+    ):
+        value_cols[0].metric(
+            "CTIA-informed estimate",
+            f"${float(ctia_value['estimated_value']):,.2f}",
         )
-    elif pricing.get("commodity_estimate") is not None:
-        summary_cols[2].metric(
-            "Commodity estimate",
-            f"{pricing['commodity_estimate']:.2f}",
+
+        value_cols[1].metric(
+            "Base reference",
+            f"${float(ctia_value['base_value']):,.2f}",
         )
-        summary_cols[3].metric(
-            "Commodity rate",
-            str(pricing.get("commodity_rate", "—")),
+
+        value_cols[2].metric(
+            "Grade factor",
+            f"{float(ctia_value['factor']):.0%}",
         )
+
+        value_cols[3].metric(
+            "Battery type",
+            (
+                f"Type {battery_type}"
+                if battery_type
+                is not None
+                else "Unknown"
+            ),
+        )
+
+        st.caption(
+            f"Base source: {ctia_value.get('base_source') or '—'} · "
+            f"Factor source: {ctia_value.get('factor_source') or '—'}"
+        )
+
     else:
-        summary_cols[2].metric("Workbook price", "Unavailable")
-        summary_cols[3].metric(
-            "Commodity rate",
-            str(pricing.get("commodity_rate") or "—"),
+        value_cols[0].metric(
+            "CTIA-informed estimate",
+            "Unavailable",
         )
 
-    if code:
-        description = (pricing_data.get("terms", {}) or {}).get(code)
-        if description:
-            st.caption(f"Workbook condition definition: {description}")
-
-    if pricing.get("exact_value") is None:
-        st.info(
-            "The uploaded pricing workbook does not contain an exact value for "
-            "this model/condition. Any commodity estimate shown above is calculated "
-            "from the workbook's Categories wprice rate multiplied by the weight "
-            "you supplied. The workbook does not explicitly label the rate/weight units, "
-            "so verify those units before using the value operationally."
+        value_cols[1].metric(
+            "Base reference",
+            (
+                f"${float(ctia_value['base_value']):,.2f}"
+                if ctia_value.get(
+                    "base_value"
+                )
+                is not None
+                else "Unavailable"
+            ),
         )
+
+        value_cols[2].metric(
+            "Grade factor",
+            (
+                f"{float(ctia_value['factor']):.0%}"
+                if ctia_value.get(
+                    "factor"
+                )
+                is not None
+                else "Unavailable"
+            ),
+        )
+
+        value_cols[3].metric(
+            "Battery type",
+            (
+                f"Type {battery_type}"
+                if battery_type
+                is not None
+                else "Unknown"
+            ),
+        )
+
+    st.info(
+        "CTIA defines the grading framework, not resale-price multipliers. "
+        "The percentage factor used here is an app-level valuation layer "
+        "stored in data/ctia_valuation_config.json and should be calibrated "
+        "with your own transaction or partner pricing data."
+    )
+
+    with st.expander(
+        "CTIA grading details",
+        expanded=True,
+    ):
+        st.write(
+            "**Cosmetic grade:** "
+            f"{cosmetic_grade} — "
+            f"{_ctia_grade_description(cosmetic_grade, ctia_config)}"
+        )
+
+        st.write(
+            "**Functional classification:** "
+            f"Type {functional_class}"
+        )
+
+        st.write(
+            "**Battery health:** "
+            + (
+                f"{float(state['battery_health_percent']):.0f}% "
+                f"(Type {battery_type})"
+                if state.get(
+                    "battery_health_percent"
+                )
+                is not None
+                and battery_type
+                is not None
+                else "Unknown / not supplied"
+            )
+        )
+
+        st.write(
+            "**Customer lock:** "
+            f"Type {state.get('customer_lock_type') or '—'}"
+        )
+
+        st.write(
+            "**Enterprise lock:** "
+            f"Type {state.get('enterprise_lock_type') or '—'}"
+        )
+
+        st.write(
+            "**Operator lock:** "
+            f"Type {state.get('operator_lock_type') or '—'}"
+        )
+
+        st.write(
+            "**RF check:** "
+            f"Type {state.get('rf_type') or '—'}"
+        )
+
+        if (
+            primary_grade
+            is None
+        ):
+            st.warning(
+                "A CTIA primary grade could not be resolved from the "
+                "current combination of supplied values. The estimate, "
+                "if available, therefore uses the cosmetic-only factor."
+            )
+
+    with st.expander(
+        "Legacy workbook condition reference",
+        expanded=False,
+    ):
+        legacy_code = (
+            legacy_pricing.get(
+                "condition_code"
+            )
+        )
+
+        st.write(
+            f"Legacy condition code: **{legacy_code or '—'}**"
+        )
+
+        if (
+            legacy_pricing.get(
+                "exact_value"
+            )
+            is not None
+        ):
+            st.write(
+                "Legacy workbook condition price: "
+                f"**${float(legacy_pricing['exact_value']):,.2f}**"
+            )
+
+        elif (
+            legacy_pricing.get(
+                "commodity_estimate"
+            )
+            is not None
+        ):
+            st.write(
+                "Legacy commodity estimate: "
+                f"**${float(legacy_pricing['commodity_estimate']):,.2f}**"
+            )
+
+        else:
+            st.write(
+                "No legacy condition-specific workbook price is available."
+            )
 
     render_phone_specification(model, specifications)
     render_component_counts(model, component_counts)
@@ -4229,6 +6041,14 @@ def render_manual_valuation_report(
                 "icloud_mdm": state.get("cloud_status"),
                 "weight_lb": state.get("weight_lb"),
                 "battery_type": state.get("battery_type"),
+                "ctia_cosmetic_grade": state.get("ctia_cosmetic_grade"),
+                "ctia_display_failure": state.get("ctia_display_failure"),
+                "ctia_other_failure": state.get("ctia_other_failure"),
+                "battery_health_percent": state.get("battery_health_percent"),
+                "customer_lock_type": state.get("customer_lock_type"),
+                "enterprise_lock_type": state.get("enterprise_lock_type"),
+                "operator_lock_type": state.get("operator_lock_type"),
+                "rf_type": state.get("rf_type"),
             }
         )
 
@@ -4244,37 +6064,111 @@ def _manual_progress(
         state.get("model") is not None,
         state.get("device_type") is not None,
         state.get("power_on") is not None,
+        state.get("ctia_cosmetic_grade") is not None,
+        state.get("customer_lock_type") is not None,
+        state.get("enterprise_lock_type") is not None,
+        state.get("operator_lock_type") is not None,
+        state.get("rf_type") is not None,
     ]
 
     if state.get("power_on") is True:
-        required.append(state.get("lcd_good") is not None)
+        required.append(
+            state.get("lcd_good")
+            is not None
+        )
 
-        if state.get("lcd_good") is True:
+        if (
+            state.get("lcd_good")
+            is True
+        ):
             required.append(
-                state.get("glass_cracked") is not None
+                state.get(
+                    "glass_cracked"
+                )
+                is not None
             )
 
-    if state.get("device_type") == "tablet":
         required.append(
-            state.get("cloud_status") is not None
+            state.get(
+                "ctia_display_failure"
+            )
+            is not None
+        )
+
+        if (
+            state.get(
+                "ctia_display_failure"
+            )
+            != "inoperable"
+        ):
+            required.append(
+                state.get(
+                    "ctia_other_failure"
+                )
+                is not None
+            )
+
+        required.append(
+            state.get(
+                "battery_health_percent"
+            )
+            is not None
+            or state.get(
+                "battery_health_skipped",
+                False,
+            )
+        )
+
+    if (
+        state.get(
+            "device_type"
+        )
+        == "tablet"
+    ):
+        required.append(
+            state.get(
+                "cloud_status"
+            )
+            is not None
         )
 
     if _manual_needs_commodity_fallback(
         state,
         pricing_data,
     ):
-        if state.get("device_type") == "phone":
+        if (
+            state.get(
+                "device_type"
+            )
+            == "phone"
+        ):
             required.append(
-                state.get("battery_type") is not None
+                state.get(
+                    "battery_type"
+                )
+                is not None
             )
 
         required.append(
-            state.get("weight_lb") is not None
-            or state.get("weight_skipped", False)
+            state.get(
+                "weight_lb"
+            )
+            is not None
+            or state.get(
+                "weight_skipped",
+                False,
+            )
         )
 
-    total = max(1, len(required))
-    completed = sum(bool(item) for item in required)
+    total = max(
+        1,
+        len(required),
+    )
+
+    completed = sum(
+        bool(item)
+        for item in required
+    )
 
     return (
         completed,
@@ -4291,47 +6185,202 @@ def _manual_quick_replies(
     if not question:
         return []
 
-    question_lower = question.lower()
+    question_lower = (
+        question.lower()
+    )
 
-    if "phone or a tablet" in question_lower:
+    if (
+        "phone or a tablet"
+        in question_lower
+    ):
         return [
-            ("📱 Phone", "phone"),
-            ("💻 Tablet", "tablet"),
+            (
+                "📱 Phone",
+                "phone",
+            ),
+            (
+                "💻 Tablet",
+                "tablet",
+            ),
         ]
 
-    if "power on" in question_lower:
+    if (
+        "power on"
+        in question_lower
+    ):
         return [
-            ("✅ Yes, powers on", "yes"),
-            ("❌ No power", "no"),
+            (
+                "✅ Yes, powers on",
+                "yes",
+            ),
+            (
+                "❌ No power",
+                "no",
+            ),
         ]
 
-    if "lcd/display" in question_lower:
+    if (
+        "lcd/display"
+        in question_lower
+    ):
         return [
-            ("✅ Display is good", "yes"),
-            ("❌ Display is bad", "no"),
+            (
+                "✅ Display is good",
+                "yes",
+            ),
+            (
+                "❌ Display is bad",
+                "no",
+            ),
         ]
 
-    if "front glass" in question_lower:
+    if (
+        "front glass"
+        in question_lower
+    ):
         return [
-            ("💥 Yes, cracked", "yes"),
-            ("✨ No cracks", "no"),
+            (
+                "💥 Yes, cracked",
+                "yes",
+            ),
+            (
+                "✨ No cracks",
+                "no",
+            ),
         ]
 
-    if "icloud/mdm" in question_lower:
+    if (
+        "ctia cosmetic grade"
+        in question_lower
+    ):
         return [
-            ("🔓 OFF / Unlocked", "off"),
-            ("🔒 ON / Locked", "on"),
+            ("A · Like new", "CTIA grade A"),
+            ("B · Light wear", "CTIA grade B"),
+            ("C · Aggressive wear", "CTIA grade C"),
+            ("D · Cover-lens crack", "CTIA grade D"),
+            ("E · Internal display damage", "CTIA grade E"),
+            ("N · Not graded", "CTIA grade N"),
         ]
 
-    if "battery internal or external" in question_lower:
+    if (
+        "display failure severity"
+        in question_lower
+    ):
         return [
-            ("🔋 Internal", "internal battery"),
-            ("🔌 External", "external battery"),
+            ("None", "none"),
+            ("Minor", "minor"),
+            ("Major", "major"),
+            ("Inoperable", "inoperable"),
         ]
 
-    if "device weight" in question_lower:
+    if (
+        "other functional failures"
+        in question_lower
+    ):
         return [
-            ("Skip weight", "skip"),
+            ("None", "none"),
+            ("Minor", "minor"),
+            ("Major", "major"),
+            ("Unverified", "unverified"),
+        ]
+
+    if (
+        "battery health"
+        in question_lower
+    ):
+        return [
+            ("90%", "90%"),
+            ("80%", "80%"),
+            ("75%", "75%"),
+            ("65%", "65%"),
+            ("Unknown", "unknown"),
+        ]
+
+    if (
+        "customer lock/data-wipe"
+        in question_lower
+    ):
+        return [
+            ("Type 1 · Wiped + unlocked", "Type 1"),
+            ("Type 2 · Wiped + locked", "Type 2"),
+            ("Type 3 · Not wiped + unlocked", "Type 3"),
+            ("Type 4 · Not wiped + locked", "Type 4"),
+            ("Type 5 · Unverified", "Type 5"),
+        ]
+
+    if (
+        "enterprise lock status"
+        in question_lower
+    ):
+        return [
+            ("No", "no"),
+            ("Yes", "yes"),
+            ("Unverified", "unverified"),
+        ]
+
+    if (
+        "operator/carrier lock status"
+        in question_lower
+    ):
+        return [
+            ("Unlocked", "unlocked"),
+            ("Locked", "locked"),
+            ("Unverified", "unverified"),
+        ]
+
+    if (
+        "rf functionality check type"
+        in question_lower
+    ):
+        return [
+            ("1 · Not tested", "1"),
+            ("2 · Pass network", "2"),
+            ("4 · Pass live call", "4"),
+            ("6 · Pass shielded", "6"),
+            ("3 · Fail network", "3"),
+            ("5 · Fail live call", "5"),
+            ("7 · Fail shielded", "7"),
+        ]
+
+    if (
+        "icloud/mdm"
+        in question_lower
+    ):
+        return [
+            (
+                "🔓 OFF / Unlocked",
+                "off",
+            ),
+            (
+                "🔒 ON / Locked",
+                "on",
+            ),
+        ]
+
+    if (
+        "battery internal or external"
+        in question_lower
+    ):
+        return [
+            (
+                "🔋 Internal",
+                "internal battery",
+            ),
+            (
+                "🔌 External",
+                "external battery",
+            ),
+        ]
+
+    if (
+        "device weight"
+        in question_lower
+    ):
+        return [
+            (
+                "Skip weight",
+                "skip",
+            ),
         ]
 
     return []
@@ -4417,12 +6466,14 @@ def render_manual_valuation_assistant(
     component_counts: dict[str, Any],
     specifications: dict[str, Any],
     metals_data: dict[str, Any],
+    ctia_config: dict[str, Any],
 ) -> None:
     # Make these available to the message-processing helper.
     st.session_state.manual_component_counts = (
         component_counts
     )
     st.session_state.manual_metals_data = metals_data
+    st.session_state.manual_ctia_config = ctia_config
 
     # --------------------------------------------------------
     # Initialize conversation state
@@ -4556,14 +6607,36 @@ def render_manual_valuation_assistant(
         )
 
     with toolbar_right:
-        current_condition = (
-            _manual_condition_code(state)
-            or "Pending"
+        cosmetic_grade = _ctia_manual_cosmetic_grade(
+            state
+        )
+
+        functional_class = _ctia_functional_class(
+            state.get("power_on"),
+            state.get("ctia_display_failure"),
+            state.get("ctia_other_failure"),
+        )
+
+        battery_type = _ctia_battery_type(
+            state.get("battery_health_percent")
+        )
+
+        current_primary = _ctia_primary_grade(
+            cosmetic_grade,
+            functional_class,
+            battery_type,
+            state.get("customer_lock_type"),
+            state.get("enterprise_lock_type"),
+            state.get("operator_lock_type"),
+            state.get("rf_type"),
+            ctia_config,
         )
 
         st.metric(
-            "Condition",
-            current_condition,
+            "CTIA grade",
+            current_primary
+            or cosmetic_grade
+            or "Pending",
         )
 
     # --------------------------------------------------------
@@ -4610,6 +6683,16 @@ def render_manual_valuation_assistant(
                 if state["glass_cracked"]
                 else "Good"
             )
+        )
+
+    if state.get("ctia_cosmetic_grade"):
+        collected.append(
+            f"**CTIA cosmetic:** {state['ctia_cosmetic_grade']}"
+        )
+
+    if state.get("battery_health_percent") is not None:
+        collected.append(
+            f"**Battery health:** {state['battery_health_percent']:.0f}%"
         )
 
     if state.get("cloud_status"):
@@ -4752,6 +6835,7 @@ def render_manual_valuation_assistant(
             component_counts,
             specifications,
             metals_data,
+            ctia_config,
         )
 
 # ============================================================
@@ -5001,6 +7085,9 @@ internal_layouts = load_internal_layouts(
 component_value_config = load_component_value_config(
     str(DEFAULT_COMPONENT_VALUE_CONFIG_PATH)
 )
+ctia_valuation_config = load_ctia_valuation_config(
+    str(DEFAULT_CTIA_VALUATION_CONFIG_PATH)
+)
 
 status_columns = st.columns(8)
 
@@ -5187,6 +7274,7 @@ with mode[0]:
                             metals_data=valuable_metals_data,
                             internal_layouts=internal_layouts,
                             component_value_config=component_value_config,
+                            ctia_config=ctia_valuation_config,
                         )
         else:
             st.info(
@@ -5269,6 +7357,7 @@ with mode[1]:
                     metals_data=valuable_metals_data,
                     internal_layouts=internal_layouts,
                     component_value_config=component_value_config,
+                    ctia_config=ctia_valuation_config,
                 )
         else:
             st.info("Allow camera access and take a picture.")
@@ -5319,6 +7408,7 @@ with mode[3]:
         component_counts,
         phone_specifications,
         valuable_metals_data,
+        ctia_valuation_config,
     )
 
 with mode[4]:
